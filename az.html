@@ -36,6 +36,9 @@ h2{font-family:var(--f-display);font-weight:500;font-size:17px;letter-spacing:-.
 .eyebrow{font-family:var(--f-mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
 .lede{color:var(--muted);font-size:17px}
 .lede-s{color:var(--muted);font-size:15px}
+.kv{display:flex;flex-direction:column;gap:6px;margin:4px 0 0}.kv div{display:flex;flex-wrap:wrap;gap:2px 12px}.kv dt{color:var(--muted);min-width:9.5em}.kv dd{margin:0;font-weight:600;overflow-wrap:anywhere}
+.abc table{min-width:0}
+.voc{display:flex;flex-direction:column;gap:8px}.voc-row{display:flex;flex-wrap:wrap;align-items:center;gap:6px 12px}.voc-t{font-weight:600;min-width:12em}.voc-row input{flex:1 1 14em;min-width:0}
 .small{font-size:14px}
 .muted{color:var(--muted)}
 .mono{font-family:var(--f-mono);font-size:13px;font-variant-numeric:tabular-nums}
@@ -554,6 +557,246 @@ const KEYS = {
   bein: [["Beinvenenthrombose", /thrombose/i], ["Langstreckenflug", /flug/i], ["orales Kontrazeptivum", /kontrazept|pille/i], ["Nikotinabusus", /nikotin|rauch/i], ["Thrombose der Mutter", /mutter/i], ["Atemnot verneint", /dyspnoe|atemnot/i]]
 };
 
+/* ---------- FaMed modules (German texts are drafts, to be checked by a native-speaking doctor) ---------- */
+/* Patient education: points the doctor should explain (regex on normalised speech), questions the patient asks, model explanation. */
+const AUFKL = {
+  galle: {
+    de: "Laparoskopische Cholezystektomie",
+    task: "Əməliyyatı pasiyentə sadə sözlərlə izah edin: nə üçün lazımdır, necə keçir, hansı riskləri var və sonra nə olacaq. Onun suallarına cavab verin və razılığını alın.",
+    pts: [
+      ["grund", "Grund: entzündete Gallenblase, Gallensteine", /entzünd|gallenstein|steine/],
+      ["ablauf", "Ablauf: Vollnarkose, kleine Schnitte, Kamera", /narkose|schlafen|schnitt|kamera|bauchspiegel/],
+      ["dauer", "Dauer: etwa eine Stunde", /stunde|minuten/],
+      ["risiko", "Risiken: Blutung, Infektion, Verletzung von Gallengang oder Darm", /risik|blutung|infektion|verletz|komplikation/],
+      ["offen", "Eventuell Wechsel zu einem größeren Bauchschnitt", /offen|bauchschnitt|grösser(en)? schnitt/],
+      ["nach", "Danach: etwa zwei bis drei Tage im Krankenhaus", /tage|nach hause|entlass/],
+      ["nuechtern", "Vorbereitung: ab Mitternacht nüchtern", /nüchtern|nichts (mehr )?(essen|trinken)|mitternacht/],
+      ["einw", "Fragen klären, Einwilligung", /fragen|einverstanden|unterschreib|einwillig/]
+    ],
+    qs: [
+      ["Bleiben da große Narben?", /klein|zentimeter|kaum|narbe/, "Nein, es bleiben nur drei bis vier kleine Narben von etwa einem Zentimeter."],
+      ["Kann ich ohne Gallenblase ganz normal leben und essen?", /normal|problemlos|ohne probleme|leber|darm|gewöhn/, "Ja. Die Galle fließt dann direkt von der Leber in den Darm. Am Anfang sollten Sie sehr fettiges Essen meiden."],
+      ["Wie lange muss ich im Krankenhaus bleiben?", /tag|woche|nacht/, "Meistens zwei bis drei Tage."],
+      ["Und was passiert, wenn ich mich nicht operieren lasse?", /schlimmer|wieder|durchbr|platz|gefährlich|blutvergift|sepsis|komplikation|entzündung/, "Die Entzündung kann wiederkommen oder schlimmer werden. Im schlimmsten Fall bricht die Gallenblase durch, das ist lebensgefährlich."]
+    ],
+    end: "Vielen Dank für die Erklärung. Dann bin ich einverstanden. Wo muss ich unterschreiben?",
+    muster: "Frau Keller, Ihre Gallenblase ist entzündet, wahrscheinlich wegen Gallensteinen. Deshalb empfehlen wir, die Gallenblase zu entfernen. Die Operation findet in Vollnarkose statt, Sie schlafen also und spüren nichts. Wir machen drei bis vier kleine Schnitte am Bauch und operieren mit einer Kamera und feinen Instrumenten. Die Operation dauert etwa eine Stunde. Wie bei jeder Operation gibt es Risiken: Blutungen, eine Wundinfektion und selten eine Verletzung des Gallengangs oder des Darms. Manchmal müssen wir während der Operation zu einem größeren Bauchschnitt wechseln. Nach der Operation bleiben Sie meistens zwei bis drei Tage im Krankenhaus. Ab Mitternacht vor der Operation dürfen Sie nichts mehr essen und trinken. Haben Sie dazu Fragen? Wenn alles klar ist, bitte ich Sie, die Einwilligung zu unterschreiben."
+  },
+  lunge: {
+    de: "CT des Brustkorbs mit Kontrastmittel",
+    task: "Pasiyentə kontrastlı KT-nin nə üçün lazım olduğunu, necə keçdiyini, risklərini və necə hazırlaşmağı izah edin. Onun suallarına cavab verin və razılığını alın.",
+    pts: [
+      ["grund", "Grund: Lunge genauer ansehen, andere Ursache ausschließen", /genauer|ausschliess|ursache|abklär|sicher/],
+      ["ablauf", "Ablauf: auf einer Liege durch einen offenen Ring", /liege|ring|röhre|liegen|fahren/],
+      ["dauer", "Dauer: wenige Minuten", /minute|kurz/],
+      ["km", "Kontrastmittel über die Vene, kurzes Wärmegefühl", /kontrastmittel|vene|zugang|warm|wärme/],
+      ["risiko", "Risiken: Allergie, Belastung der Nieren, geringe Strahlung", /allergi|niere|strahl|risik/],
+      ["vorb", "Vorbereitung: Blutwerte, nüchtern, Metformin eventuell pausieren", /nüchtern|blutwert|blut abnehmen|schilddrüse|metformin|pausier/],
+      ["einw", "Fragen klären, Einwilligung", /fragen|einverstanden|unterschreib|einwillig/]
+    ],
+    qs: [
+      ["Ist die Strahlung nicht gefährlich?", /gering|niedrig|wenig|klein|nutzen|vertretbar|risiko/, "Die Strahlung ist gering. Der Nutzen der Untersuchung ist in Ihrem Fall größer als das Risiko."],
+      ["Ich nehme Metformin wegen meines Zuckers. Ist das ein Problem?", /niere|pausier|absetzen|nicht nehmen|zwei tage|48|blutwert/, "Wir prüfen vorher Ihre Nierenwerte. Eventuell müssen Sie Metformin für zwei Tage pausieren."],
+      ["Warum brauche ich ein CT? Ich habe doch nur eine Lungenentzündung.", /rauch|ausschliess|ursache|genauer|sicher|tumor|abszess|andere/, "Sie rauchen seit vielen Jahren. Wir möchten sicher sein, dass hinter der Entzündung keine andere Ursache steckt."],
+      ["Muss ich da in eine enge Röhre?", /ring|offen|nicht eng|kurz|minute|keine röhre/, "Nein, das CT ist ein offener Ring. Die Untersuchung dauert nur wenige Minuten."]
+    ],
+    end: "Gut, das habe ich verstanden. Dann machen wir das so. Wo soll ich unterschreiben?",
+    muster: "Herr Wagner, auf dem Röntgenbild sehen wir eine Lungenentzündung. Weil Sie seit vielen Jahren rauchen, möchten wir Ihre Lunge genauer ansehen und eine andere Ursache ausschließen. Dafür machen wir eine Computertomographie, kurz CT. Sie liegen auf einer Liege und fahren langsam durch einen offenen Ring. Die Untersuchung dauert nur wenige Minuten. Über eine Vene am Arm bekommen Sie ein Kontrastmittel. Dabei kann Ihnen kurz warm werden, das ist normal. Selten kann das Kontrastmittel eine Allergie auslösen oder die Nieren belasten. Die Strahlung ist gering. Vorher prüfen wir Ihre Nieren- und Schilddrüsenwerte im Blut. Wegen des Kontrastmittels müssen Sie Ihr Metformin eventuell für zwei Tage pausieren. Vier Stunden vor der Untersuchung sollten Sie nichts essen. Haben Sie noch Fragen? Dann bitte ich Sie, die Einwilligung zu unterschreiben."
+  },
+  bein: {
+    de: "Therapie mit einem Blutverdünner",
+    task: "Pasiyentə diaqnozu və qanı durulaşdıran tabletlərlə müalicəni izah edin: nə üçün, necə və nə qədər qəbul etməli, hansı risklər var və nə vaxt təcili müraciət etməli. Onun suallarına cavab verin.",
+    pts: [
+      ["diag", "Diagnose: Blutgerinnsel in einer tiefen Beinvene", /gerinnsel|thrombose|verstopf/],
+      ["ziel", "Ziel: Gerinnsel soll nicht wachsen und nicht in die Lunge wandern", /wachsen|grösser|lunge|wander|lösen|verhinder/],
+      ["med", "Medikament: Blutverdünner als Tablette (Rivaroxaban)", /tablette|rivaroxaban|xarelto|blutverdünn/],
+      ["einnahme", "Einnahme: 15 mg zweimal täglich zum Essen, nach drei Wochen 20 mg einmal täglich", /zweimal|2 ?mal|morgens und abends|essen|mahlzeit|milligramm|mg/],
+      ["dauer", "Dauer: mindestens drei Monate", /monat/],
+      ["risiko", "Nebenwirkung: Blutungen", /blutung|bluten|zahnfleisch|blaue flecken|hämatom/],
+      ["pille", "Pille absetzen, Verhütung mit der Frauenärztin besprechen", /pille|verhütung|frauenärzt|frauenarzt/],
+      ["warn", "Warnzeichen: Atemnot, Brustschmerz, dann sofort 112", /atemnot|luftnot|brust|112|notruf|notarzt|sofort/]
+    ],
+    qs: [
+      ["Wie lange muss ich die Tabletten nehmen?", /monat|woche|lange/, "Mindestens drei Monate. Danach entscheiden wir neu."],
+      ["Darf ich weiter Ibuprofen nehmen, wenn ich Kopfschmerzen habe?", /nein|nicht|paracetamol|blutung|rücksprache|lieber/, "Bitte nicht ohne Rücksprache, Ibuprofen erhöht das Blutungsrisiko. Besser ist Paracetamol."],
+      ["Und was ist mit meiner Pille?", /absetzen|nicht mehr|frauenärzt|frauenarzt|verhütung|spirale|kondom|risiko/, "Die Pille sollten Sie nicht mehr nehmen, weil sie das Thromboserisiko erhöht. Besprechen Sie eine andere Verhütung mit Ihrer Frauenärztin."],
+      ["Wann muss ich sofort wiederkommen?", /atemnot|luftnot|brust|blut|112|notarzt|notruf|sofort/, "Bei plötzlicher Atemnot, Brustschmerzen oder starken Blutungen rufen Sie sofort die 112."]
+    ],
+    end: "Vielen Dank, jetzt ist mir alles klar.",
+    muster: "Frau Schmid, im Ultraschall haben wir ein Blutgerinnsel in einer tiefen Vene Ihres linken Beins gefunden, also eine Thrombose. Damit das Gerinnsel nicht größer wird und nicht in die Lunge wandert, bekommen Sie einen Blutverdünner als Tablette. Das Medikament heißt Rivaroxaban. In den ersten drei Wochen nehmen Sie zweimal täglich fünfzehn Milligramm zum Essen, danach einmal täglich zwanzig Milligramm. Die Behandlung dauert mindestens drei Monate. Die wichtigste Nebenwirkung sind Blutungen, zum Beispiel Zahnfleischbluten, Nasenbluten oder blaue Flecken. Die Pille sollten Sie nicht mehr nehmen, weil sie das Thromboserisiko erhöht. Bitte sprechen Sie mit Ihrer Frauenärztin über eine andere Verhütung. Wenn Sie plötzlich Atemnot oder Schmerzen in der Brust bekommen, rufen Sie sofort den Notruf 112. Haben Sie noch Fragen?"
+  }
+};
+const AUFKL_ACK = ["Mhm, verstehe.", "Ja, okay.", "Ah, gut zu wissen."];
+const AUFKL_OK = ["Okay, das beruhigt mich.", "Gut, danke. Das verstehe ich."];
+const AUFKL_UNCLEAR = "Hm, das habe ich noch nicht ganz verstanden. Können Sie das bitte genauer erklären?";
+const AUFKL_MEH = "Na gut. Danke.";
+const AUFKL_NOMORE = "Nein, ich glaube, ich habe keine Fragen mehr.";
+/* Terms a lay patient would not understand during an explanation (patient asks back). */
+const AUFKL_FACH_RAW = [["Cholezystektomie", "Entfernung der Gallenblase"], ["laparoskopisch", "mit kleinen Schnitten und einer Kamera"], ["Laparoskopie", "Bauchspiegelung"], ["Allgemeinanästhesie", "Vollnarkose"], ["Perforation", "Durchbruch"], ["Konversion", "Wechsel zur offenen Operation"], ["Peritonitis", "Bauchfellentzündung"], ["postoperativ", "nach der Operation"], ["Nephropathie", "Nierenschaden"], ["Kreatinin", "Nierenwert"], ["Strahlenexposition", "Strahlenbelastung"], ["Infiltrat", "entzündete Stelle in der Lunge"], ["Malignom", "bösartiger Tumor"], ["Antikoagulation", "Blutverdünnung"], ["Thrombus", "Blutgerinnsel"], ["Embolie", "verschlepptes Blutgerinnsel"], ["Hämatom", "blauer Fleck"], ["Kontrazeption", "Verhütung"], ["Hämorrhagie", "Blutung"]];
+
+/* Phone call from the GP practice: data the doctor dictates (surname and drug spelled). Regexes run on normalised speech. */
+const TEL = {
+  galle: { sur: "KELLER", dob: "14.03.1974", drug: "NOVAMINSULFON", dose: "500 mg, bis zu viermal täglich bei Bedarf",
+    d: /(^|\D)14(\D|$)|vierzehnte/, m: /(^|\D)0?3(\D|$)|märz|dritte/, y: /1974|vierundsiebzig/, mg: /(^|\D)500(\D|$)|fünfhundert/, fr: /vier ?mal|4 ?mal|4 ?x/ },
+  lunge: { sur: "WAGNER", dob: "02.11.1958", drug: "AMOXICILLIN", dose: "1000 mg, dreimal täglich",
+    d: /(^|\D)0?2(\D|$)|zweite/, m: /(^|\D)11(\D|$)|november|elfte/, y: /1958|achtundfünfzig/, mg: /1000|1 000|tausend|(^|\D)1 ?g(ramm)?(\D|$)|ein gramm/, fr: /drei ?mal|3 ?mal|3 ?x/ },
+  bein: { sur: "SCHMID", dob: "21.07.1992", drug: "RIVAROXABAN", dose: "15 mg, zweimal täglich",
+    d: /(^|\D)21(\D|$)|einundzwanzigste/, m: /(^|\D)0?7(\D|$)|juli|siebte/, y: /1992|zweiundneunzig/, mg: /(^|\D)15(\D|$)|fünfzehn/, fr: /zwei ?mal|2 ?mal|2 ?x/ }
+};
+const TEL_TXT = {
+  intro: { w: "Guten Tag, hier ist Petra Lang aus der Hausarztpraxis Doktor Berger. Eine Patientin von uns wird heute bei Ihnen entlassen, und wir brauchen die neuen Medikamente für den Medikationsplan. Mit wem spreche ich bitte?",
+           m: "Guten Tag, hier ist Petra Lang aus der Hausarztpraxis Doktor Berger. Ein Patient von uns wird heute bei Ihnen entlassen, und wir brauchen die neuen Medikamente für den Medikationsplan. Mit wem spreche ich bitte?" },
+  sur: { w: "Damit ich die richtige Akte öffne: Wie ist der Nachname der Patientin? Bitte buchstabieren Sie ihn mir.",
+         m: "Damit ich die richtige Akte öffne: Wie ist der Nachname des Patienten? Bitte buchstabieren Sie ihn mir." },
+  ok: "Danke, habe ich.",
+  dob: "Und wie ist das Geburtsdatum?",
+  drug: "Welches Medikament ist neu dazugekommen? Bitte buchstabieren Sie es mir.",
+  dose: "Und wie ist die Dosierung?",
+  end: "Vielen Dank, ich habe alles notiert. Auf Wiederhören!",
+  spell: "Können Sie mir das bitte buchstabieren?",
+  retry: "Entschuldigung, das habe ich nicht richtig verstanden. Können Sie es bitte noch einmal langsam buchstabieren?",
+  dobRetry: "Entschuldigung, wie war das Geburtsdatum noch einmal? Tag, Monat und Jahr, bitte.",
+  doseRetry: "Entschuldigung, wie viele Milligramm und wie oft am Tag?",
+  next: "Gut, ich notiere das erst einmal so."
+};
+/* German spelling alphabet: letter, traditional codeword, DIN 5009 (2022) city word. */
+const ABC = [["A", "Anton", "Aachen"], ["Ä", "Ärger", "Umlaut Aachen"], ["B", "Berta", "Berlin"], ["C", "Cäsar", "Chemnitz"], ["Ch", "Charlotte", "—"], ["D", "Dora", "Düsseldorf"], ["E", "Emil", "Essen"], ["F", "Friedrich", "Frankfurt"], ["G", "Gustav", "Goslar"], ["H", "Heinrich", "Hamburg"], ["I", "Ida", "Ingelheim"], ["J", "Julius", "Jena"], ["K", "Kaufmann", "Köln"], ["L", "Ludwig", "Leipzig"], ["M", "Martha", "München"], ["N", "Nordpol", "Nürnberg"], ["O", "Otto", "Offenbach"], ["Ö", "Ökonom", "Umlaut Offenbach"], ["P", "Paula", "Potsdam"], ["Q", "Quelle", "Quickborn"], ["R", "Richard", "Rostock"], ["S", "Samuel", "Salzwedel"], ["Sch", "Schule", "—"], ["ß", "Eszett", "Eszett"], ["T", "Theodor", "Tübingen"], ["U", "Ulrich", "Unna"], ["Ü", "Übermut", "Umlaut Unna"], ["V", "Viktor", "Völklingen"], ["W", "Wilhelm", "Wuppertal"], ["X", "Xanthippe", "Xanten"], ["Y", "Ypsilon", "Ypsilon"], ["Z", "Zacharias", "Zwickau"]];
+
+/* Listening comprehension: doctor-patient dialogue (two recorded voices), key facts the written Anamnese should contain, model text. */
+const HOER = [
+  { id: "1", title: "Kopfschmerzen", pname: "Frau Elena Becker, 41", sex: "w", pv: "p_bein",
+    lines: [
+      ["d", "Guten Tag, Frau Becker. Mein Name ist Kaya, ich bin Assistenzarzt hier in der Notaufnahme. Was führt Sie zu uns?"],
+      ["p", "Guten Tag. Ich habe seit heute Morgen ganz starke Kopfschmerzen, vor allem auf der linken Seite."],
+      ["d", "Seit wann genau haben Sie die Schmerzen?"],
+      ["p", "Seit ungefähr sieben Uhr. Sie sind langsam immer stärker geworden."],
+      ["d", "Wie würden Sie den Schmerz beschreiben? Und wie stark ist er auf einer Skala von null bis zehn?"],
+      ["p", "Er pocht, wie ein Hämmern im Kopf. Ich würde sagen, sieben von zehn."],
+      ["d", "Haben Sie noch andere Beschwerden?"],
+      ["p", "Mir ist übel, und Licht und Lärm sind mir gerade sehr unangenehm. Bevor die Kopfschmerzen anfingen, habe ich etwa zwanzig Minuten lang Zickzacklinien gesehen."],
+      ["d", "Hatten Sie solche Kopfschmerzen schon einmal?"],
+      ["p", "Ja, ungefähr zweimal im Monat, aber nie so stark. Meine Mutter hat auch Migräne."],
+      ["d", "Haben Sie heute schon etwas gegen die Schmerzen eingenommen?"],
+      ["p", "Um acht Uhr habe ich vierhundert Milligramm Ibuprofen genommen, aber das hat kaum geholfen."],
+      ["d", "Nehmen Sie sonst regelmäßig Medikamente? Haben Sie Allergien?"],
+      ["p", "Ich nehme nur die Pille. Allergien habe ich keine."],
+      ["d", "Rauchen Sie, oder trinken Sie Alkohol?"],
+      ["p", "Ich rauche nicht. Alkohol trinke ich selten, mal ein Glas Wein am Wochenende."],
+      ["d", "Und was machen Sie beruflich?"],
+      ["p", "Ich bin Buchhalterin und sitze viel am Bildschirm. Ich bin verheiratet und habe zwei Kinder."],
+      ["d", "Vielen Dank, Frau Becker. Ich untersuche Sie jetzt."]
+    ],
+    facts: [
+      ["Kopfschmerzen links", [/kopf|zephalgie|cephalgie/, /link/]],
+      ["Beginn heute Morgen gegen 7 Uhr", /7[:.]?(00)? ?uhr|sieben uhr|heute (früh|morgen)|morgens/],
+      ["pochender Schmerz", /poch|pulsier|hämmer|klopf/],
+      ["Intensität 7/10", /7 ?\/ ?10|7 von 10|sieben von zehn|nrs ?7|vas ?7/],
+      ["Übelkeit", /übelkeit|nausea|übel/],
+      ["Licht- und Lärmempfindlichkeit", /licht|photophob|lärm|phonophob|geräusch/],
+      ["Aura: Zickzacklinien vor den Kopfschmerzen", /zickzack|aura|flimmer|sehstörung/],
+      ["ähnliche Episoden etwa zweimal im Monat", /monat/],
+      ["Ibuprofen 400 mg ohne Wirkung", [/ibuprofen/, /400|vierhundert/]],
+      ["Pille (orales Kontrazeptivum)", /pille|kontrazept/],
+      ["keine Allergien", /allergi/],
+      ["Nichtraucherin, Alkohol selten", /nichtraucher|raucht nicht|nikotin|alkohol/],
+      ["Migräne der Mutter", [/mutter/, /migräne/]],
+      ["Buchhalterin, verheiratet, zwei Kinder", /buchhalter|verheiratet|kinder/]
+    ],
+    muster: "Frau Elena Becker, 41 Jahre alt, stellte sich heute in unserer Notaufnahme mit seit heute Morgen gegen 7 Uhr bestehenden linksseitigen Kopfschmerzen vor. Die Schmerzen hätten allmählich zugenommen und seien pochend. Die Intensität gab die Patientin mit 7/10 an. Begleitend bestünden Übelkeit sowie Licht- und Lärmempfindlichkeit. Vor Beginn der Kopfschmerzen habe die Patientin ca. 20 Minuten lang Zickzacklinien gesehen. Ähnliche, jedoch schwächere Kopfschmerzen träten ca. zweimal im Monat auf. Die Einnahme von 400 mg Ibuprofen um 8 Uhr habe kaum Besserung gebracht.\n\nMedikation: orales Kontrazeptivum.\nAllergien: keine bekannt.\nNoxen: Nikotinkonsum wird verneint, gelegentlicher Alkoholkonsum.\nFamilienanamnese: Migräne der Mutter.\nSozialanamnese: Buchhalterin (Bildschirmarbeit), verheiratet, zwei Kinder.\n\nVerdachtsdiagnose: Migräneattacke mit Aura.\nDifferenzialdiagnosen: Spannungskopfschmerz, Subarachnoidalblutung."
+  },
+  { id: "2", title: "Brustschmerzen", pname: "Herr Martin Hoffmann, 58", sex: "m", pv: "p_lunge",
+    lines: [
+      ["d", "Guten Tag, Herr Hoffmann. Mein Name ist Kaya, ich bin Assistenzarzt. Was kann ich für Sie tun?"],
+      ["p", "Guten Tag. Ich habe seit etwa drei Wochen Schmerzen in der Brust, immer wenn ich Treppen steige."],
+      ["d", "Können Sie mir zeigen, wo genau es wehtut? Strahlt der Schmerz irgendwohin aus?"],
+      ["p", "Hier, hinter dem Brustbein. Manchmal zieht es in den linken Arm."],
+      ["d", "Wie fühlt sich der Schmerz an, und wie lange dauert er?"],
+      ["p", "Es drückt, als ob jemand auf meiner Brust sitzt. Wenn ich stehen bleibe, ist es nach etwa fünf Minuten wieder weg."],
+      ["d", "Und was ist heute passiert?"],
+      ["p", "Heute Morgen kam der Schmerz schon beim Gehen zum Bus und hat fast fünfzehn Minuten gedauert. Dabei habe ich stark geschwitzt."],
+      ["d", "Haben Sie Atemnot oder Herzrasen?"],
+      ["p", "Bei Anstrengung bekomme ich etwas schlechter Luft. Herzrasen habe ich nicht."],
+      ["d", "Welche Vorerkrankungen haben Sie?"],
+      ["p", "Ich habe Bluthochdruck und zu hohes Cholesterin."],
+      ["d", "Welche Medikamente nehmen Sie ein?"],
+      ["p", "Ramipril fünf Milligramm morgens und Simvastatin zwanzig Milligramm abends."],
+      ["d", "Haben Sie Allergien?"],
+      ["p", "Ja, gegen Pflaster. Davon wird meine Haut rot und juckt."],
+      ["d", "Rauchen Sie?"],
+      ["p", "Ja, seit vierzig Jahren ungefähr eine Schachtel am Tag."],
+      ["d", "Gibt es Herzerkrankungen in Ihrer Familie?"],
+      ["p", "Mein Vater hatte mit sechzig Jahren einen Herzinfarkt."],
+      ["d", "Was machen Sie beruflich, und wie leben Sie?"],
+      ["p", "Ich bin Lkw-Fahrer. Ich bin geschieden und lebe allein."],
+      ["d", "Vielen Dank, Herr Hoffmann. Wir schreiben jetzt sofort ein EKG."]
+    ],
+    facts: [
+      ["retrosternale Schmerzen", /retrosternal|brustbein|brustschmerz|thorax|thorakal|brust/],
+      ["seit drei Wochen", /drei wochen|3 wochen/],
+      ["belastungsabhängig (Treppensteigen)", /belastung|treppe/],
+      ["Ausstrahlung in den linken Arm", [/arm/, /link/]],
+      ["Druckgefühl", /druck|drückend/],
+      ["Besserung nach etwa 5 Minuten Ruhe", /fünf minuten|5 minuten|5 min|ruhe|pause/],
+      ["heute ca. 15 Minuten, schon beim Gehen", /15|fünfzehn/],
+      ["starkes Schwitzen", /schwitz|schweiss|diaphor/],
+      ["leichte Belastungsdyspnoe", /dyspnoe|atemnot|luftnot|luft/],
+      ["arterielle Hypertonie", /hypertonie|bluthochdruck/],
+      ["Hypercholesterinämie", /cholesterin|hyperlipid|dyslipid/],
+      ["Ramipril 5 mg", /ramipril/],
+      ["Simvastatin 20 mg", /simvastatin/],
+      ["Pflasterallergie", /pflaster/],
+      ["Nikotinabusus, ca. 40 Pack Years", [/nikotin|rauch|zigarett/, /40|vierzig|pack/]],
+      ["Herzinfarkt des Vaters", [/vater/, /infarkt/]],
+      ["Lkw-Fahrer, geschieden, lebt allein", /lkw|lastwagen|fahrer|allein|geschieden/]
+    ],
+    muster: "Herr Martin Hoffmann, 58 Jahre alt, stellte sich heute mit seit ca. drei Wochen bestehenden belastungsabhängigen retrosternalen Schmerzen vor. Die Schmerzen träten beim Treppensteigen auf, seien drückend und strahlten gelegentlich in den linken Arm aus. In Ruhe sistierten sie nach ca. fünf Minuten. Heute Morgen seien die Schmerzen bereits bei geringer Belastung aufgetreten und hätten ca. 15 Minuten angehalten, begleitet von starkem Schwitzen. Zusätzlich bestehe eine leichte Belastungsdyspnoe. Herzrasen wurde verneint.\n\nVorerkrankungen: arterielle Hypertonie, Hypercholesterinämie.\nMedikation: Ramipril 5 mg 1-0-0, Simvastatin 20 mg 0-0-1.\nAllergien: Pflasterallergie (Rötung, Juckreiz).\nNoxen: Nikotinabusus, ca. 40 Pack Years.\nFamilienanamnese: Myokardinfarkt des Vaters mit 60 Jahren.\nSozialanamnese: Lkw-Fahrer, geschieden, lebt allein.\n\nVerdachtsdiagnose: akutes Koronarsyndrom (instabile Angina pectoris).\nDifferenzialdiagnosen: Lungenembolie, Aortendissektion."
+  },
+  { id: "3", title: "Fieber und Flankenschmerzen", pname: "Frau Gisela Braun, 73", sex: "w", pv: "p_galle",
+    lines: [
+      ["d", "Guten Tag, Frau Braun. Mein Name ist Kaya, ich bin Assistenzarzt. Was führt Sie zu uns?"],
+      ["p", "Guten Tag, Herr Doktor. Ich habe seit zwei Tagen Fieber und Schmerzen hier rechts im Rücken."],
+      ["d", "Wie hoch war das Fieber?"],
+      ["p", "Heute Morgen hatte ich neununddreißig Komma eins. Und in der Nacht hatte ich Schüttelfrost."],
+      ["d", "Haben Sie Beschwerden beim Wasserlassen?"],
+      ["p", "Ja, seit ungefähr fünf Tagen brennt es beim Wasserlassen. Ich muss ständig auf die Toilette, aber es kommt immer nur wenig."],
+      ["d", "Ist Ihnen Blut im Urin aufgefallen?"],
+      ["p", "Nein, Blut nicht. Aber der Urin riecht sehr stark."],
+      ["d", "Haben Sie noch andere Beschwerden?"],
+      ["p", "Mir ist etwas übel, und ich habe kaum Appetit. Erbrochen habe ich nicht."],
+      ["d", "Hatten Sie so etwas schon einmal?"],
+      ["p", "Blasenentzündungen hatte ich schon öfter, zuletzt vor einem halben Jahr."],
+      ["d", "Welche Vorerkrankungen haben Sie?"],
+      ["p", "Ich habe seit fünfzehn Jahren Zucker, also Diabetes. Und mein Herz ist schwach."],
+      ["d", "Welche Medikamente nehmen Sie ein?"],
+      ["p", "Metformin, tausend Milligramm morgens und abends. Und eine Wassertablette, Torasemid zehn Milligramm am Morgen."],
+      ["d", "Haben Sie Allergien?"],
+      ["p", "Ja, Cotrimoxazol vertrage ich nicht. Davon bekomme ich einen Ausschlag."],
+      ["d", "Wie wohnen Sie?"],
+      ["p", "Ich bin Witwe und wohne allein. Aber meine Tochter kommt jeden Tag vorbei."],
+      ["d", "Vielen Dank, Frau Braun. Wir nehmen Ihnen jetzt Blut ab und untersuchen Ihren Urin."]
+    ],
+    facts: [
+      ["Fieber bis 39,1 °C", /39[,.]1|neununddreissig komma eins/],
+      ["seit zwei Tagen", /zwei tage|2 tage/],
+      ["Schmerzen in der rechten Flanke", [/flanke|rücken|nierenlager/, /recht/]],
+      ["Schüttelfrost", /schüttelfrost/],
+      ["Brennen beim Wasserlassen (Dysurie)", /dysurie|brenn/],
+      ["häufiger Harndrang (Pollakisurie)", /pollakisurie|häufig|ständig|harndrang/],
+      ["Miktionsbeschwerden seit fünf Tagen", /fünf tage|5 tage/],
+      ["keine Hämaturie, Urin riecht stark", /hämaturie|blut im urin|riecht|geruch/],
+      ["Übelkeit, Appetitlosigkeit, kein Erbrechen", /übelkeit|nausea|appetit|inappetenz/],
+      ["rezidivierende Blasenentzündungen", /zystitis|zystitiden|blasenentzündung|harnwegsinfekt/],
+      ["Diabetes mellitus seit 15 Jahren", /diabetes/],
+      ["Herzinsuffizienz", /herzinsuffizienz|herzschwäche/],
+      ["Metformin 1000 mg 1-0-1", /metformin/],
+      ["Torasemid 10 mg morgens", /torasemid/],
+      ["Allergie gegen Cotrimoxazol (Ausschlag)", /cotrimoxazol/],
+      ["verwitwet, lebt allein, Tochter hilft", /witwe|verwitwet|allein|tochter/]
+    ],
+    muster: "Frau Gisela Braun, 73 Jahre alt, stellte sich heute mit seit zwei Tagen bestehendem Fieber bis 39,1 °C und Schmerzen in der rechten Flanke vor. In der Nacht sei Schüttelfrost aufgetreten. Seit ca. fünf Tagen bestünden Dysurie und Pollakisurie, der Urin rieche stark. Eine Hämaturie wurde verneint. Zusätzlich klage die Patientin über Übelkeit und Inappetenz. Erbrechen wurde verneint. Rezidivierende Zystitiden seien bekannt, zuletzt vor einem halben Jahr.\n\nVorerkrankungen: Diabetes mellitus seit 15 Jahren, Herzinsuffizienz.\nMedikation: Metformin 1000 mg 1-0-1, Torasemid 10 mg 1-0-0.\nAllergien: Cotrimoxazol (Exanthem).\nSozialanamnese: verwitwet, lebt allein, tägliche Unterstützung durch die Tochter.\n\nVerdachtsdiagnose: akute Pyelonephritis rechts.\nDifferenzialdiagnosen: Urolithiasis, Cholezystitis."
+  }
+];
+
 (function(){
 'use strict';
 const MODEL_CHAT="claude-haiku-4-5-20251001";
@@ -569,15 +812,15 @@ const words=s=>str(s).trim().split(/\s+/).filter(Boolean).length;
 const byId=id=>CASES.find(c=>c.id===id);
 let R={v:"home"};
 let EX=null;
-function curId(){return R.v==="case"?R.id:(R.v==="exam"&&EX&&EX.stage<=3?EX.caseId:null)}
+function curId(){return R.v==="case"?R.id:(R.v==="famed"&&R.id?(R.mod==="hoer"?"h_"+R.id:R.id):(R.v==="exam"&&fxStep()&&fxStep().cid?fxStep().cid:(R.v==="exam"&&EX&&EX.stage<=3?EX.caseId:null)))}
 function viewIs(id){return !!id&&curId()===id}
 
 /* ---------- storage ---------- */
 const LS="famed-trainer.v1",KEY_LS="famed-voice.key",SET_LS="famed-voice.settings";
-const S={known:[],drafts:{},done:{},hist:[]};
-try{const raw=localStorage.getItem(LS);if(raw){const p=JSON.parse(raw);if(p&&typeof p==="object"){S.known=arr(p.known);if(p.drafts&&typeof p.drafts==="object")S.drafts=p.drafts;if(p.done&&typeof p.done==="object")S.done=p.done;if(Array.isArray(p.hist))S.hist=p.hist;}}}catch(e){}
+const S={known:[],drafts:{},done:{},hist:[],fm:{}};
+try{const raw=localStorage.getItem(LS);if(raw){const p=JSON.parse(raw);if(p&&typeof p==="object"){S.known=arr(p.known);if(p.drafts&&typeof p.drafts==="object")S.drafts=p.drafts;if(p.done&&typeof p.done==="object")S.done=p.done;if(Array.isArray(p.hist))S.hist=p.hist;if(p.fm&&typeof p.fm==="object"&&!Array.isArray(p.fm))S.fm=p.fm;}}}catch(e){}
 let KEY="";try{KEY=localStorage.getItem(KEY_LS)||""}catch(e){}
-const SET={tts:true,autosend:true,rate:0.95,voice:"",examMin:20};
+const SET={tts:true,autosend:true,live:true,rate:0.95,voice:"",examMin:20,fmt:"famed",vocab:false};
 try{const p=JSON.parse(localStorage.getItem(SET_LS)||"{}");if(p&&typeof p==="object")Object.assign(SET,p)}catch(e){}
 if(SET.mode!=="free"&&SET.mode!=="ai")SET.mode=KEY?"ai":"free";
 function freeMode(){return SET.mode==="free"||!KEY}
@@ -634,7 +877,9 @@ let ttsUnlocked=false;
 function unlockTTS(){unlockAudio();if(!TTS||ttsUnlocked)return;try{const u=new SpeechSynthesisUtterance(" ");u.volume=0;speechSynthesis.speak(u)}catch(e){}ttsUnlocked=true}
 function deVoices(){if(!TTS)return [];try{return speechSynthesis.getVoices().filter(v=>/^de([-_]|$)/i.test(v.lang))}catch(e){return []}}
 function pickVoice(){const vs=deVoices();return vs.find(v=>v.voiceURI===SET.voice)||vs.find(v=>/^de[-_]DE/i.test(v.lang))||vs[0]||null}
-function speak(text,force){if(!TTS||(!SET.tts&&!force)||!text)return;try{speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(text);u.lang="de-DE";const v=pickVoice();if(v)u.voice=v;u.rate=+SET.rate||0.95;speechSynthesis.speak(u)}catch(e){}}
+function speak(text,force,role){return new Promise(res=>{if(!TTS||(!SET.tts&&!force)||!text)return res();let done=false,tm=0;const fin=()=>{if(!done){done=true;clearTimeout(tm);res()}};
+  tm=setTimeout(fin,Math.min(30000,2500+text.length*90));
+  try{speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(text);u.lang="de-DE";const v=pickVoice();if(v)u.voice=v;u.rate=+SET.rate||0.95;if(role==="ober")u.pitch=0.85;else if(role==="nurse")u.pitch=1.15;u.onend=fin;u.onerror=fin;speechSynthesis.speak(u)}catch(e){fin()}})}
 /* ---------- recorded voice (ElevenLabs packs), falls back to the device voice ---------- */
 const AUD=typeof Audio==="function"?new Audio():null;
 const VO={idx:null,packs:{},tok:0};
@@ -646,17 +891,18 @@ function unlockAudio(){if(!AUD||audUnlocked)return;audUnlocked=true;try{AUD.src=
 function vClip(role,t){return VO.idx&&VO.idx.clips[role+"|"+str(t).trim()]||null}
 function vPack(p){if(!VO.packs[p])VO.packs[p]=fetch(VO.idx.packs[p]).then(r=>{if(!r.ok)throw new Error("pack");return r.arrayBuffer()}).catch(e=>{delete VO.packs[p];throw e});return VO.packs[p]}
 function voicePrefetch(role){if(VO.idx&&VO.idx.packs[role])vPack(role).catch(()=>{})}
-function stopVoice(){VO.tok++;if(AUD)try{AUD.pause()}catch(e){}if(TTS)try{speechSynthesis.cancel()}catch(e){}}
-async function speakSegs(segs,role,force){segs=arr(segs).map(str).filter(s=>s.trim());if(!segs.length||(!SET.tts&&!force))return;
+function stopVoice(){VO.tok++;if(VO.cut){const f=VO.cut;VO.cut=null;f()}if(AUD)try{AUD.pause()}catch(e){}if(TTS)try{speechSynthesis.cancel()}catch(e){}}
+async function speakSegs(segs,role,force){segs=arr(segs).map(str).filter(s=>s.trim());if(!segs.length||(!SET.tts&&!force))return true;
   stopVoice();const tok=VO.tok;const clips=segs.map(s=>vClip(role,s));
-  if(!AUD||clips.some(c=>!c)){speak(segs.join(" "),force);return}
-  try{for(const [p,st,len] of clips){const buf=await vPack(p);if(tok!==VO.tok)return;
+  if(!AUD||clips.some(c=>!c)){await speak(segs.join(" "),force,role);return tok===VO.tok}
+  try{for(const [p,st,len] of clips){const buf=await vPack(p);if(tok!==VO.tok)return false;
       const url=URL.createObjectURL(new Blob([buf.slice(st,st+len)],{type:"audio/mpeg"}));
       AUD.src=url;
-      await new Promise((res,rej)=>{AUD.onended=res;AUD.onerror=rej;const pr=AUD.play();if(pr&&pr.catch)pr.catch(rej)});
-      URL.revokeObjectURL(url);if(tok!==VO.tok)return}}
-  catch(e){if(tok===VO.tok)speak(segs.join(" "),force)}}
-(async()=>{try{const r=await fetch("voice-index.json",{cache:"no-cache"});if(r.ok){const j=await r.json();if(j&&j.clips&&j.packs){VO.idx=j;if(R.v==="settings")render()}}}catch(e){}})();
+      await new Promise((res,rej)=>{VO.cut=res;AUD.onended=res;AUD.onerror=rej;const pr=AUD.play();if(pr&&pr.catch)pr.catch(rej)});
+      VO.cut=null;URL.revokeObjectURL(url);if(tok!==VO.tok)return false}
+    return true}
+  catch(e){VO.cut=null;if(tok!==VO.tok)return false;await speak(segs.join(" "),force,role);return tok===VO.tok}}
+(async()=>{try{const r=await fetch("voice-index.json",{cache:"no-cache"});if(r.ok){const j=await r.json();if(j&&j.clips&&j.packs){VO.idx=j;if(j.model&&!VG.busy&&!Object.keys(VG.res).length)VG.model=j.model;if(R.v==="settings"||(R.v==="voices"&&!VG.busy))render()}}}catch(e){}})();
 if(TTS){try{speechSynthesis.getVoices();speechSynthesis.onvoiceschanged=()=>{if(R.v==="settings")paintVoices()}}catch(e){}}
 function recErr(code){switch(code){
   case "not-allowed":case "service-not-allowed":return "Mikrofona giriş yoxdur. Brauzer ayarlarında bu səhifə üçün mikrofona icazə verin.";
@@ -666,25 +912,37 @@ function recErr(code){switch(code){
   case "language-not-supported":return "Bu brauzer alman nitqini tanımır.";
   case "aborted":return "";
   default:return "Nitqin tanınmasında xəta."}}
-function startRec(target){
+const LIVE={on:false,target:"",miss:0,end:false};
+function liveStop(msg){LIVE.on=false;LIVE.miss=0;LIVE.end=false;if(msg)REC.err=msg;paintRec()}
+function liveBusy(){return (AUD&&!AUD.paused&&!AUD.ended&&String(AUD.src).startsWith("blob:"))||(TTS&&speechSynthesis.speaking)}
+function liveNext(){if(!LIVE.on)return;if(LIVE.end){liveStop();return}
+  setTimeout(()=>{if(!LIVE.on||REC.state==="listening")return;const cid=curId();if(!cid||!LIVE.target.startsWith("chat:")){liveStop();return}
+    const ch=chatOf(cid,LIVE.target.slice(5));if(ch.busy||liveBusy())return;startRec(LIVE.target,true)},350)}
+function startRec(target,auto){
   if(!SR)return;
-  if(REC.state==="listening"){if(REC.r)try{REC.r.stop()}catch(e){}return}
+  if(!auto&&LIVE.on&&LIVE.target===target){if(REC.r)try{REC.r.abort()}catch(e){}REC.r=null;REC.state="idle";REC.text="";stopVoice();liveStop();return}
+  if(REC.state==="listening"){if(auto)return;if(REC.r)try{REC.r.stop()}catch(e){}return}
+  if(!auto&&SET.live&&target.startsWith("chat:")){LIVE.on=true;LIVE.target=target;LIVE.miss=0;LIVE.end=false}
   stopVoice();
   unlockTTS();
   const r=new SR();r.lang="de-DE";r.interimResults=true;r.continuous=false;r.maxAlternatives=1;
   REC.r=r;REC.target=target;REC.text="";REC.err="";REC.state="listening";paintRec();
   r.onresult=e=>{if(REC.r!==r)return;REC.text=Array.from(e.results).map(x=>x[0].transcript).join(" ").replace(/\s+/g," ").trim();paintRec()};
-  r.onerror=e=>{if(REC.r!==r)return;REC.err=recErr(e.error)};
+  r.onerror=e=>{if(REC.r!==r)return;if(e.error==="no-speech"&&LIVE.on)return;REC.err=recErr(e.error);if(LIVE.on&&/not-allowed|audio-capture|network|language/.test(e.error))LIVE.on=false};
   r.onend=()=>{if(REC.r!==r)return;const t=REC.text.trim(),tg=REC.target;REC.state="idle";REC.r=null;
-    if(t){REC.err="";deliver(tg,t)}else if(!REC.err)REC.err="Heç nə tanınmadı. Yenidən cəhd edin.";paintRec()};
-  try{r.start()}catch(e){REC.state="idle";REC.r=null;REC.err="Mikrofonu açmaq mümkün olmadı.";paintRec()}}
-function stopRec(){const r=REC.r;REC.r=null;REC.state="idle";REC.text="";REC.err="";if(r)try{r.abort()}catch(e){}}
-function deliver(tg,t){const [type,name]=tg.split(":");if(type==="drill"){drillCheck(t);return}const cid=curId();if(!cid)return;
-  if(type==="chat"){if(SET.autosend)send(cid,name,t);else{const ta=$("#in-"+name);if(ta){ta.value=(ta.value.trim()?ta.value.trim()+" ":"")+t;const f=ta.closest("form");if(f)f.hidden=false;ta.focus()}}}
-  else{const ta=$("#"+name);if(!ta)return;const sep=ta.value&&!/\s$/.test(ta.value)?" ":"";ta.value+=sep+t;ta.dispatchEvent(new Event("input",{bubbles:true}))}}
-function paintRec(){document.querySelectorAll("[data-mic]").forEach(b=>{const on=REC.state==="listening"&&REC.target===b.dataset.mic;b.classList.toggle("on",on);b.innerHTML=on?STOP_SVG:MIC_SVG;b.setAttribute("aria-label",on?"Yazını dayandır":"Danış")});
+    if(t){REC.err="";if(LIVE.on){LIVE.miss=0;if(/auf wiedersehen|tschüss|tschüs|bis bald|alles gute/i.test(t))LIVE.end=true}deliver(tg,t)}
+    else if(LIVE.on&&LIVE.target===tg){LIVE.miss++;if(LIVE.miss<2){paintRec();setTimeout(()=>{if(LIVE.on&&REC.state!=="listening")startRec(tg,true)},200);return}liveStop("Söhbət dayandırılıb. Davam etmək üçün mikrofonu basın.");return}
+    else if(!REC.err)REC.err="Heç nə tanınmadı. Yenidən cəhd edin.";paintRec()};
+  try{r.start()}catch(e){REC.state="idle";REC.r=null;if(LIVE.on){liveStop("Söhbət dayandırılıb. Davam etmək üçün mikrofonu basın.");return}REC.err="Mikrofonu açmaq mümkün olmadı.";paintRec()}}
+function stopRec(){LIVE.on=false;LIVE.miss=0;LIVE.end=false;const r=REC.r;REC.r=null;REC.state="idle";REC.text="";REC.err="";if(r)try{r.abort()}catch(e){}}
+function deliver(tg,t){const [type,name]=tg.split(":");if(type==="drill"){drillCheck(t);return}
+  if(type==="field"){const ta=$("#"+name);if(!ta)return;const sep=ta.value&&!/\s$/.test(ta.value)?" ":"";ta.value+=sep+t;ta.dispatchEvent(new Event("input",{bubbles:true}));return}
+  const cid=curId();if(!cid)return;
+  if(type==="chat"){if(SET.autosend||LIVE.on)send(cid,name,t);else{const ta=$("#in-"+name);if(ta){ta.value=(ta.value.trim()?ta.value.trim()+" ":"")+t;const f=ta.closest("form");if(f)f.hidden=false;ta.focus()}}}}
+function paintRec(){document.querySelectorAll("[data-mic]").forEach(b=>{const live=LIVE.on&&LIVE.target===b.dataset.mic;const on=live||(REC.state==="listening"&&REC.target===b.dataset.mic);b.classList.toggle("on",on);b.innerHTML=on?STOP_SVG:MIC_SVG;b.setAttribute("aria-label",live?"Söhbəti bitir":on?"Yazını dayandır":"Danış")});
   document.querySelectorAll("[data-live]").forEach(el=>{const mine=REC.target===el.dataset.live;const st=el.querySelector(".state"),sd=el.querySelector(".said");
-    if(mine&&REC.state==="listening"){st.textContent="Dinləyirəm…";sd.textContent=REC.text||"Almanca danışın";sd.className="said"}
+    if(mine&&REC.state==="listening"){st.textContent=LIVE.on?"Söhbət gedir · Dinləyirəm…":"Dinləyirəm…";sd.textContent=REC.text||"Almanca danışın";sd.className="said"}
+    else if(LIVE.on&&LIVE.target===el.dataset.live){st.textContent="Söhbət gedir";sd.textContent="Həmsöhbət cavab verir…";sd.className="said muted"}
     else if(mine&&REC.err){st.textContent="";sd.textContent=REC.err;sd.className="said err"}
     else{st.textContent="";sd.textContent=el.dataset.idle||"";sd.className="said muted"}})}
 
@@ -868,16 +1126,16 @@ function trackQ(c,ch,text,countUnm){const r=freeReply(c,text,ch);ch.recorded=fal
   if(r.fach){ch.fach=ch.fach||[];if(!ch.fach.some(x=>x.term===r.fach.term))ch.fach.push(r.fach)}
   if(r.unmatched&&countUnm){ch.miss=(ch.miss||0)+1;ch.unm=ch.unm||[];ch.unm.push(text)}
   return r}
-function sendFree(id,kind,text){const ch=chatOf(id,kind);const c=byId(id);
+function sendFree(id,kind,text){if(kind==="aufkl")return sendAufkl(id,text);if(kind==="tel")return sendTel(id,text);const ch=chatOf(id,kind);const c=byId(id);
   if(kind==="patient"){if(!text)return;ch.turns.push({role:"user",content:text});if(!ch.start)ch.start=Date.now();ch.end=0;
     const r=trackQ(c,ch,text,true);
-    ch.turns.push({role:"assistant",content:r.reply,segs:r.segs});ch.last=r.reply;ch.lastSegs=r.segs;ch.err="";paintChat(id,kind);speakSegs(r.segs,"p_"+id);return}
+    ch.turns.push({role:"assistant",content:r.reply,segs:r.segs});ch.last=r.reply;ch.lastSegs=r.segs;ch.err="";paintChat(id,kind);speakSegs(r.segs,"p_"+id).then(liveNext);return}
   if(!ch.qs){ch.qs=oberQs(c);ch.qi=0;ch.ans=ch.qs.map(()=>[]);ch.fin=false;if(!ch.start)ch.start=Date.now();
-    ch.turns.push({role:"assistant",content:ch.qs[0].q});ch.err="";paintChat(id,kind);speakSegs([ch.qs[0].q],"ober");if(!text)return}
-  if(text&&!ch.fin){ch.turns.push({role:"user",content:text});ch.ans[ch.qi].push(text);paintChat(id,kind)}}
+    ch.turns.push({role:"assistant",content:ch.qs[0].q});ch.err="";paintChat(id,kind);speakSegs([ch.qs[0].q],"ober").then(liveNext);if(!text)return}
+  if(text&&!ch.fin){ch.turns.push({role:"user",content:text});ch.ans[ch.qi].push(text);paintChat(id,kind);if(LIVE.on)setTimeout(()=>{if(LIVE.on)oberNext(id)},400)}}
 function oberNext(id){const ch=chatOf(id,"ober");if(!ch.qs||ch.fin)return;
-  if(ch.qi<ch.qs.length-1){ch.qi++;const q=ch.qs[ch.qi].q;ch.turns.push({role:"assistant",content:q});paintChat(id,"ober");speakSegs([q],"ober")}
-  else{ch.fin=true;ch.end=Date.now();const t=OBER_END;ch.turns.push({role:"assistant",content:t});paintChat(id,"ober");speakSegs([t],"ober");
+  if(ch.qi<ch.qs.length-1){ch.qi++;const q=ch.qs[ch.qi].q;ch.turns.push({role:"assistant",content:q});paintChat(id,"ober");speakSegs([q],"ober").then(liveNext)}
+  else{ch.fin=true;ch.end=Date.now();const t=OBER_END;ch.turns.push({role:"assistant",content:t});paintChat(id,"ober");LIVE.end=true;speakSegs([t],"ober").then(liveNext);
     const s=$("#free-ober");if(s)s.innerHTML=oberSumHTML(ch)}}
 function mmss(ch){const s=Math.max(0,Math.floor(((ch.end||Date.now())-(ch.start||Date.now()))/1000));return String(Math.floor(s/60)).padStart(2,"0")+":"+String(s%60).padStart(2,"0")}
 function freeSumHTML(c,ch){const got=ch.cov||new Set();const cov=c.items.filter(i=>got.has(i.id));const miss=c.items.filter(i=>!got.has(i.id));const pct=Math.round(cov.length/c.items.length*100);
@@ -895,15 +1153,15 @@ function oberSumHTML(ch){return `<div class="fb"><span class="eyebrow">Nəticə 
 /* ---------- chats ---------- */
 const CH={},FB={},COV={},FBRUN={},FREE={};
 function chatOf(id,kind){const k=id+":"+kind;return CH[k]||(CH[k]={turns:[],busy:false,ctl:null,start:0,end:0,err:""})}
-function themLabel(c,kind){return kind==="patient"?(c.sex==="w"?"Patientin":"Patient"):"Oberarzt"}
+function themLabel(c,kind){return kind==="patient"||kind==="aufkl"?(c.sex==="w"?"Patientin":"Patient"):kind==="tel"?"Praxis Dr. Berger":"Oberarzt"}
 function paintChat(id,kind){if(!viewIs(id))return;const log=$("#log-"+kind);if(!log)return;const ch=chatOf(id,kind);const c=byId(id);const isP=kind==="patient";
   let h="";
-  if(!ch.turns.length&&!ch.busy){h=isP?`<p class="empty">Mikrofonu basın və almanca başlayın: salamlaşın, özünüzü təqdim edin və pasiyenti nəyin gətirdiyini soruşun.${freeMode()?" Sİ-siz rejimdə pasiyent tipik anamnez suallarını tanıyır.":""}</p>`:`<div class="empty"><p>Oberarzt məruzəniz barədə suallar verəcək: terminlər, diaqnozlar, növbəti addımlar.</p><button type="button" class="btn primary" data-action="start-ober">Söhbətə başla</button></div>`}
+  if(!ch.turns.length&&!ch.busy){h=kind==="aufkl"?`<p class="empty">Mikrofona basın və izahı almanca başlayın. Sadə sözlərlə danışın: pasiyent tanımadığı terminləri soruşacaq və öz suallarını verəcək.</p>`:kind==="tel"?`<div class="empty"><p>Ailə həkiminin praktikasından işçi zəng edir. Zəngə cavab verin, özünüzü təqdim edin və kartdakı məlumatları diktə edin.</p><button type="button" class="btn primary" data-action="start-tel">Zəngə cavab ver</button></div>`:isP?`<p class="empty">Mikrofonu basın və almanca başlayın: salamlaşın, özünüzü təqdim edin və pasiyenti nəyin gətirdiyini soruşun.${freeMode()?" Sİ-siz rejimdə pasiyent tipik anamnez suallarını tanıyır.":""}</p>`:`<div class="empty"><p>Oberarzt məruzəniz barədə suallar verəcək: terminlər, diaqnozlar, növbəti addımlar.</p><button type="button" class="btn primary" data-action="start-ober">Söhbətə başla</button></div>`}
   ch.turns.forEach((t,i)=>{const me=t.role==="user";h+=`<div class="msg ${me?"me":"them"}"><span class="who">${me?"Siz":themLabel(c,kind)}${!me&&(TTS||AUD)?`<button type="button" class="say" data-action="say" data-kind="${kind}" data-i="${i}">yenidən dinlə</button>`:""}</span><div class="txt" lang="de">${esc(t.content)}</div></div>`});
   if(ch.busy)h+=`<div class="msg them"><span class="who">${themLabel(c,kind)}</span><div class="txt"><span class="typing">düşünür…</span></div></div>`;
   log.innerHTML=h;log.scrollTop=log.scrollHeight;
   const err=$("#err-"+kind);if(err){err.textContent=ch.err;err.hidden=!ch.err}
-  const started=isP||ch.turns.length||ch.busy;
+  const started=isP||kind==="aufkl"||ch.turns.length||ch.busy;
   const vb=$("#vb-"+kind);if(vb)vb.hidden=!started;
   const mic=vb&&vb.querySelector(".mic");if(mic)mic.disabled=ch.busy||!SR;
   const form=$(`.chat-form[data-kind="${kind}"]`);if(form){if(!started)form.hidden=true;else if(!SR)form.hidden=false;const b=form.querySelector("button");if(b)b.disabled=ch.busy}
@@ -911,19 +1169,23 @@ function paintChat(id,kind){if(!viewIs(id))return;const log=$("#log-"+kind);if(!
   const stop=$(`[data-action="stop"][data-kind="${kind}"]`);if(stop)stop.hidden=!ch.busy;
   const nx=$(`[data-action="ober-next"]`);if(nx&&kind==="ober")nx.hidden=!(freeMode()&&ch.qs&&!ch.fin);
   document.querySelectorAll('[data-action="mode"]').forEach(x=>x.setAttribute("aria-pressed",String((x.dataset.m==="free")===freeMode())));
-  document.querySelectorAll(".free-note").forEach(x=>{x.hidden=!freeMode()})}
+  document.querySelectorAll(".free-note").forEach(x=>{x.hidden=!freeMode()});
+  if(kind==="aufkl")paintPts(id)}
 async function send(id,kind,text){if(freeMode())return sendFree(id,kind,text);const ch=chatOf(id,kind);if(ch.busy)return;
   if(!KEY){ch.err="Ayarlarda API açarı əlavə edin.";paintChat(id,kind);return}
   const c=byId(id);
-  if(text){ch.turns.push({role:"user",content:text});if(!ch.start)ch.start=Date.now();ch.end=0;if(kind==="patient")trackQ(c,ch,text,false)}
+  if(kind==="aufkl"||kind==="tel")ch.mode="ai";
+  if(ch.fin&&kind==="tel")return;
+  if(text){ch.turns.push({role:"user",content:text});if(!ch.start)ch.start=Date.now();ch.end=0;if(kind==="patient")trackQ(c,ch,text,false);if(kind==="aufkl")aufklTrack(c,ch,text)}
   ch.busy=true;ch.err="";paintChat(id,kind);
-  const system=kind==="patient"?patientRules(c):oberRules(c,(R.v==="exam"&&EX&&EX.caseId===id)?EX.vor:draft(id).vor);
-  const msgs=normalize(ch.turns.slice(-40),kind==="ober"?"(Die Fallvorstellung ist beendet. Bitte stellen Sie Ihre erste Frage.)":"");
+  const system=kind==="patient"?patientRules(c):kind==="aufkl"?aufklRules(c):kind==="tel"?telRules(c):(R.v==="exam"&&fxStep()?oberRulesFx(c):oberRules(c,(R.v==="exam"&&EX&&EX.caseId===id)?EX.vor:draft(id).vor));
+  const msgs=normalize(ch.turns.slice(-40),kind==="ober"?(R.v==="exam"&&fxStep()?"(Die Assistenzärztin bzw. der Assistenzarzt kommt zu dir, um einen Fall vorzustellen.)":"(Die Fallvorstellung ist beendet. Bitte stellen Sie Ihre erste Frage.)"):kind==="tel"?"(Das Telefon klingelt, die Ärztin bzw. der Arzt in der Klinik nimmt ab. Beginne das Gespräch.)":"");
   const ctl=new AbortController();ch.ctl=ctl;let reply="";
   try{reply=await chatCall(system,msgs,400,ctl.signal);ch.turns.push({role:"assistant",content:reply})}
-  catch(e){ch.err=errText(e)}
+  catch(e){ch.err=errText(e);if(LIVE.on)liveStop()}
   finally{ch.busy=false;ch.ctl=null;paintChat(id,kind)}
-  if(reply&&viewIs(id))speakSegs([reply],kind==="patient"?"p_"+id:"ober")}
+  if(reply&&kind==="tel"&&/wiederhören/i.test(reply)&&ch.turns.some(t=>t.role==="user")){ch.fin=true;LIVE.end=true;telFinish(id)}
+  if(reply&&viewIs(id))speakSegs([reply],roleOf(kind,id)).then(liveNext)}
 
 /* ---------- feedback ---------- */
 function thinkingHTML(kind){return `<div class="fb thinking"><span>Claude yoxlayır… Bu adətən bir dəqiqəyə qədər çəkir.</span><button type="button" class="btn ghost" data-action="stop-fb" data-kind="${kind}">Dayandır</button></div>`}
@@ -962,11 +1224,17 @@ function homeHTML(){const nK=VOCAB.filter(v=>known.has(v[0])).length;const f=CAS
   ${weakHTML()}
   ${SR?"":`<p class="note">Bu brauzerdə səsli giriş işləmir. Səhifəni Chrome-da açın.</p>`}
   <section><h2>İmtahanın hissələri</h2><div class="parts">${parts.map(p=>`<a class="part" href="${p[3]}"><span class="n">Teil ${p[0]}</span><span class="de" lang="de">${p[1]}</span><span class="ru">${p[2]}</span><span class="go">${p[4]} →</span></a>`).join("")}</div>
-  <p class="note">Hissələr ayrı-ayrı Ärztekammer-lərin Fachsprachprüfung haqqında açıq təsvirlərindən götürülüb. FaMed-in dəqiq formatı (hissələrin ardıcıllığı, vaxt, qiymətləndirmə meyarları) <span class="ph">[təşkilatçıdan dəqiqləşdirilməli]</span>.</p></section>
+  </section>
+  <section><h2>FaMed yoxsa FSP</h2><div class="parts">
+    <a class="part" href="#exam-famed"><span class="n">FaMed</span><span class="de" lang="de">FaMed</span><span class="ru">Fərqli pasiyentlərlə beş situasiya: anamnez və izah hərəsi 11 dəqiqə, Oberarzt-a iki təqdimat hərəsi 11 dəqiqə, videoya əsasən sənədləşdirmə 22 dəqiqə.</span><span class="go">FaMed imtahanı →</span></a>
+    <a class="part" href="#exam-fsp"><span class="n">Ärztekammer</span><span class="de" lang="de">Fachsprachprüfung (FSP)</span><span class="ru">Bir pasiyent haqqında üç hissə, adətən hərəsi təxminən 20 dəqiqə: anamnez, sənədləşdirmə, təqdimat. Təfərrüatlar federal torpaqdan asılıdır, bəzi yerlərdə Vokabeltest də var.</span><span class="go">FSP imtahanı →</span></a></div>
+  <p class="small muted">Formatlar famed-test.de və Ärztekammer saytlarındakı təsvirlərə əsasən, 08.10.2026 tarixində yoxlanılıb. FaMed-in harada tanındığını famed-test.de saytında baxın.</p></section>
+  <section><h2>FaMed modulları</h2><div class="parts">${[["Patientenaufklärung","Pasiyentə əməliyyatı, müayinəni və ya müalicəni izah edin. Pasiyent terminləri soruşur və suallar verir.","#famed-aufkl-"+f],["Telefonat · Buchstabieren","Həkim praktikasından zəng: soyad və dərman hərf-hərf, doğum tarixi, dozaj.","#famed-tel-"+f],["Hörverstehen","Həkim və pasiyent arasında iki səslə söhbət, siz anamnezi yazırsınız.","#famed-hoer-1"]].map(p=>`<a class="part" href="${p[2]}"><span class="n">FaMed</span><span class="de" lang="de">${p[0]}</span><span class="ru">${p[1]}</span><span class="go">3 tapşırıq →</span></a>`).join("")}</div>
+  <div class="row"><a class="btn" href="#famed">Bütün FaMed modulları</a></div></section>
   <section><h2>Tədris materialları</h2><ul class="prog">${MATS.map(m=>`<li><a href="#mat-${m.id}">${esc(m.title)}</a><span class="mono">${m.min} dəq</span></li>`).join("")}</ul></section>
   <section><h2>İrəliləyiş</h2><ul class="prog"><li><a href="#vocab">Terminlər</a><span class="mono">${nK} / ${VOCAB.length} öyrənilib</span></li>${CASES.map(c=>{const d=doneOf(c.id);const n=[d.anam,d.brief,d.vor].filter(Boolean).length;return `<li><a href="#${c.id}-anamnese">Fall ${c.nr} · ${esc(c.titleRu)}</a><span class="mono">${n} / 3 addım</span></li>`}).join("")}</ul></section>
   <section><h2>Prototip haqqında</h2><p class="small">Alman mətnləri, nümunələr və tibbi detallar hələ qaralamadır. Satışdan əvvəl onları tibbi təhsilli alman dili daşıyıcısı yoxlamalıdır. Hallar uydurmadır və real imtahan tapşırıqlarını təkrarlamır.</p></section>`}
-function casesHTML(){return `<section class="hero"><span class="eyebrow">Hallar</span><h1>Klinik hallar</h1><p class="lede">Hər hal imtahanda olduğu kimi üç addımdan keçir: pasiyentlə söhbət, sənədləşdirmə, Oberarzt-a məruzə.</p><div class="row"><a class="btn primary" href="#exam">Təsadüfi hal üzrə sınaq imtahanı</a></div></section>
+function casesHTML(){return `<section class="hero"><span class="eyebrow">Hallar</span><h1>Klinik hallar</h1><p class="lede">Hər hal imtahanda olduğu kimi üç addımdan keçir: pasiyentlə söhbət, sənədləşdirmə, Oberarzt-a məruzə.</p><div class="row"><a class="btn primary" href="#exam">Təsadüfi hal üzrə sınaq imtahanı</a><a class="btn" href="#famed">FaMed modulları</a></div></section>
   <section class="case-list">${CASES.map(c=>{const d=doneOf(c.id);return `<a class="case-card" href="#${c.id}-anamnese">${etikett(c)}<span class="cc-steps">${TABS.map((t,i)=>`<span class="${d[t[3]]?"ok":""}">${i+1} ${t[1]}</span>`).join("")}</span></a>`}).join("")}</section>`}
 function micBtn(target,big){return `<button type="button" class="mic" data-action="mic" data-mic="${target}" aria-label="Danış"${SR?"":" disabled"}>${MIC_SVG}</button>`}
 function liveBox(target,idle){return `<div class="live" data-live="${target}" data-idle="${esc(idle)}" aria-live="polite"><span class="state"></span><span class="said muted">${esc(idle)}</span></div>`}
@@ -974,9 +1242,9 @@ function chatBox(kind,exam){const isP=kind==="patient";const tg="chat:"+kind;ret
   <div class="chat-head">${exam?`<span>${freeMode()?"Sİ-siz":"Sİ"} · rejim bu hissə üçün sabitdir</span>`:`<span class="mode" role="group" aria-label="Həmsöhbət rejimi"><button type="button" data-action="mode" data-m="free" data-kind="${kind}" aria-pressed="${freeMode()}">Sİ-siz</button><button type="button" data-action="mode" data-m="ai" data-kind="${kind}" aria-pressed="${!freeMode()}">Sİ</button></span>`}<span class="js-timer" data-kind="${kind}">00:00</span></div>
   <div class="log" id="log-${kind}" aria-live="polite"></div>
   <p class="err" id="err-${kind}" hidden></p>
-  <div class="voice-bar" id="vb-${kind}">${SR?micBtn(tg)+liveBox(tg,"Basın və danışın. Bitirmək üçün yenidən basın."):`<p class="small muted">Bu brauzerdə səsli giriş işləmir. Səhifəni Chrome-da açın və ya aşağıda yazın.</p>`}</div>
-  <form class="chat-form" data-kind="${kind}"${SR?" hidden":""}><label class="sr" for="in-${kind}">Sizin replikanız</label><textarea id="in-${kind}" rows="2" lang="de" placeholder="${isP?"Guten Tag, mein Name ist … Was führt Sie zu uns?":"Ihre Antwort …"}"></textarea><button class="btn primary" type="submit">Senden</button></form>
-  <div class="chat-actions row"><button type="button" class="btn ghost" data-action="kb" data-kind="${kind}">Klaviatura</button><button type="button" class="btn ghost" data-action="stop" data-kind="${kind}" hidden>Dayandır</button>${isP?(exam?"":`<button type="button" class="btn" data-action="finish-anam">Bitir və təhlili al</button>`):`<button type="button" class="btn primary" data-action="ober-next" hidden>Növbəti sual</button>`}${exam?"":`<button type="button" class="btn ghost" data-action="reset-chat" data-kind="${kind}">Yenidən başla</button>`}</div>
+  <div class="voice-bar" id="vb-${kind}">${SR?micBtn(tg)+liveBox(tg,SET.live?"Mikrofonu bir dəfə basın və danışın. Sonra söhbət özü davam edəcək, bitirmək üçün yenidən basın.":"Basın və danışın. Bitirmək üçün yenidən basın."):`<p class="small muted">Bu brauzerdə səsli giriş işləmir. Səhifəni Chrome-da açın və ya aşağıda yazın.</p>`}</div>
+  <form class="chat-form" data-kind="${kind}"${SR?" hidden":""}><label class="sr" for="in-${kind}">Sizin replikanız</label><textarea id="in-${kind}" rows="2" lang="de" placeholder="${isP?"Guten Tag, mein Name ist … Was führt Sie zu uns?":kind==="aufkl"?"Ich möchte Ihnen erklären, …":"Ihre Antwort …"}"></textarea><button class="btn primary" type="submit">Senden</button></form>
+  <div class="chat-actions row"><button type="button" class="btn ghost" data-action="kb" data-kind="${kind}">Klaviatura</button><button type="button" class="btn ghost" data-action="stop" data-kind="${kind}" hidden>Dayandır</button>${isP?(exam?"":`<button type="button" class="btn" data-action="finish-anam">Bitir və təhlili al</button>`):kind==="ober"?`<button type="button" class="btn primary" data-action="ober-next" hidden>Növbəti sual</button>`:(exam?"":`<button type="button" class="btn" data-action="finish-${kind}">Bitir və nəticəni gör</button>`)}${exam?"":`<button type="button" class="btn ghost" data-action="reset-chat" data-kind="${kind}">Yenidən başla</button>`}</div>
 </div>`}
 function dictBox(field,idle){const tg="field:"+field;return SR?`<div class="dict">${micBtn(tg)}${liveBox(tg,idle)}</div>`:""}
 function checklistHTML(c){const cov=COV[c.id];return c.items.map(it=>{const st=cov?(cov.has(it.id)?"ok":"miss"):"";return `<div class="cl-item ${st}"><span class="box" aria-hidden="true"></span><div class="cl-body"><span class="cl-t" lang="de">${esc(it.t)}${st?`<span class="sr"> (${st==="ok"?"soruşulub":"buraxılıb"})</span>`:""}</span><span class="cl-q" lang="de">${esc(it.q)}</span><button type="button" class="linkbtn" data-action="reveal" aria-expanded="false">Pasiyentin cavabı</button><p class="cl-a" lang="de" hidden>${esc(it.a)}</p></div></div>`}).join("")}
@@ -1026,6 +1294,233 @@ function afterCase(id,tab){const c=byId(id);voicePrefetch("p_"+id);if(tab==="vor
   paintRec()}
 function wc(){const el=$("#wc-brief");if(el&&R.v==="case")el.textContent=words(draft(R.id).brief)+" söz"}
 
+/* ---------- FaMed modules: patient education, phone call with spelling, listening ---------- */
+function mkFach([term,lay]){const base=term.replace(/\s*\(.*\)/,"");const ws=base.split(/\s+/);let w=ws[0];for(const x of ws)if(x.length>=w.length)w=x;
+  let stem=w.toLowerCase().replace(/ß/g,"ss");if(stem.length>6)stem=stem.slice(0,-1);
+  return {term:base,lay,re:new RegExp("\\s"+stem.replace(/[.*+?^${}()|[\]\\]/g,"\\$&"))}}
+const AFACH=AUFKL_FACH_RAW.map(mkFach);
+function findFachA(n){for(const f of AFACH)if(f.re.test(n))return f;return findFach(n)}
+const sents=t=>(str(t).match(/[^.!?]+[.!?]+/g)||[str(t)]).map(s=>s.trim()).filter(Boolean);
+function roleOf(kind,id){return kind==="ober"?"ober":kind==="tel"?"nurse":"p_"+id}
+function fmScore(k){const v=S.fm[k];return typeof v==="number"?v:null}
+function fmSet(k,v){S.fm[k]=Math.max(fmScore(k)||0,v);save()}
+const FM_BACK=`<a class="back" href="#famed">← FaMed modulları</a>`;
+function sayAll(src){return (TTS||AUD)?`<button type="button" class="say" data-action="say-src" data-src="${src}">nümunəni dinlə</button>`:""}
+function srcSegs(src){const [k,id]=src.split(":");if(k==="aufkl"&&AUFKL[id])return sents(AUFKL[id].muster);if(k==="tel"&&TEL[id])return [modelSpell(TEL[id].sur),modelSpell(TEL[id].drug)];return []}
+
+/* spelling: codewords (traditional and DIN 5009), letter names, single letters; "K wie Kaufmann" counts once */
+const SPELL_CODE={},SPELL_LET={};
+ABC.forEach(([l,o,n])=>{const L=l.toLowerCase();SPELL_CODE[o.toLowerCase()]=L;if(n!=="—"&&!/^umlaut /i.test(n))SPELL_CODE[n.toLowerCase()]=L});
+[["bertha","b"],["caesar","c"],["konrad","k"],["marta","m"],["siegfried","s"],["xaver","x"],["zeppelin","z"]].forEach(([w,l])=>{SPELL_CODE[w]=l});
+"a:a b:be b:bé c:ce c:zeh c:tse d:de d:dee e:eh f:ef f:eff g:ge g:geh h:ha i:ih j:jot k:ka l:el l:ell m:em m:emm n:en n:enn o:oh p:pe p:peh q:qu q:ku q:kuh r:er r:err s:es s:ess t:te t:teh u:uh v:vau v:fau w:we w:weh x:ix x:iks y:ypsilon z:zett z:zet".split(" ").forEach(p=>{const [l,w]=p.split(":");SPELL_LET[w]=l});
+"abcdefghijklmnopqrstuvwxyzäöü".split("").forEach(l=>{SPELL_LET[l]=l});
+function spellLetters(text){const raw=str(text).split(/[^A-Za-zÄÖÜäöüß]+/).filter(Boolean);let out="";
+  const toks=[];raw.forEach(w=>{if(w.length>1&&w===w.toUpperCase()&&/^[A-ZÄÖÜ]+$/.test(w))w.split("").forEach(x=>toks.push(x.toLowerCase()));else toks.push(w.toLowerCase())});
+  const one=w=>SPELL_CODE[w]||SPELL_LET[w]||"";
+  for(let i=0;i<toks.length;i++){const w=toks[i];
+    if(w==="doppel"||w==="doppelt"){const L=one(toks[i+1]||"");if(L){out+=L+L;i++}continue}
+    if(w==="umlaut"){const L=one(toks[i+1]||"");if(L){out+=({a:"ä",o:"ö",u:"ü"})[L]||L;i++}continue}
+    if(toks[i+1]==="wie"&&SPELL_CODE[toks[i+2]]){out+=SPELL_CODE[toks[i+2]];i+=2;continue}
+    out+=one(w)}
+  return out.toUpperCase()}
+function modelSpell(word){return word.split("").map(ch=>{const r=ABC.find(x=>x[0]===ch);return ch+" wie "+(r?r[1]:ch)}).join(", ")+"."}
+function telLines(){const T=TEL_TXT;return [T.intro.w,T.intro.m,T.sur.w,T.sur.m,T.ok,T.dob,T.drug,T.dose,T.end,T.spell,T.retry,T.dobRetry,T.doseRetry,T.next]}
+
+/* --- Patientenaufklärung --- */
+function aufklTrack(c,ch,text){const A=AUFKL[c.id];const n=norm(text);ch.pts=ch.pts||new Set();A.pts.forEach(p=>{if(p[2].test(n))ch.pts.add(p[0])});
+  const f=findFachA(n);if(f){ch.fach=ch.fach||[];if(!ch.fach.some(x=>x.term===f.term))ch.fach.push(f)}return {n,f}}
+function aufklReply(c,ch,text){const A=AUFKL[c.id];const {n,f}=aufklTrack(c,ch,text);ch.qi=ch.qi||0;ch.qres=ch.qres||[];
+  const ask=()=>{if(ch.qi<A.qs.length){const q=A.qs[ch.qi][0];ch.pend={i:ch.qi,tries:0};ch.qi++;ch.exp=0;return [q]}return null};
+  if(f)return [FACH_REPLY];
+  if(/wie bitte|wiederholen|nicht verstanden/.test(n)&&ch.last)return ch.last;
+  if(/auf wiedersehen|tschüss|alles gute|gute besserung/.test(n)){ch.fin=true;return ["Vielen Dank. Auf Wiedersehen."]}
+  if(ch.pend){const i=ch.pend.i;if(A.qs[i][1].test(n)){ch.qres[i]=true;ch.pend=null;return [AUFKL_OK[ch.qres.filter(Boolean).length%AUFKL_OK.length]]}
+    if(ch.pend.tries<1){ch.pend.tries++;return [AUFKL_UNCLEAR]}ch.qres[i]=false;ch.pend=null;return [AUFKL_MEH]}
+  if(ch.turns.length<=2&&/guten (tag|morgen|abend)|hallo|grüss gott/.test(n)&&!(ch.pts&&ch.pts.size))return ["Guten Tag. Schön, dass Sie Zeit für mich haben."];
+  const invite=/(haben sie|gibt es)( noch)?( irgendwelche| eine| weitere)? fragen|ist (das|alles) (so )?(klar|verständlich)|noch etwas unklar|alles verstanden/.test(n);
+  const consent=/einverstanden|unterschreiben|einwilligung|zustimmen/.test(n);
+  if(invite||consent){const q=ask();if(q)return q;if(consent||ch.noMore){ch.fin=true;return [A.end]}ch.noMore=true;return [AUFKL_NOMORE]}
+  ch.exp=(ch.exp||0)+1;
+  if(ch.exp>=2){const q=ask();if(q)return q}
+  ch.ack=(ch.ack||0)+1;return [AUFKL_ACK[ch.ack%AUFKL_ACK.length]]}
+function sendAufkl(id,text){const ch=chatOf(id,"aufkl");const c=byId(id);if(!text)return;
+  if(ch.fin){ch.err="Söhbət bitib. Təkrarlamaq üçün «Yenidən başla» düyməsini basın.";paintChat(id,"aufkl");return}
+  ch.turns.push({role:"user",content:text});if(!ch.start)ch.start=Date.now();ch.end=0;ch.mode="free";
+  const segs=aufklReply(c,ch,text);ch.turns.push({role:"assistant",content:segs.join(" "),segs});ch.last=segs;ch.err="";paintChat(id,"aufkl");
+  if(ch.fin){LIVE.end=true;aufklFinish(id)}
+  speakSegs(segs,"p_"+id).then(liveNext)}
+function aufklPtsHTML(c){const A=AUFKL[c.id];const got=chatOf(c.id,"aufkl").pts||new Set();
+  return A.pts.map(p=>{const ok=got.has(p[0]);return `<div class="cl-item${ok?" ok":""}"><span class="box" aria-hidden="true"></span><div class="cl-body"><span class="cl-t" lang="de">${esc(p[1])}${ok?`<span class="sr"> (izah edilib)</span>`:""}</span></div></div>`}).join("")}
+function paintPts(id){const el=$("#aufkl-pts");if(!el)return;el.innerHTML=aufklPtsHTML(byId(id));const n=$("#pts-n");if(n){const ch=chatOf(id,"aufkl");n.textContent=((ch.pts&&ch.pts.size)||0)+" / "+AUFKL[id].pts.length}}
+function aufklSumHTML(c,ch){const A=AUFKL[c.id];const got=ch.pts||new Set();const ok=A.pts.filter(p=>got.has(p[0]));const miss=A.pts.filter(p=>!got.has(p[0]));const pct=Math.round(ok.length/A.pts.length*100);const free=ch.mode!=="ai";
+  let h=`<div class="fb"><span class="eyebrow">Nəticə · izah</span><p class="fb-sum">İzah edilib: ${ok.length} / ${A.pts.length} bənd, vaxt ${mmss(ch)}.</p>
+    <div class="fb-sec"><h3>İzah bəndləri</h3><div class="meter" role="img" aria-label="İzah edilib: ${ok.length} / ${A.pts.length}"><i style="width:${pct}%"></i></div>${miss.length?`<p class="small">Səslənmədi:</p><ul class="plain">${miss.map(p=>`<li lang="de">${esc(p[1])}</li>`).join("")}</ul>`:`<p class="small">Bütün bəndlər səsləndi.</p>`}</div>
+    <div class="fb-sec"><h3>Pasiyentin sualları</h3><ul class="plain">${A.qs.map((q,i)=>{const st=!free?"":ch.qres&&ch.qres[i]===true?"cavab qəbul edildi":ch.qres&&ch.qres[i]===false?"cavab natamamdır":ch.pend&&ch.pend.i===i?"sual cavabsız qaldı":"çatmadınız";
+      return `<li><span lang="de"><b>${esc(q[0])}</b></span>${st?` <span class="muted">— ${st}</span>`:""}<br><span class="small muted">Cavab nümunəsi:</span> <span class="small" lang="de">${esc(q[2])}</span></li>`}).join("")}</ul></div>`;
+  if(ch.fach&&ch.fach.length)h+=`<div class="fb-sec"><h3>Pasiyentin başa düşmədiyi terminlər</h3><ul class="plain">${ch.fach.map(f=>`<li lang="de"><b>${esc(f.term)}</b> → ${esc(f.lay)}</li>`).join("")}</ul><p class="small muted">Pasiyentlə sadə sözlərlə danışın.</p></div>`;
+  h+=`<div class="fb-sec"><h3>İzah nümunəsi</h3><p class="pre small" lang="de">${esc(A.muster)}</p>${sayAll("aufkl:"+c.id)}</div>`;
+  if(free)h+=`<p class="small muted">Sİ-siz yalnız əsas bəndlərin səsləndiyi yoxlanılır, qrammatika yox.</p>`;
+  if(KEY&&free)h+=`<div class="row"><button type="button" class="btn primary" data-action="ai-aufkl">Sİ ilə qrammatika təhlili</button></div>`;
+  return h+"</div>"}
+function aufklFinish(id){const ch=chatOf(id,"aufkl");if(!ch.end)ch.end=Date.now();ch.sum=true;const c=byId(id);const A=AUFKL[id];
+  if(R.v==="famed")fmSet("aufkl_"+id,Math.round(((ch.pts&&ch.pts.size)||0)/A.pts.length*100));const s=$("#free-aufkl");if(s&&viewIs(id))s.innerHTML=aufklSumHTML(c,ch)}
+function aufklRules(c){const A=AUFKL[c.id];return [
+ "Rollenspiel zur Vorbereitung auf die Fachsprachprüfung Medizin (Teil: Aufklärungsgespräch).",
+ c.persona.split(".")[0]+".",
+ `Die Ärztin oder der Arzt (der Nutzer) klärt dich jetzt auf über: ${A.de}. Die Nachrichten stammen aus einer Spracherkennung und können Erkennungsfehler enthalten. Deine Antworten werden laut vorgelesen: nur gesprochene Sprache, keine Aufzählungen, keine Sternchen.`,
+ "Regeln:",
+ "- Antworte als Patient/in in der Ich-Form, kurz (1 bis 2 Sätze), in einfacher Alltagssprache.",
+ "- Wenn die Ärztin oder der Arzt einen Fachbegriff benutzt, den ein Laie nicht kennt, frage nach, was das bedeutet.",
+ "- Stelle im Lauf des Gesprächs diese Fragen, immer nur eine pro Nachricht und erst, wenn es passt: "+A.qs.map(q=>"„"+q[0]+"“").join(" "),
+ "- Wenn eine Antwort unklar oder unvollständig ist, frage einmal nach.",
+ "- Bleib in der Rolle: keine Bewertung, keine Tipps, kein Russisch oder Englisch.",
+ "- Wenn alles erklärt ist und die Ärztin oder der Arzt nach deinem Einverständnis fragt, stimme zu."].join("\n")}
+function aufklPrompt(c,turns){const A=AUFKL[c.id];const tr=turns.map(t=>(t.role==="user"?"ARZT: ":"PATIENT: ")+t.content).join("\n");return `Du bist erfahrene Prüferin in der Fachsprachprüfung Medizin (Niveau C1). Ein ausländischer Arzt hat eine simulierte Patientin bzw. einen simulierten Patienten mündlich aufgeklärt über: ${A.de}. Bewerte Sprache, Verständlichkeit für Laien (keine unerklärten Fachbegriffe), Struktur und Vollständigkeit. ${ASR_NOTE}
+
+Wichtige Punkte einer vollständigen Aufklärung:
+${A.pts.map(p=>"- "+p[1]).join("\n")}
+
+Musterlösung (nur als Referenz):
+${A.muster}
+
+Gespräch:
+${tr}
+
+Aufgaben:
+1. Bis zu 8 echte sprachliche Fehler in den ARZT-Äußerungen (Grammatik, Wortwahl, Fachbegriffe ohne Erklärung). Für jeden Fehler: Original wörtlich aus dem Gespräch, Korrektur, kurze Erklärung auf Aserbaidschanisch. Erfinde keine Fehler.
+2. Wichtige Punkte, die fehlen (kurz, auf Aserbaidschanisch).
+3. Medizinisch falsche oder missverständliche Aussagen (kurz, auf Aserbaidschanisch; leere Liste, wenn keine).
+4. 1 bis 2 Stärken und 2 bis 3 konkrete Tipps, auf Aserbaidschanisch.
+5. Ein Fazit in 2 bis 3 Sätzen auf Aserbaidschanisch.
+
+Antworte nur mit JSON in genau dieser Form:
+${JSON_SHAPE}`}
+
+/* --- Telefonat --- */
+function sendTel(id,text){const ch=chatOf(id,"tel");const c=byId(id);const T=TEL[id];const g=c.sex==="w"?"w":"m";
+  const say=segs=>{ch.turns.push({role:"assistant",content:segs.join(" "),segs});ch.last=segs;ch.err="";paintChat(id,"tel");speakSegs(segs,"nurse").then(liveNext)};
+  if(!ch.step){ch.step=1;ch.tries=0;ch.res={};ch.mode="free";if(!ch.start)ch.start=Date.now();say([TEL_TXT.intro[g]]);return}
+  if(!text)return;
+  if(ch.fin){ch.err="Söhbət bitib. Təkrarlamaq üçün «Yenidən başla» düyməsini basın.";paintChat(id,"tel");return}
+  ch.turns.push({role:"user",content:text});const n=norm(text);const L=spellLetters(text);
+  if(/wie bitte|bitte wiederholen|können sie das wiederholen/.test(n)&&L.length<3&&ch.last){say(ch.last);return}
+  const next=(nextLine)=>{ch.step++;ch.tries=0;say([TEL_TXT.ok,nextLine])};
+  const fail=(retry,nextLine)=>{if(ch.tries<1){ch.tries++;say([retry]);return}ch.step++;ch.tries=0;say([TEL_TXT.next,nextLine])};
+  if(ch.step===1){ch.step=2;ch.tries=0;say([TEL_TXT.sur[g]]);return}
+  if(ch.step===2){ch.res.sur={ok:L.includes(T.sur),heard:L,tries:ch.tries+1};if(ch.res.sur.ok)return next(TEL_TXT.dob);return fail(L.length?TEL_TXT.retry:TEL_TXT.spell,TEL_TXT.dob)}
+  if(ch.step===3){const ok=T.d.test(n)&&T.m.test(n)&&T.y.test(n);ch.res.dob={ok,heard:text,tries:ch.tries+1};if(ok)return next(TEL_TXT.drug);return fail(TEL_TXT.dobRetry,TEL_TXT.drug)}
+  if(ch.step===4){ch.res.drug={ok:L.includes(T.drug),heard:L,tries:ch.tries+1};if(ch.res.drug.ok)return next(TEL_TXT.dose);return fail(L.length?TEL_TXT.retry:TEL_TXT.spell,TEL_TXT.dose)}
+  if(ch.step===5){const ok=T.mg.test(n)&&T.fr.test(n);ch.res.dose={ok,heard:text,tries:ch.tries+1};
+    if(!ok&&ch.tries<1){ch.tries++;say([TEL_TXT.doseRetry]);return}
+    ch.step=6;ch.fin=true;ch.end=Date.now();LIVE.end=true;say(ok?[TEL_TXT.end]:[TEL_TXT.next,TEL_TXT.end]);telFinish(id)}}
+function telEval(c,ch){if(ch.mode==="free"&&ch.res)return ch.res;const T=TEL[c.id];const us=ch.turns.filter(t=>t.role==="user").map(t=>t.content);
+  const any=f=>us.some(f);return {sur:{ok:any(t=>spellLetters(t).includes(T.sur))},dob:{ok:any(t=>{const n=norm(t);return T.d.test(n)&&T.m.test(n)&&T.y.test(n)})},
+    drug:{ok:any(t=>spellLetters(t).includes(T.drug))},dose:{ok:any(t=>{const n=norm(t);return T.mg.test(n)&&T.fr.test(n)})}}}
+function telSumHTML(c,ch){const T=TEL[c.id];const r=telEval(c,ch);const rows=[["sur","Soyad hərf-hərf",T.sur],["dob","Doğum tarixi",T.dob],["drug","Dərman hərf-hərf",T.drug],["dose","Dozaj",T.dose]];
+  const ok=rows.filter(x=>r[x[0]]&&r[x[0]].ok).length;
+  return `<div class="fb"><span class="eyebrow">Nəticə · telefon danışığı</span><p class="fb-sum">Düzgün ötürülüb: ${ok} / 4, vaxt ${mmss(ch)}.</p>
+    <ul class="plain">${rows.map(([k,l,v])=>{const x=r[k];const st=!x?"çatmadınız":x.ok?(x.tries>1?"ikinci cəhddə düzgün":"düzgün"):"səhv";
+      return `<li><b>${l}</b>: ${st}${x&&!x.ok&&x.heard&&(k==="sur"||k==="drug")?` <span class="muted">(başa düşülüb: <span class="mono">${esc(x.heard.split("").join("-"))}</span>)</span>`:""}<br><span class="small muted">Düzgün variant:</span> <span class="mono small" lang="de">${esc(v)}</span></li>`}).join("")}</ul>
+    <div class="fb-sec"><h3>Necə diktə etməli</h3><p lang="de">${esc(modelSpell(T.sur))}</p><p lang="de">${esc(modelSpell(T.drug))}</p>${sayAll("tel:"+c.id)}</div>
+    <p class="small muted">Nitqin tanınması bəzən hərfləri qarışdırır. Yavaş danışın, hər sözdən sonra qısa fasilə verin: «K wie Kaufmann».</p></div>`}
+function telFinish(id){const ch=chatOf(id,"tel");if(!ch.end)ch.end=Date.now();ch.sum=true;const c=byId(id);const r=telEval(c,ch);
+  fmSet("tel_"+id,Math.round(["sur","dob","drug","dose"].filter(k=>r[k]&&r[k].ok).length/4*100));const s=$("#free-tel");if(s&&viewIs(id))s.innerHTML=telSumHTML(c,ch)}
+function telRules(c){const T=TEL[c.id];const w=c.sex==="w";return [
+ "Rollenspiel zur Vorbereitung auf die Fachsprachprüfung Medizin (Teil: Telefonat).",
+ `Du bist Petra Lang, Medizinische Fachangestellte in der Hausarztpraxis Dr. Berger, und rufst in der Klinik an. ${w?"Eine Patientin":"Ein Patient"} eurer Praxis wird heute entlassen, und du brauchst die neuen Medikamente für den Medikationsplan. Der Nutzer ist die Ärztin oder der Arzt in der Klinik. Seine Nachrichten stammen aus einer Spracherkennung. Deine Antworten werden laut vorgelesen: nur gesprochene Sprache, kurze Sätze.`,
+ "Ablauf, immer nur ein Schritt pro Nachricht:",
+ "1. Melde dich mit Namen und Praxis, nenne kurz den Grund und frage, mit wem du sprichst.",
+ `2. Bitte darum, den Nachnamen ${w?"der Patientin":"des Patienten"} zu buchstabieren.`,
+ "3. Frage nach dem Geburtsdatum.",
+ "4. Frage, welches Medikament neu ist, und bitte darum, es zu buchstabieren.",
+ "5. Frage nach der Dosierung.",
+ "6. Bedanke dich und verabschiede dich mit „Auf Wiederhören“.",
+ `Richtige Daten, nur zur Kontrolle, verrate sie nicht: Nachname ${T.sur}, Geburtsdatum ${T.dob}, Medikament ${T.drug}, Dosierung ${T.dose}.`,
+ "Regeln:",
+ "- Wenn die Ärztin oder der Arzt nicht buchstabiert, bitte darum. Wenn buchstabiert wird, wiederhole kurz die Buchstaben, die du verstanden hast.",
+ "- Wenn etwas nicht zu den richtigen Daten passt, frage freundlich nach, ohne die Lösung zu verraten.",
+ "- Keine Bewertung, keine Tipps, kein Russisch oder Englisch."].join("\n")}
+function abcHTML(){return `<p class="small" style="margin-top:8px">Klinikalarda daha çox ənənəvi cədvəldən istifadə edirlər (Anton, Berta…). 2022-ci ildən DIN 5009 standartı şəhər adlarından istifadə edir. Hər ikisi uyğundur. Belə deyin: «K wie Kaufmann».</p>
+  <div class="tbl-wrap abc"><table lang="de"><thead><tr><th>Buchstabe</th><th>traditionell</th><th>DIN 5009 (2022)</th></tr></thead><tbody>${ABC.map(r=>`<tr><td><b>${esc(r[0])}</b></td><td>${esc(r[1])}</td><td>${esc(r[2])}</td></tr>`).join("")}</tbody></table></div>`}
+
+/* --- Hörverstehen --- */
+const HP={tok:0,on:false,i:-1,n:{},pos:{}};
+const hoerOf=id=>HOER.find(x=>x.id===id);
+function hpPaint(h){const pos=HP.pos[h.id]||0;const s=$("#h-state");if(s)s.textContent=HP.on?`Replika ${HP.i+1} / ${h.lines.length}`:pos?`Fasilə · replika ${pos+1} / ${h.lines.length}`:`Dinlənmə sayı: ${HP.n[h.id]||0}`;
+  const p=$('[data-action="h-play"]'),st=$('[data-action="h-stop"]'),rs=$('[data-action="h-restart"]');if(p){p.disabled=HP.on;p.textContent=pos&&!HP.on?"Davam et":"Söhbəti dinlə"}if(st)st.hidden=!HP.on;if(rs)rs.hidden=!(pos||HP.on)}
+async function hoerPlay(h){unlockTTS();stopRec();paintRec();const my=++HP.tok;HP.on=true;let start=HP.pos[h.id]||0;if(start>=h.lines.length)start=0;if(!start)HP.n[h.id]=(HP.n[h.id]||0)+1;HP.i=start;hpPaint(h);
+  for(let i=start;i<h.lines.length;i++){if(HP.tok!==my)return;HP.i=i;HP.pos[h.id]=i;hpPaint(h);const [w,t]=h.lines[i];
+    const ok=await speakSegs([t],w==="d"?"ober":h.pv,true);
+    if(HP.tok!==my)return;if(ok===false){HP.on=false;hpPaint(h);return}
+    HP.pos[h.id]=i+1;await new Promise(r=>setTimeout(r,350))}
+  if(HP.tok===my){HP.on=false;HP.i=-1;HP.pos[h.id]=0;hpPaint(h)}}
+function hoerRes(h,text){const n=str(text).toLowerCase().replace(/ß/g,"ss");return h.facts.map(([l,re])=>[l,(Array.isArray(re)?re:[re]).every(r=>r.test(n))])}
+function hoerResHTML(h,text){const g=hoerRes(h,text);const ok=g.filter(x=>x[1]).length;const pct=Math.round(ok/g.length*100);
+  return `<div class="fb"><span class="eyebrow">Nəticə · əsas faktlar</span><p class="fb-sum">Tapılıb: ${ok} / ${g.length} əsas fakt.</p><div class="meter" role="img" aria-label="Tapılıb: ${ok} / ${g.length}"><i style="width:${pct}%"></i></div>
+    ${ok<g.length?`<div class="fb-sec"><h3>Mətndə tapılmadı</h3><ul class="plain">${g.filter(x=>!x[1]).map(x=>`<li lang="de">${esc(x[0])}</li>`).join("")}</ul></div>`:""}
+    <p class="small muted">Yoxlama açar sözləri və rəqəmləri axtarır, qrammatikanı yox. Dil təhlili üçün «Sİ ilə yoxla» düyməsini basın.</p>
+    <div class="muster"><span class="eyebrow">Nümunə · qaralama, daşıyıcı tərəfindən yoxlanılmalıdır</span><p class="pre" lang="de">${esc(h.muster)}</p></div></div>`}
+function hoerPrompt(h,text){return `Du bist erfahrene Prüferin in der Fachsprachprüfung Medizin (Niveau C1). Ein ausländischer Arzt hat ein Gespräch zwischen Arzt und ${h.sex==="w"?"Patientin":"Patient"} gehört und danach die Anamnese schriftlich dokumentiert. Bewerte Sprache (indirekte Rede mit Konjunktiv I, Fachsprache, Stil), Vollständigkeit und Richtigkeit der Fakten. ${ASR_NOTE}
+
+Transkript des Gesprächs:
+${h.lines.map(([w,t])=>(w==="d"?"ARZT: ":"PATIENT: ")+t).join("\n")}
+
+Musterlösung (nur als Referenz für Struktur und Formulierungen; der Text muss nicht wörtlich übereinstimmen):
+${h.muster}
+
+Text des Arztes:
+<<<
+${text}
+>>>
+
+Aufgaben:
+1. Bis zu 10 echte sprachliche Fehler aus dem Text des Arztes (Grammatik, indirekte Rede mit Konjunktiv I, Fachterminologie, Stil). Für jeden Fehler: Original wörtlich aus dem Text, Korrektur, kurze Erklärung auf Aserbaidschanisch. Erfinde keine Fehler.
+2. Wichtige Informationen aus dem Gespräch, die fehlen (kurz, auf Aserbaidschanisch).
+3. Fakten, die falsch verstanden oder falsch wiedergegeben wurden (kurz, auf Aserbaidschanisch; leere Liste, wenn keine).
+4. 1 bis 2 Stärken und 2 bis 3 konkrete Tipps, auf Aserbaidschanisch.
+5. Ein Fazit in 2 bis 3 Sätzen auf Aserbaidschanisch.
+
+Antworte nur mit JSON in genau dieser Form:
+${JSON_SHAPE}`}
+
+/* --- views --- */
+function famedHTML(){const sc=k=>{const v=fmScore(k);return v==null?"—":v+"%"};const cap=s=>s.charAt(0)+s.slice(1).toLowerCase();
+  return `<section class="hero"><span class="eyebrow">FaMed</span><h1>FaMed modulları</h1><p class="lede">Anamnezdən başqa üç növ tapşırıq: pasiyentə izah, hərf-hərf diktə ilə telefon danışığı və anamnezin yazılması ilə dinləmə.</p></section>
+  <p class="note">FaMed-də anamnez və izah hərəsi 11 dəqiqə çəkir, sənədləşdirmə isə fasilə verilə bilən videoya əsasən yazılır (famed-test.de, 08.10.2026 tarixində yoxlanılıb). Burada hər hissəni ayrıca, bütün imtahanı isə «Sınaq imtahanı» bölməsində məşq edə bilərsiniz.</p>
+  <div class="row"><a class="btn" href="#exam-famed">FaMed sınaq imtahanı</a></div>
+  <section><h2 lang="de">Patientenaufklärung</h2><p class="small">Pasiyentə əməliyyatı, müayinəni və ya müalicəni sadə sözlərlə izah edin. Pasiyent səslə cavab verir və suallar verir.</p>
+  <ul class="prog">${CASES.map(c=>`<li><a href="#famed-aufkl-${c.id}"><span lang="de">${esc(AUFKL[c.id].de)}</span></a><span class="mono">${sc("aufkl_"+c.id)}</span></li>`).join("")}</ul></section>
+  <section><h2 lang="de">Telefonat und Buchstabieren</h2><p class="small">Ailə həkiminin praktikasından zəng: soyadı və dərmanı hərf-hərf diktə edin, doğum tarixini və dozajı deyin.</p>
+  <ul class="prog">${CASES.map(c=>`<li><a href="#famed-tel-${c.id}"><span lang="de">${esc(c.name)} · ${esc(cap(TEL[c.id].drug))}</span></a><span class="mono">${sc("tel_"+c.id)}</span></li>`).join("")}</ul></section>
+  <section><h2 lang="de">Hörverstehen und Dokumentation</h2><p class="small">Həkimlə pasiyentin söhbətini dinləyin (iki səs) və anamnezi almanca yazın. Tətbiq əsas faktları yoxlayacaq.</p>
+  <ul class="prog">${HOER.map(h=>`<li><a href="#famed-hoer-${h.id}"><span lang="de">Dialog ${h.id} · ${esc(h.title)}</span></a><span class="mono">${sc("hoer_"+h.id)}</span></li>`).join("")}</ul></section>`}
+function aufklHTML(c){const A=AUFKL[c.id];return `${FM_BACK}${etikett(c)}
+  <section class="hero"><span class="eyebrow">Patientenaufklärung</span><h1 lang="de">${esc(A.de)}</h1><p class="lede">${esc(A.task)}</p></section>
+  <section><details class="cl-wrap" open><summary><span>Nəyi izah etməli</span><span class="mono" id="pts-n"></span></summary><div class="cl" id="aufkl-pts"></div></details>
+  ${freeNote()}${chatBox("aufkl")}<div id="free-aufkl"></div><div id="fb-aufkl"></div></section>`}
+function telHTML(c){const T=TEL[c.id];return `${FM_BACK}
+  <section class="hero"><span class="eyebrow">Telefonat · Buchstabieren</span><h1 lang="de">Anruf aus der Hausarztpraxis</h1><p class="lede">Sizə ailə həkiminin praktikasından işçi zəng edir. Özünüzü təqdim edin, soyadı və dərmanın adını hərf-hərf diktə edin, doğum tarixini və dozajı deyin. Bütün məlumatlar aşağıdakı kartdadır.</p></section>
+  <section><div class="panel" lang="de"><span class="eyebrow">Daten für das Telefonat</span><dl class="kv"><div><dt>Nachname</dt><dd class="mono">${esc(T.sur)}</dd></div><div><dt>Vorname</dt><dd>${esc(c.name.split(" ")[0])}</dd></div><div><dt>Geburtsdatum</dt><dd class="mono">${esc(T.dob)}</dd></div><div><dt>Neues Medikament</dt><dd class="mono">${esc(T.drug)}</dd></div><div><dt>Dosierung</dt><dd>${esc(T.dose)}</dd></div></dl></div>
+  <details class="notes-ro"><summary>Diktə üçün alman əlifbası</summary>${abcHTML()}</details></section>
+  <section>${freeNote()}${chatBox("tel")}<div id="free-tel"></div><div id="fb-tel"></div></section>`}
+function hoerHTML(h){const d=draft("h_"+h.id);return `${FM_BACK}
+  <section class="hero"><span class="eyebrow">Hörverstehen · Dialog ${h.id}</span><h1 lang="de">${esc(h.title)}</h1><p class="lede">Həkimlə pasiyentin (<span lang="de">${esc(h.pname)}</span>) söhbətini dinləyin və anamnezi almanca yazın: dolayı nitq (Konjunktiv I), terminlər, struktur. Dinləyərkən qeydlər edə bilərsiniz.</p></section>
+  <section><div class="panel"><div class="row"><button type="button" class="btn primary" data-action="h-play">Söhbəti dinlə</button><button type="button" class="btn ghost" data-action="h-stop" hidden>Fasilə</button><button type="button" class="btn ghost" data-action="h-restart" hidden>Əvvəldən</button></div>
+    <p class="small" id="h-state"></p>
+    <p class="small muted">FaMed-də söhbət video kimi göstərilir, ona fasilə vermək olar; yazı ilə birlikdə 22 dəqiqə. Videonu yenidən izləmək olarmı: <span class="ph">[dəqiqləşdirilməli]</span>.</p></div></section>
+  <section><label class="lbl" for="hoer">Sizin mətn (Anamnese)</label>${dictBox("hoer","Diktə edə bilərsiniz: mikrofonu basın, cümləni deyin, mətn sona əlavə olunacaq.")}
+    <textarea id="hoer" data-hdraft="h_${h.id}" rows="14" lang="de" placeholder="Frau/Herr … stellte sich heute mit … vor.">${esc(d.brief)}</textarea>
+    <div class="row"><button type="button" class="btn primary" data-action="h-check">Yoxla</button><button type="button" class="btn ai-on" data-action="h-ai">Sİ ilə yoxla</button><span class="mono muted" id="wc-hoer"></span></div>
+    <div id="h-res"></div><div id="fb-hoer"></div>
+    <details class="notes-ro"><summary>Söhbətin transkripti</summary><div style="margin-top:8px">${h.lines.map(([w,t])=>`<p class="small"><b lang="de">${w==="d"?"Arzt":(h.sex==="w"?"Patientin":"Patient")}:</b> <span lang="de">${esc(t)}</span></p>`).join("")}</div></details></section>`}
+function famedView(){if(R.mod==="aufkl")return aufklHTML(byId(R.id));if(R.mod==="tel")return telHTML(byId(R.id));if(R.mod==="hoer")return hoerHTML(hoerOf(R.id));return famedHTML()}
+function afterFamed(){const id=R.id;
+  const fill=(k,key)=>{const s=$("#fb-"+k);if(!s)return;if(FBRUN[k]&&FBRUN[k].id===key)s.innerHTML=thinkingHTML(k);else if(FB[key+":"+k])s.innerHTML=fbHTML(k,byId(key),FB[key+":"+k])};
+  if(R.mod==="aufkl"){voicePrefetch("p_"+id);paintChat(id,"aufkl");const ch=chatOf(id,"aufkl");if(ch.sum){const s=$("#free-aufkl");if(s)s.innerHTML=aufklSumHTML(byId(id),ch)}fill("aufkl",id)}
+  if(R.mod==="tel"){voicePrefetch("nurse");paintChat(id,"tel");const ch=chatOf(id,"tel");if(ch.sum){const s=$("#free-tel");if(s)s.innerHTML=telSumHTML(byId(id),ch)}}
+  if(R.mod==="hoer"){const h=hoerOf(id);voicePrefetch("ober");voicePrefetch(h.pv);hpPaint(h);const w=$("#wc-hoer");if(w)w.textContent=words(draft("h_"+id).brief)+" söz";fill("hoer","h_"+id)}
+  paintRec()}
+
 /* ---------- settings ---------- */
 function maskKey(k){return k?k.slice(0,7)+"…"+k.slice(-4):""}
 function settingsHTML(){const nv=deVoices().length;return `<section class="hero"><span class="eyebrow">Ayarlar</span><h1>Açar və səs</h1></section>
@@ -1047,6 +1542,7 @@ function settingsHTML(){const nv=deVoices().length;return `<section class="hero"
       <li>Yazılmış səs: ${VO.idx?'<span class="y">yükləndi</span>':'<span class="n">tapılmadı, telefonun səsi istifadə olunur</span>'}</li>
     </ul>
     <label class="chk"><input type="checkbox" id="s-tts"${SET.tts?" checked":""}> Pasiyentin və Oberarzt-ın cavablarını səsləndir</label>
+    <label class="chk"><input type="checkbox" id="s-live"${SET.live?" checked":""}> Canlı söhbət: həmsöhbət cavab verdikdən sonra mikrofon özü açılır</label>
     <label class="chk"><input type="checkbox" id="s-auto"${SET.autosend?" checked":""}> Danışdıqdan dərhal sonra göndər</label>
     <p class="small muted">Söndürülsə, tanınmış mətn əvvəlcə sahədə görünəcək və onu göndərməzdən əvvəl düzəldə bilərsiniz.</p>
     <label class="lbl" for="s-voice">Alman səsi</label>
@@ -1154,16 +1650,131 @@ function paintDrill(){const b=$("#drill-body");if(!b)return;if(!DR)buildDrill();
     <div class="row"><button type="button" class="btn ${r?"primary":"ghost"}" data-action="drill-next">${r?"Növbəti":"Keç"}</button></div>`;
   paintRec()}
 
+/* ---------- FaMed exam: 3 stations, 5 situations with different patients (format per famed-test.de/pruefungsablauf, checked 08.10.2026) ---------- */
+let FX=null;
+const FX_TITLE={anam:"Anamnesegespräch",aufkl:"Aufklärungsgespräch",vor:"Patientenvorstellung",doc:"Dokumentation"};
+const FX_STATION={anam:"Arzt-Patienten-Kommunikation",aufkl:"Arzt-Patienten-Kommunikation",vor:"Arzt-Arzt-Kommunikation",doc:"Schriftliche Station"};
+const FX_PASS=60;
+function fxStep(){return FX&&!FX.done&&FX.i<FX.steps.length?FX.steps[FX.i]:null}
+function fxKind(s){return s.k==="anam"?"patient":s.k==="aufkl"?"aufkl":s.k==="vor"?"ober":null}
+function fxName(s){return FX_TITLE[s.k]+(s.k==="vor"?" "+s.n:"")}
+function fxWho(s){return s.k==="doc"?hoerOf(s.hid).pname:byId(s.cid).anrede+" "+byId(s.cid).name}
+function fxStart(){stopRec();stopVoice();const [B,A,C]=shuffle(CASES.map(c=>c.id));const h=HOER[Math.floor(Math.random()*HOER.length)];
+  const ap=[{k:"anam",cid:A,read:0,min:11},{k:"aufkl",cid:B,read:90,min:11}],aa=[{k:"vor",cid:C,read:90,min:11,n:1},{k:"vor",cid:B,read:90,min:11,n:2}];
+  const steps=[];(Math.random()<0.5?[ap,aa]:[aa,ap]).forEach((st,si)=>st.forEach(s=>{s.st=si;steps.push(s)}));steps.push({k:"doc",hid:h.id,read:0,min:22,st:2});
+  steps.forEach(s=>{const k=fxKind(s);if(k){const ch=CH[s.cid+":"+k];if(ch&&ch.ctl)ch.ctl.abort();delete CH[s.cid+":"+k]}});delete FREE[A];delete COV[A];
+  HP.pos[h.id]=0;HP.n[h.id]=0;
+  EX=null;FX={steps,i:0,phase:steps[0].read?"read":"talk",t0:Date.now(),notes:"",doc:"",ai:null,done:false};render()}
+function fxPhaseLen(){const s=fxStep();if(!s)return 1;return FX.phase==="break"?60:FX.phase==="read"?s.read:s.min*60}
+function fxLeft(){if(!fxStep())return 0;return fxPhaseLen()-Math.floor((Date.now()-FX.t0)/1000)}
+function fxNext(auto){const s=fxStep();if(!s)return;stopRec();stopVoice();HP.tok++;HP.on=false;
+  if(FX.phase==="break")FX.phase=s.read?"read":"talk";
+  else if(FX.phase==="read")FX.phase="talk";
+  else{const k=fxKind(s);if(k){const ch=chatOf(s.cid,k);if(ch.ctl)ch.ctl.abort();if(!ch.end)ch.end=Date.now()}
+    s.dur=Math.min(s.min*60,Math.round((Date.now()-FX.t0)/1000));if(auto)s.timeout=true;
+    FX.i++;const n=FX.steps[FX.i];if(!n)fxFinish();else FX.phase=n.st!==s.st?"break":(n.read?"read":"talk")}
+  FX.t0=Date.now();if(R.v==="exam")render()}
+function fxFinish(){FX.done=true;
+  for(const s of FX.steps){
+    if(s.k==="anam"){const c=byId(s.cid);const rec=recFromChat(s.cid,chatOf(s.cid,"patient"),"exam");if(s.dur)rec.dur=s.dur;pushHist(rec);
+      s.pct=Math.round(rec.cov/rec.total*100);s.miss=c.items.filter(i=>rec.missed.includes(i.id)).map(i=>i.t)}
+    else if(s.k==="aufkl"){const A=AUFKL[s.cid];const got=chatOf(s.cid,"aufkl").pts||new Set();s.pct=Math.round(A.pts.filter(p=>got.has(p[0])).length/A.pts.length*100);s.miss=A.pts.filter(p=>!got.has(p[0])).map(p=>p[1])}
+    else if(s.k==="vor"){const ob=chatOf(s.cid,"ober");const keys=KEYS[s.cid]||[];const said=ob.turns.filter(t=>t.role==="user").map(t=>t.content).join(" ");const hit=keys.filter(k=>k[1].test(said));
+      const ans=ob.qs?ob.ans.filter(a=>a.length).length:ob.turns.filter(t=>t.role==="user").length;const tot=ob.qs?ob.qs.length:Math.max(ans,5);
+      s.pct=Math.round(((keys.length?hit.length/keys.length:0)+Math.min(1,ans/tot))*50);s.miss=keys.filter(k=>!hit.includes(k)).map(k=>k[0])}
+    else{const g=hoerRes(hoerOf(s.hid),FX.doc);s.pct=Math.round(g.filter(x=>x[1]).length/g.length*100);s.miss=g.filter(x=>!x[1]).map(x=>x[0])}}}
+function fxAufklInfo(A){return `<div class="panel" lang="de"><span class="eyebrow">Aufklärung</span><b>${esc(A.de)}</b><ul class="plain">${A.pts.map(p=>`<li>${esc(p[1])}</li>`).join("")}</ul></div>`}
+function fxPatInfo(c){return `<div class="panel" lang="de"><span class="eyebrow">Patienteninformationen</span><b>${esc(c.anrede+" "+c.name)}, ${c.alter} Jahre, geb. ${esc(c.geb)}</b><ul class="plain small">${c.items.filter(i=>i.id!=="pers").map(i=>`<li><b>${esc(i.t)}:</b> ${esc(i.a)}</li>`).join("")}</ul></div>`}
+function fxPlayer(){return `<div class="panel"><div class="row"><button type="button" class="btn primary" data-action="h-play">Söhbəti dinlə</button><button type="button" class="btn ghost" data-action="h-stop" hidden>Fasilə</button><button type="button" class="btn ghost" data-action="h-restart" hidden>Əvvəldən</button></div><p class="small" id="h-state"></p></div>`}
+function fxHTML(){if(FX.done)return fxResultHTML();const s=fxStep();const left=fxLeft();const len=fxPhaseLen();
+  const label=FX.phase==="break"?"Pause":FX.phase==="read"?"Lesezeit · "+fxName(s):fxName(s);
+  const head=`<section class="exhead"><div class="ex-top"><span class="eyebrow">FaMed · Situation ${FX.i+1} von ${FX.steps.length} · <span lang="de">${esc(label)}</span></span><span class="ex-clock mono${left<=60&&FX.phase==="talk"?" low":""}" id="ex-clock">${fmt(left)}</span></div><div class="meter"><i id="ex-bar" style="width:${Math.max(0,Math.min(100,100*left/len))}%"></i></div><p class="small muted" lang="de">${esc(FX_STATION[s.k])}</p></section>`;
+  const next=t=>`<div class="row"><button type="button" class="btn primary" data-action="fx-next">${t}</button></div>`;
+  let body="";
+  if(FX.phase==="break")body=`<section><div class="panel"><p>Stansiyalar arasında fasilə: 1 dəqiqə.</p><p class="small muted">Növbəti stansiya: <span lang="de">${esc(FX_STATION[s.k])}</span>.</p>${next("Davam →")}</div></section>`;
+  else if(s.k==="anam")body=`${etikett(byId(s.cid))}<section><p class="lede-s">Anamnezi səslə toplayın. İpucu yoxdur. Qeyd etmək olar.</p>${freeNote()}${chatBox("patient",true)}
+    <label class="lbl" for="fxnotes">Qeydlər</label><textarea id="fxnotes" data-fx="notes" rows="4" lang="de">${esc(FX.notes)}</textarea>${next("Anamnezi bitir →")}</section>`;
+  else if(s.k==="aufkl"){const c=byId(s.cid),A=AUFKL[s.cid];
+    body=FX.phase==="read"?`${etikett(c)}<section><p class="lede-s">Pasiyentə nəyi izah etməli olduğunuzu oxuyun. Oxu vaxtı bitəndə söhbət başlayacaq.</p>${fxAufklInfo(A)}${next("Söhbətə başla →")}</section>`
+      :`${etikett(c)}<section><p class="lede-s">Proseduru sadə sözlərlə izah edin, suallara cavab verin və razılıq alın.</p><details class="notes-ro"><summary>Bəndləri yenə göstər</summary>${fxAufklInfo(A)}</details>${freeNote()}${chatBox("aufkl",true)}${next("İzahı bitir →")}</section>`}
+  else if(s.k==="vor"){const c=byId(s.cid);
+    body=FX.phase==="read"?`<section><p class="lede-s">Pasiyentin məlumatlarını oxuyun. Oxu vaxtı bitəndə pasiyenti Oberarzt-a təqdim edəcəksiniz.</p><p class="small muted">Trenajorda məlumatlar pasiyentin sözləri ilə yazılıb: təqdimatda onları Fachsprache-yə çevirin.</p>${fxPatInfo(c)}${next("Təqdimata başla →")}</section>`
+      :`<section><p class="lede-s">Pasiyenti Oberarzt-a qısa və dəqiq, Fachsprache ilə təqdim edin və suallara cavab verin.</p>${fxPatInfo(c)}${freeNote()}${chatBox("ober",true)}${next("Təqdimatı bitir →")}</section>`}
+  else body=`<section><p class="lede-s">Söhbəti dinləyin və Anamneseteil eines Arztbriefes yazın: tam cümlələrlə, pasiyentin sözləri Konjunktiv I-də.</p>
+    <p class="small muted">FaMed təsvirinə görə lazımdır: ad (lazım olsa yaş, çəki, boy), cari şikayətlər, keçirilmiş xəstəliklər və dərmanlar, siqaret və spirt, ailə və sosial anamnez, lazım olsa səyahət anamnezi. İmtahanda bu videodur, trenajorda iki səslə audio. Yazıya fasilə vermək olar.</p>
+    ${fxPlayer()}${dictBox("fxdoc","Cümləni diktə edə bilərsiniz, mətn sona əlavə olunacaq.")}
+    <label class="sr" for="fxdoc">Sənədləşdirmə</label><textarea id="fxdoc" data-fx="doc" rows="14" lang="de" placeholder="Frau/Herr … stellte sich heute mit … vor.">${esc(FX.doc)}</textarea>
+    <div class="row"><span class="mono muted" id="wc-fxdoc">${words(FX.doc)} söz</span></div>${next("Təhvil ver və imtahanı bitir")}</section>`;
+  return head+body+`<div class="row"><button type="button" class="btn ghost" data-action="ex-abort">İmtahanı dayandır</button></div>`}
+function fxResultHTML(){const ok=FX.steps.filter(s=>s.pct>=FX_PASS).length;
+  const missL={anam:"Soruşulmayıb",aufkl:"Səslənmədi",vor:"Məruzədə səslənmədi",doc:"Mətndə yoxdur"};
+  const rows=FX.steps.map(s=>`<div class="fb-sec"><div class="bar-row"><span><span lang="de">${esc(fxName(s))}</span> · <span lang="de">${esc(fxWho(s))}</span></span><span class="mono">${s.pct}%${s.pct<FX_PASS?" · 60%-dən aşağı":""}</span></div><div class="meter"><i style="width:${s.pct}%"></i></div>
+    <p class="small muted">Vaxt ${fmt(s.dur||0)}${s.timeout?" (vaxt bitdi)":""}</p>${s.miss.length?`<p class="small"><span class="muted">${missL[s.k]}:</span> <span lang="de">${s.miss.map(esc).join(", ")}</span></p>`:""}</div>`).join("");
+  const doc=FX.steps.find(s=>s.k==="doc"),au=FX.steps.find(s=>s.k==="aufkl"),vors=FX.steps.filter(s=>s.k==="vor");const h=hoerOf(doc.hid);
+  return `<section class="hero"><span class="eyebrow">FaMed · nəticə</span><h1>FaMed sınaq imtahanı</h1><p class="lede">60% və yuxarı olan situasiyalar: ${ok} / ${FX.steps.length}.</p></section>
+  <section><div class="fb"><span class="eyebrow">Sİ-siz · texniki qiymət</span>${rows}
+  <p class="small muted">«Hər situasiyada ən azı 60%» meyarı hazırlıq kurslarının təsvirlərindən götürülüb. Rəsmi qiymətləndirmə meyarları famed-test.de saytında dərc olunmayıb <span class="ph">[dəqiqləşdirilməli]</span>. Sİ-siz mövzuların əhatəsi, izah bəndləri və əsas faktlar qiymətləndirilir, qrammatika, üslub və tələffüz yox.</p>
+  ${KEY?`<div class="row"><button type="button" class="btn primary" data-action="ex-ai">Ətraflı Sİ qiymətləndirməsi</button></div>`:""}</div></section>
+  <div id="fb-exam">${FX.ai?examAiHTML(null,FX.ai):""}</div>
+  <section><details class="notes-ro"><summary>Bu imtahan üçün nümunələr</summary><div class="muster" style="margin-top:8px">
+    <span class="eyebrow">Dokumentation · ${esc(h.pname)}</span><p class="pre" lang="de">${esc(h.muster.split("\n\nVerdachtsdiagnose")[0])}</p>
+    <span class="eyebrow">Aufklärung · ${esc(AUFKL[au.cid].de)}</span><p class="pre" lang="de">${esc(AUFKL[au.cid].muster)}</p>
+    ${vors.map(s=>`<span class="eyebrow">${esc(fxName(s))} · ${esc(byId(s.cid).name)}</span><p class="pre" lang="de">${esc(byId(s.cid).vorstellung)}</p>`).join("")}</div></details></section>
+  <div class="row"><button type="button" class="btn primary" data-action="ex-new">Yeni imtahan</button><a class="btn" href="#home">Əsas səhifə</a></div>`}
+function oberRulesFx(c){return `Rollenspiel zur Vorbereitung auf die Fachsprachprüfung Medizin (FaMed, Teil: Patientenvorstellung). Du bist Oberärztin bzw. Oberarzt. Der Nutzer ist Assistenzärztin bzw. Assistenzarzt und stellt dir gleich ${c.sex==="w"?"die Patientin":"den Patienten"} ${c.anrede} ${c.name} vor. Seine Nachrichten stammen aus einer Spracherkennung und können Erkennungsfehler enthalten. Deine Antworten werden laut vorgelesen: nur gesprochene Sprache, keine Aufzählungen oder Sternchen.
+
+Fakten des Falls:
+${factsText(c)}
+
+Regeln:
+- Beginne mit einem kurzen Satz und bitte darum, den Fall vorzustellen.
+- Höre zu. Danach stelle in jeder Nachricht genau EINE Frage: zu fehlenden Angaben, zur Bedeutung von Fachbegriffen, zur Verdachtsdiagnose und zum weiteren Vorgehen.
+- Sprich Deutsch, kollegial und knapp. Siezen. Keine Sprachkorrekturen, keine Bewertung, kein Russisch oder Englisch.
+- Nach etwa fünf Fragen bedankst du dich und beendest das Gespräch mit einem Satz.`}
+function famedPrompt(){const tr=(id,k,a,b)=>chatOf(id,k).turns.map(t=>(t.role==="user"?a:b)+t.content).join("\n")||"(kein Gespräch)";
+  const parts=FX.steps.map((s,i)=>{const c=s.cid?byId(s.cid):null;
+    if(s.k==="anam")return `Situation ${i+1} – Anamnesegespräch (${c.anrede} ${c.name}):\n${tr(s.cid,"patient","ARZT: ","PATIENT: ")}`;
+    if(s.k==="aufkl")return `Situation ${i+1} – Aufklärungsgespräch über ${AUFKL[s.cid].de}. Wichtige Punkte: ${AUFKL[s.cid].pts.map(p=>p[1]).join("; ")}\n${tr(s.cid,"aufkl","ARZT: ","PATIENT: ")}`;
+    if(s.k==="vor")return `Situation ${i+1} – Patientenvorstellung (${c.anrede} ${c.name}). Fakten:\n${factsText(c)}\nGespräch:\n${tr(s.cid,"ober","ASSISTENZARZT: ","OBERARZT: ")}`;
+    const h=hoerOf(s.hid);return `Situation ${i+1} – Dokumentation (Anamneseteil eines Arztbriefes nach einem Gespräch).\nTranskript:\n${h.lines.map(([w,t])=>(w==="d"?"ARZT: ":"PATIENT: ")+t).join("\n")}\nText des Arztes:\n<<<\n${FX.doc||"(leer)"}\n>>>`}).join("\n\n");
+  return `Du bist erfahrene Prüferin in der Fachsprachprüfung Medizin (Niveau C1). Bewerte eine simulierte FaMed-Prüfung eines ausländischen Arztes mit fünf Situationen. Bewertet werden Sprache und Kommunikation, nicht das medizinische Fachwissen. ${ASR_NOTE}
+
+${parts}
+
+Bewerte jede Kategorie von 0 bis 100 und begründe kurz auf Aserbaidschanisch:
+- fachsprache: korrekte medizinische Fachsprache in den Patientenvorstellungen und der Dokumentation
+- patientensprache: verständliche Sprache gegenüber den Patienten, keine unerklärten Fachbegriffe
+- struktur: logischer Aufbau von Anamnese, Aufklärung, Vorstellungen und Dokumentation
+- vollstaendigkeit: Vollständigkeit von Anamnese, Aufklärung und Dokumentation
+- dokumentation: sprachliche Qualität der Dokumentation (ganze Sätze, Konjunktiv I, Stil)
+Außerdem: bis zu 8 wichtigste sprachliche Fehler (original wörtlich, korrektur, erklaerung auf Aserbaidschanisch), 3 Tipps auf Aserbaidschanisch, ein Fazit in 2 bis 3 Sätzen auf Aserbaidschanisch.
+
+Antworte nur mit JSON in genau dieser Form:
+{"scores":{"fachsprache":0,"patientensprache":0,"struktur":0,"vollstaendigkeit":0,"dokumentation":0},"begruendung":{"fachsprache":"...","patientensprache":"...","struktur":"...","vollstaendigkeit":"...","dokumentation":"..."},"corrections":[{"original":"...","korrektur":"...","erklaerung":"..."}],"tipps":["..."],"fazit":"..."}`}
+function curHoer(){if(R.v==="exam"){const s=fxStep();return s&&s.k==="doc"?hoerOf(s.hid):null}return R.v==="famed"&&R.mod==="hoer"?hoerOf(R.id):null}
+setInterval(()=>{const s=fxStep();if(!s)return;const left=fxLeft();const p=$("#exam-pill");if(p){p.hidden=R.v==="exam";p.textContent="FaMed "+fmt(left)}
+  if(R.v==="exam"){const el=$("#ex-clock");if(el){el.textContent=fmt(left);el.classList.toggle("low",left<=60&&FX.phase==="talk")}const bar=$("#ex-bar");if(bar)bar.style.width=Math.max(0,Math.min(100,100*left/fxPhaseLen()))+"%"}
+  if(left<=0)fxNext(true)},1000);
+
+/* ---------- FSP: optional vocabulary test (Fachbegriff -> Patientensprache) ---------- */
+const VOC_N=20,VOC_MIN=20;
+function vocOk(term,ans){const v=VOCAB.find(x=>x[0]===term);const n=norm(ans);if(!v||!n.trim())return false;return layStems(v[1]).some(s=>n.includes(s))}
+function vocHTML(){return `<section><p class="lede-s">Hər termin üçün pasiyent dilində söz və ya izah yazın, almanca.</p>
+  <div class="voc">${EX.voc.items.map((t,i)=>`<label class="voc-row"><span class="voc-t" lang="de">${esc(t)}</span><input type="text" lang="de" data-voc="${i}" value="${esc(EX.voc.ans[i]||"")}" autocomplete="off" spellcheck="false"></label>`).join("")}</div>
+  <div class="row"><button type="button" class="btn primary" data-action="ex-next">Vokabeltest-i təhvil ver →</button></div></section>`}
+
 /* ---------- exam mode ---------- */
 const EXAM_STAGES=["Anamnese","Dokumentation","Vorstellung"];
 function examStart(caseId){stopRec();const last=arr(S.hist).filter(h=>h.kind==="exam").map(h=>h.case);
   let id=caseId;if(!id){const fresh=CASES.filter(c=>!last.slice(-2).includes(c.id));const pool=fresh.length?fresh:CASES;id=pool[Math.floor(Math.random()*pool.length)].id}
   ["patient","ober"].forEach(k=>{const ch=CH[id+":"+k];if(ch&&ch.ctl)ch.ctl.abort();delete CH[id+":"+k]});delete FREE[id];delete COV[id];
-  EX={caseId:id,stage:1,per:(+SET.examMin||20)*60,t0:{1:Date.now()},dur:{},timeout:{},notes:"",brief:"",vor:"",res:null,ai:null};render()}
-function examLeft(){if(!EX||EX.stage>3)return 0;return EX.per-Math.floor((Date.now()-EX.t0[EX.stage])/1000)}
+  const st=SET.vocab?0:1;FX=null;
+  EX={caseId:id,stage:st,per:(+SET.examMin||20)*60,t0:{[st]:Date.now()},dur:{},timeout:{},notes:"",brief:"",vor:"",res:null,ai:null,voc:SET.vocab?{items:shuffle(VOCAB).slice(0,VOC_N).map(v=>v[0]),ans:[]}:null};render()}
+function exPer(s){return s===0?VOC_MIN*60:EX.per}
+function examLeft(){if(!EX||EX.stage>3)return 0;return exPer(EX.stage)-Math.floor((Date.now()-EX.t0[EX.stage])/1000)}
 function exNext(auto){if(!EX||EX.stage>3)return;stopRec();stopVoice();
-  const s=EX.stage;const active=chatOf(EX.caseId,s===1?"patient":"ober");if(active&&active.ctl)active.ctl.abort();
-  EX.dur[s]=Math.min(EX.per,Math.round((Date.now()-EX.t0[s])/1000));if(auto)EX.timeout[s]=true;
+  const s=EX.stage;if(s>0){const active=chatOf(EX.caseId,s===1?"patient":"ober");if(active&&active.ctl)active.ctl.abort()}
+  EX.dur[s]=Math.min(exPer(s),Math.round((Date.now()-EX.t0[s])/1000));if(auto)EX.timeout[s]=true;
   if(s===1){const ch=chatOf(EX.caseId,"patient");if(!ch.end)ch.end=Date.now()}
   EX.stage=s+1;EX.t0[EX.stage]=Date.now();
   if(EX.stage===4)examFinish();
@@ -1188,17 +1799,29 @@ function examFinish(){const id=EX.caseId,c=byId(id);const ch=chatOf(id,"patient"
   const docK=keys.filter(k=>k[1].test(EX.brief)),vorK=keys.filter(k=>k[1].test(EX.vor+" "+oberText));
   const oberAns=ob.qs?ob.ans.filter(a=>a.length).length:ob.turns.filter(t=>t.role==="user").length;const oberTot=ob.qs?ob.qs.length:Math.max(oberAns,6);
   EX.res={rec,heads:heads.length,found:found.length,missHeads:heads.filter(h=>!found.includes(h)),keys:keys.length,docK:docK.length,docMiss:keys.filter(k=>!docK.includes(k)).map(k=>k[0]),vorK:vorK.length,vorMiss:keys.filter(k=>!vorK.includes(k)).map(k=>k[0]),oberAns,oberTot};
-  rec.docPct=keys.length?Math.round(docK.length/keys.length*100):null;pushHist(rec)}
-function examIntroHTML(){return `<section class="hero"><span class="eyebrow">Prüfungsmodus</span><h1>Sınaq imtahanı</h1><p class="lede">Təsadüfi hal, ardıcıl üç hissə, taymer və heç bir ipucu. Sonda bir ümumi nəticə.</p></section>
-  <section><div class="panel"><ol class="steps-ol"><li><b lang="de">Anamnese</b> — pasiyentlə səsli söhbət</li><li><b lang="de">Dokumentation</b> — söhbət üzrə Arztbrief</li><li><b lang="de">Vorstellung</b> — məruzə və Oberarzt-ın sualları</li></ol>
-  <label class="lbl" for="ex-min">Hər hissə üçün vaxt</label><select id="ex-min">${[10,15,20,25,30].map(m=>`<option value="${m}"${+SET.examMin===m?" selected":""}>${m} dəqiqə</option>`).join("")}</select>
-  <p class="small muted">FaMed-də hissələrin real vaxtı <span class="ph">[təşkilatçıdan dəqiqləşdirilməli]</span>. Hissənin vaxtı bitəndə imtahan özü növbəti hissəyə keçir.</p>
-  <p class="small">Həmsöhbət: ${freeMode()?"Sİ-siz rejim, pulsuz.":"Sİ."} ${KEY?"":"Ayarlarda açar olduqda Sİ həmsöhbəti və ətraflı qiymətləndirmə əlçatandır."}</p>
-  <div class="row"><button type="button" class="btn primary" data-action="ex-start">İmtahana başla</button></div></div></section>`}
-function examHTML(){if(!EX)return examIntroHTML();if(EX.stage>3)return examResultHTML();const c=byId(EX.caseId);const left=examLeft();
-  const head=`<section class="exhead"><div class="ex-top"><span class="eyebrow">Prüfung · Teil ${EX.stage} von 3 · <span lang="de">${EXAM_STAGES[EX.stage-1]}</span></span><span class="ex-clock mono${left<=60?" low":""}" id="ex-clock">${fmt(left)}</span></div><div class="meter"><i id="ex-bar" style="width:${Math.max(0,Math.min(100,100*left/EX.per))}%"></i></div></section>${etikett(c)}`;
+  rec.docPct=keys.length?Math.round(docK.length/keys.length*100):null;pushHist(rec);
+  if(EX.voc){const vr=EX.voc.items.map((t,i)=>[t,str(EX.voc.ans[i]),vocOk(t,EX.voc.ans[i])]);EX.res.voc={ok:vr.filter(x=>x[2]).length,total:vr.length,wrong:vr.filter(x=>!x[2])}}}
+function examIntroHTML(){const f=SET.fmt==="fsp"?"fsp":"famed";
+  const seg=`<div class="seg" role="group" aria-label="İmtahan formatı"><button type="button" data-action="ex-fmt" data-f="famed" aria-pressed="${f==="famed"}">FaMed</button><button type="button" data-action="ex-fmt" data-f="fsp" aria-pressed="${f==="fsp"}">FSP · Ärztekammer</button></div>`;
+  const who=`<p class="small">Həmsöhbət: ${freeMode()?"Sİ-siz rejim, pulsuz.":"Sİ."} ${KEY?"":"Ayarlarda açar olduqda Sİ həmsöhbəti və ətraflı qiymətləndirmə əlçatandır."}</p>`;
+  const start=`<div class="row"><button type="button" class="btn primary" data-action="ex-start">İmtahana başla</button></div>`;
+  const body=f==="famed"?`<div class="panel"><ol class="steps-ol">
+      <li><b lang="de">Arzt-Patienten-Kommunikation</b>: Anamnese (11 dəqiqə) və Aufklärung (1,5 dəqiqə oxu + 11 dəqiqə)</li>
+      <li><b lang="de">Arzt-Arzt-Kommunikation</b>: iki Patientenvorstellung (hərəsi 1,5 dəqiqə oxu + 11 dəqiqə)</li>
+      <li><b lang="de">Schriftliche Station</b>: videoya əsasən Anamneseteil eines Arztbriefes, 22 dəqiqə</li></ol>
+    <p class="small muted">Hər situasiyada yeni pasiyent. Şifahi stansiyaların ardıcıllığı təsadüfidir, yazılı stansiya həmişə sonuncudur, stansiyalar arasında 1 dəqiqə. Format famed-test.de təsvirinə görədir, 08.10.2026 tarixində yoxlanılıb. 1,5 dəqiqəlik oxu vaxtı hazırlıq kurslarının təsvirlərindən götürülüb <span class="ph">[dəqiqləşdirilməli]</span>.</p>
+    <p class="small muted">Trenajorda video iki səsli audio ilə əvəz olunub. Hələlik yalnız üç hal var, buna görə bir pasiyent iki dəfə rast gəlir: izahda və ikinci təqdimatda.</p>${who}${start}</div>`
+   :`<div class="panel"><ol class="steps-ol">${SET.vocab?`<li><b lang="de">Vokabeltest</b> — ${VOC_N} termin, ${VOC_MIN} dəqiqə</li>`:""}<li><b lang="de">Anamnese</b> — pasiyentlə səsli söhbət</li><li><b lang="de">Dokumentation</b> — söhbət üzrə Arztbrief</li><li><b lang="de">Vorstellung</b> — məruzə və Oberarzt-ın sualları</li></ol>
+    <p class="small muted">Bütün hissələr bir pasiyent haqqındadır. FSP formatı Ärztekammer-dən asılıdır: adətən təxminən 20 dəqiqəlik üç hissə, bəzi torpaqlarda Vokabeltest var, bəzilərində anamnezin sonunda ilkin diaqnozu və planı demək lazımdır. Öz Ärztekammer-inizin qaydalarını dəqiqləşdirin.</p>
+    <label class="lbl" for="ex-min">Hər hissə üçün vaxt</label><select id="ex-min">${[10,15,20,25,30].map(m=>`<option value="${m}"${+SET.examMin===m?" selected":""}>${m} dəqiqə</option>`).join("")}</select>
+    <label class="chk"><input type="checkbox" id="ex-voc"${SET.vocab?" checked":""}> Əvvəlinə Vokabeltest əlavə et (termin → pasiyent dili)</label>
+    <p class="small muted">Hissənin vaxtı bitəndə imtahan özü növbətiyə keçir.</p>${who}${start}</div>`;
+  return `<section class="hero"><span class="eyebrow">Prüfungsmodus</span><h1>Sınaq imtahanı</h1><p class="lede">Formatı seçin: FaMed və ya Ärztekammer-inizin FSP-si. Taymer, heç bir ipucu yoxdur, sonda ümumi nəticə.</p></section><section>${seg}${body}</section>`}
+function examHTML(){if(FX)return fxHTML();if(!EX)return examIntroHTML();if(EX.stage>3)return examResultHTML();const c=byId(EX.caseId);const left=examLeft();
+  const head=`<section class="exhead"><div class="ex-top"><span class="eyebrow">Prüfung · ${EX.stage?`Teil ${EX.stage} von 3 · <span lang="de">${EXAM_STAGES[EX.stage-1]}</span>`:`<span lang="de">Vokabeltest</span>`}</span><span class="ex-clock mono${left<=60?" low":""}" id="ex-clock">${fmt(left)}</span></div><div class="meter"><i id="ex-bar" style="width:${Math.max(0,Math.min(100,100*left/exPer(EX.stage)))}%"></i></div></section>${EX.stage?etikett(c):""}`;
   let body="";
-  if(EX.stage===1)body=`<section><p class="lede-s">Anamnezi səslə toplayın. Yoxlama siyahısı və pasiyentin cavabları yoxdur. Qeyd apara bilərsiniz.</p>${freeNote()}${chatBox("patient",true)}
+  if(EX.stage===0)body=vocHTML();
+  else if(EX.stage===1)body=`<section><p class="lede-s">Anamnezi səslə toplayın. Yoxlama siyahısı və pasiyentin cavabları yoxdur. Qeyd apara bilərsiniz.</p>${freeNote()}${chatBox("patient",true)}
     <label class="lbl" for="exnotes">Qeydlər</label><textarea id="exnotes" data-exam="notes" rows="4" lang="de">${esc(EX.notes)}</textarea>
     <div class="row"><button type="button" class="btn primary" data-action="ex-next">Anamnezi bitir →</button></div></section>`;
   else if(EX.stage===2)body=`<section><p class="lede-s">Söhbətin sənədləşdirməsini yazın. Nümunə, hazır başlıqlar və ipucları yoxdur.</p>${dictBox("exbrief","Cümləni diktə edə bilərsiniz, mətn sona əlavə olunacaq.")}
@@ -1212,11 +1835,12 @@ function examHTML(){if(!EX)return examIntroHTML();if(EX.stage>3)return examResul
     <div class="row"><button type="button" class="btn primary" data-action="ex-next">İmtahanı bitir</button></div></section>`;
   return head+body+`<div class="row"><button type="button" class="btn ghost" data-action="ex-abort">İmtahanı dayandır</button></div>`}
 function examResultHTML(){const r=EX.res,c=byId(EX.caseId),rc=r.rec;const pct=(a,b)=>b?Math.round(a/b*100):0;
-  const bars=[["Anamnez: mövzuların əhatəsi",pct(rc.cov,rc.total),`${rc.cov} / ${rc.total}`],["Sənədləşdirmə: struktur bölmələri",pct(r.found,r.heads),`${r.found} / ${r.heads}`],["Sənədləşdirmə: əsas faktlar",pct(r.docK,r.keys),`${r.docK} / ${r.keys}`],["Məruzə: əsas faktlar",pct(r.vorK,r.keys),`${r.vorK} / ${r.keys}`],["Oberarzt-a cavablar",pct(r.oberAns,r.oberTot),`${r.oberAns} / ${r.oberTot}`]];
+  const bars=[...(r.voc?[["Vokabeltest",pct(r.voc.ok,r.voc.total),`${r.voc.ok} / ${r.voc.total}`]]:[]),["Anamnez: mövzuların əhatəsi",pct(rc.cov,rc.total),`${rc.cov} / ${rc.total}`],["Sənədləşdirmə: struktur bölmələri",pct(r.found,r.heads),`${r.found} / ${r.heads}`],["Sənədləşdirmə: əsas faktlar",pct(r.docK,r.keys),`${r.docK} / ${r.keys}`],["Məruzə: əsas faktlar",pct(r.vorK,r.keys),`${r.vorK} / ${r.keys}`],["Oberarzt-a cavablar",pct(r.oberAns,r.oberTot),`${r.oberAns} / ${r.oberTot}`]];
   const tech=Math.round(bars.reduce((sum,x)=>sum+x[1],0)/bars.length);
   const missT=c.items.filter(i=>rc.missed.includes(i.id));
-  let h=`<section class="hero"><span class="eyebrow">Prüfung · nəticə</span><h1>Fall ${c.nr} · ${esc(c.titleRu)}</h1><p class="lede">${EXAM_STAGES.map((s,i)=>`<span lang="de">${s}</span> ${fmt(EX.dur[i+1])}${EX.timeout[i+1]?" (vaxt bitdi)":""}`).join(" · ")}</p></section>
+  let h=`<section class="hero"><span class="eyebrow">Prüfung · nəticə</span><h1>Fall ${c.nr} · ${esc(c.titleRu)}</h1><p class="lede">${EX.voc?`<span lang="de">Vokabeltest</span> ${fmt(EX.dur[0])}${EX.timeout[0]?" (vaxt bitdi)":""} · `:""}${EXAM_STAGES.map((s,i)=>`<span lang="de">${s}</span> ${fmt(EX.dur[i+1])}${EX.timeout[i+1]?" (vaxt bitdi)":""}`).join(" · ")}</p></section>
   <section><div class="fb"><span class="eyebrow">Sİ-siz · texniki qiymət</span><p class="fb-sum"><b>${tech}/100</b> — əhatə, struktur və əsas faktlar.</p>${bars.map(([l,p,t])=>`<div class="fb-sec"><div class="bar-row"><span>${l}</span><span class="mono">${t}</span></div><div class="meter"><i style="width:${p}%"></i></div></div>`).join("")}
+  ${r.voc&&r.voc.wrong.length?`<div class="fb-sec"><h3>Vokabeltest: səhvlər</h3><ul class="plain">${r.voc.wrong.map(([t,a])=>`<li lang="de"><b>${esc(t)}</b> → ${esc((VOCAB.find(v=>v[0]===t)||[])[1]||"")}${a.trim()?` <span class="muted">(${esc(a)})</span>`:""}</li>`).join("")}</ul></div>`:""}
   ${missT.length?`<div class="fb-sec"><h3>Soruşulmayıb</h3><div class="chips">${missT.map(i=>`<span class="chip miss" lang="de">${esc(i.t)}</span>`).join("")}</div></div>`:""}
   ${rc.partial.length?`<div class="fb-sec"><h3>Natamam soruşulub</h3><ul class="plain">${rc.partial.map(([id,ks])=>`<li><span lang="de">${esc(topicLabel(id))}</span>: ${ks.map(k=>PART_LABEL[k]||k).join(", ")}</li>`).join("")}</ul></div>`:""}
   ${rc.fach.length?`<div class="fb-sec"><h3>Pasiyentin başa düşmədiyi terminlər</h3><p class="small" lang="de">${rc.fach.map(esc).join(", ")}</p></div>`:""}
@@ -1263,19 +1887,20 @@ Außerdem: bis zu 8 wichtigste sprachliche Fehler (original wörtlich, korrektur
 
 Antworte nur mit JSON in genau dieser Form:
 {"scores":{"fachsprache":0,"patientensprache":0,"struktur":0,"vollstaendigkeit":0,"dokumentation":0},"begruendung":{"fachsprache":"...","patientensprache":"...","struktur":"...","vollstaendigkeit":"...","dokumentation":"..."},"corrections":[{"original":"...","korrektur":"...","erklaerung":"..."}],"tipps":["..."],"fazit":"..."}`}
-async function examAI(){if(!EX||!EX.res||!KEY)return;const id=EX.caseId,c=byId(id);
+async function examAI(){const fx=!!(FX&&FX.done);if((!fx&&!(EX&&EX.res))||!KEY)return;const id=fx?"famed":EX.caseId,c=fx?null:byId(id);
   if(FBRUN.exam)FBRUN.exam.ctl.abort();const ctl=new AbortController();FBRUN.exam={ctl,id};const slot=$("#fb-exam");if(slot)slot.innerHTML=thinkingHTML("exam");
-  try{const t=await callClaude({model:MODEL_REVIEW,system:"Du antwortest ausschließlich mit gültigem JSON, ohne weiteren Text.",messages:[{role:"user",content:examPrompt(c)}],max_tokens:3000,signal:ctl.signal});
-    const d=parseJSON(t);if(!d||typeof d!=="object"||Array.isArray(d))throw {code:"invalid_json"};EX.ai=d;
+  try{const t=await callClaude({model:MODEL_REVIEW,system:"Du antwortest ausschließlich mit gültigem JSON, ohne weiteren Text.",messages:[{role:"user",content:fx?famedPrompt():examPrompt(c)}],max_tokens:3000,signal:ctl.signal});
+    const d=parseJSON(t);if(!d||typeof d!=="object"||Array.isArray(d))throw {code:"invalid_json"};if(fx)FX.ai=d;else EX.ai=d;
     const last=arr(S.hist).slice(-1)[0];if(last&&last.kind==="exam"){last.ai=d.scores||null;save()}
     const s=$("#fb-exam");if(s)s.innerHTML=examAiHTML(c,d)}
   catch(e){const msg=errText(e);const s=$("#fb-exam");if(s)s.innerHTML=msg?`<p class="err">${esc(msg)}</p>`:""}
   finally{if(FBRUN.exam&&FBRUN.exam.ctl===ctl)FBRUN.exam=null}}
-function afterExam(){if(!EX){return}const id=EX.caseId;if(EX.stage===1)paintChat(id,"patient");if(EX.stage===3)paintChat(id,"ober");paintRec()}
-setInterval(()=>{const p=$("#exam-pill");if(!EX||EX.stage>3){if(p)p.hidden=true;return}
+function afterExam(){if(FX&&!FX.done){const st=fxStep();if(FX.phase==="talk"){const k=fxKind(st);if(k){paintChat(st.cid,k);voicePrefetch(roleOf(k,st.cid))}else{const h=hoerOf(st.hid);voicePrefetch("ober");voicePrefetch(h.pv);hpPaint(h)}}paintRec();return}
+  if(!EX){return}const id=EX.caseId;if(EX.stage===1)paintChat(id,"patient");if(EX.stage===3)paintChat(id,"ober");paintRec()}
+setInterval(()=>{const p=$("#exam-pill");if(!EX||EX.stage>3){if(p&&!fxStep())p.hidden=true;return}
   const left=examLeft();if(p){p.hidden=R.v==="exam";p.textContent="Prüfung "+fmt(left)}
   const el=$("#ex-clock");if(el){el.textContent=fmt(left);el.classList.toggle("low",left<=60)}
-  const bar=$("#ex-bar");if(bar)bar.style.width=Math.max(0,Math.min(100,100*left/EX.per))+"%";
+  const bar=$("#ex-bar");if(bar)bar.style.width=Math.max(0,Math.min(100,100*left/exPer(EX.stage)))+"%";
   if(left<=0)exNext(true)},1000);
 
 /* ---------- learning materials (German phrases: draft, to be checked by a native-speaking doctor) ---------- */
@@ -1411,7 +2036,7 @@ const VG={key:"",voices:[],sel:{},model:"eleven_v4",on:{},res:{},busy:false,stop
 try{VG.key=localStorage.getItem("famed-11labs.key")||""}catch(e){}
 try{const s=JSON.parse(localStorage.getItem("famed-11labs.sel")||"{}");if(s&&typeof s==="object")VG.sel=s}catch(e){}
 function vgRoles(){return [...CASES.map(c=>["p_"+c.id,(c.sex==="w"?"Пациентка ":"Пациент ")+c.name+", "+c.alter,c.sex==="w"?"female":"male",c.alter>=60?"old":"middle"]),
-  ["ober","Oberarzt","male","middle"],["narr","Диктор: материалы, словарь, тренировка","female","young"]]}
+  ["ober","Oberarzt и врач в аудировании","male","middle"],["nurse","Petra Lang, практика врача: телефонат","female","middle"],["narr","Диктор: материалы, словарь, образцы","female","young"]]}
 function voiceClips(){const M={};const add=(r,t)=>{t=str(t).trim();if(t)(M[r]||(M[r]=new Set())).add(t)};
   const NEG=[...new Set(INTENTS.map(i=>i.neg).filter(Boolean))];
   for(const c of CASES){const r="p_"+c.id;
@@ -1425,27 +2050,41 @@ function voiceClips(){const M={};const add=(r,t)=>{t=str(t).trim();if(t)(M[r]||(
   FACH.forEach(f=>add("narr",f.lay));
   CASES.forEach(c=>c.items.forEach(i=>add("narr",i.q)));
   add("narr",TTS_TEST);
+  for(const c of CASES){const r="p_"+c.id;const A=AUFKL[c.id];
+    [...AUFKL_ACK,...AUFKL_OK,AUFKL_UNCLEAR,AUFKL_MEH,AUFKL_NOMORE,A.end,...A.qs.map(q=>q[0])].forEach(t=>add(r,t));
+    sents(A.muster).forEach(t=>add("narr",t));add("narr",modelSpell(TEL[c.id].sur));add("narr",modelSpell(TEL[c.id].drug))}
+  telLines().forEach(t=>add("nurse",t));
+  HOER.forEach(h=>h.lines.forEach(([w,t])=>add(w==="d"?"ober":h.pv,t)));
   const out={};for(const [r,s] of Object.entries(M))out[r]=[...s];return out}
 function vgChars(list){return list.reduce((n,t)=>n+t.length,0)}
+function vgOld(r,t){if(VG.redo||!VO.idx||!VO.idx.clips)return null;const k=VO.idx.clips[r+"|"+t];if(!k)return null;if(VG.packOk&&VG.packOk[k[0]]===false)return null;return k}
+function vgDone(r,t){return !!(VG.res[r+"|"+t]||vgOld(r,t))}
 function vgSave(){try{localStorage.setItem("famed-11labs.key",VG.key);localStorage.setItem("famed-11labs.sel",JSON.stringify(VG.sel))}catch(e){}}
 function vgDefaults(){const used=new Set();const score=(v,g,age)=>{const L=v.labels||{};let s=0;
     if((L.gender||"").toLowerCase()===g)s+=10;const acc=((L.accent||"")+" "+(L.language||"")+" "+(v.name||"")).toLowerCase();if(/german|deutsch|\bde\b/.test(acc))s+=5;
     if((L.age||"").toLowerCase().includes(age))s+=2;return s};
-  for(const [r,,g,age] of vgRoles()){if(VG.sel[r]&&VG.voices.some(v=>v.voice_id===VG.sel[r])){used.add(VG.sel[r]);continue}
+  const prevOf=r=>{const prev=VO.idx&&VO.idx.voices&&VO.idx.voices[r];return prev&&VG.voices.find(v=>v.name===prev)};
+  for(const [r] of vgRoles()){const pv=prevOf(r);if(pv){VG.sel[r]=pv.voice_id;used.add(pv.voice_id)}}
+  for(const [r,,g,age] of vgRoles()){if(prevOf(r))continue;
+    if(VG.sel[r]&&VG.voices.some(v=>v.voice_id===VG.sel[r])&&!used.has(VG.sel[r])){used.add(VG.sel[r]);continue}
     const best=VG.voices.slice().sort((a,b)=>(score(b,g,age)-(used.has(b.voice_id)?20:0))-(score(a,g,age)-(used.has(a.voice_id)?20:0)))[0];
     if(best){VG.sel[r]=best.voice_id;used.add(best.voice_id)}}}
 function vgVoiceLabel(v){const L=v.labels||{};return [v.name,L.gender,L.age,L.accent].filter(Boolean).join(" · ")}
 function voicesHTML(){const C=voiceClips();const roles=vgRoles();let total=0;
-  const rows=roles.map(([r,l])=>{const list=C[r]||[];const on=VG.on[r]!==false;const ch=vgChars(list);if(on)total+=ch;const got=list.filter(t=>VG.res[r+"|"+t]).length;
-    return `<tr><td><label class="chk"><input type="checkbox" data-vgon="${r}"${on?" checked":""}> ${esc(l)}</label></td><td>${VG.voices.length?`<select data-vgsel="${r}">${VG.voices.map(v=>`<option value="${esc(v.voice_id)}"${VG.sel[r]===v.voice_id?" selected":""}>${esc(vgVoiceLabel(v))}</option>`).join("")}</select> <button type="button" class="say" data-vg="test" data-r="${r}">проба</button>`:`<span class="muted small">сначала загрузите голоса</span>`}</td><td class="mono">${list.length}</td><td class="mono">${ch}</td><td class="mono">${got}/${list.length}</td></tr>`}).join("");
+  const rows=roles.map(([r,l])=>{const list=C[r]||[];const on=VG.on[r]!==false;const todo=list.filter(t=>!vgDone(r,t));const ch=vgChars(todo);if(on)total+=ch;const got=list.length-todo.length;
+    const prev=VO.idx&&VO.idx.voices&&VO.idx.voices[r];const cur=VG.voices.find(v=>v.voice_id===VG.sel[r]);const warn=prev&&cur&&cur.name!==prev&&!VG.redo&&got;
+    return `<tr><td><label class="chk"><input type="checkbox" data-vgon="${r}"${on?" checked":""}> ${esc(l)}</label></td><td>${VG.voices.length?`<select data-vgsel="${r}">${VG.voices.map(v=>`<option value="${esc(v.voice_id)}"${VG.sel[r]===v.voice_id?" selected":""}>${esc(vgVoiceLabel(v))}</option>`).join("")}</select> <button type="button" class="say" data-vg="test" data-r="${r}">проба</button>${warn?`<br><span class="small err">Готовые фразы этой роли озвучены голосом «${esc(prev)}». Выберите его, чтобы голос не менялся.</span>`:""}`:`<span class="muted small">сначала загрузите голоса</span>`}</td><td class="mono">${list.length}</td><td class="mono">${todo.length}</td><td class="mono">${ch}</td><td class="mono">${got}/${list.length}</td></tr>`}).join("");
+  const nOld=VO.idx&&VO.idx.clips?Object.keys(VO.idx.clips).length:0;
   return `<section class="hero"><span class="eyebrow">Для владельца</span><h1>Озвучка живым голосом</h1><p class="lede">Один раз озвучиваем все заранее известные реплики через ElevenLabs и получаем аудиофайлы. Потом все пользователи слышат этот голос, без настройки телефона.</p></section>
   <section><h2>1. Ключ ElevenLabs</h2><div class="panel">
     <p class="small">Создайте ключ на elevenlabs.io: значок профиля → API Keys. Ключ хранится только в этом браузере и отправляется только в ElevenLabs. Совет: перед загрузкой добавьте в «My Voices» пару немецких голосов из Voice Library (фильтр Language: German), так акцент будет естественнее.</p>
     <label class="lbl" for="vg-key">API-ключ</label><input id="vg-key" type="password" autocomplete="off" spellcheck="false" value="${esc(VG.key)}" placeholder="sk_…">
     <div class="row"><button type="button" class="btn primary" data-vg="load">Загрузить мои голоса</button><span class="small muted" id="vg-vmsg">${VG.voices.length?`Голосов: ${VG.voices.length}`:""}</span></div></div></section>
-  <section><h2>2. Голоса и объём</h2><div class="tbl-wrap"><table><thead><tr><th>Роль</th><th>Голос</th><th>Фраз</th><th>Символов</th><th>Готово</th></tr></thead><tbody>${rows}</tbody></table></div>
+  <section><h2>2. Голоса и объём</h2><div class="tbl-wrap"><table><thead><tr><th>Роль</th><th>Голос</th><th>Фраз</th><th>Новых</th><th>Символов к озвучке</th><th>Готово</th></tr></thead><tbody>${rows}</tbody></table></div>
     <div class="row"><label class="lbl" for="vg-model">Модель</label><select id="vg-model">${[["eleven_v4","Eleven v4 — самый живой голос (рекомендуется)"],["eleven_v4_turbo","Eleven v4 Turbo — дешевле"],["eleven_multilingual_v2","Multilingual v2 — прежняя модель"],["eleven_flash_v2_5","Flash v2.5 — самая дешёвая"]].map(([v,l])=>`<option value="${v}"${VG.model===v?" selected":""}>${l}</option>`).join("")}</select></div>
-    <p class="small">Всего к озвучке: <b class="mono">${total}</b> символов. Проверьте, что на балансе ElevenLabs хватает кредитов. Уже готовые фразы повторно не озвучиваются.</p></section>
+    <p class="small">${nOld?`На сайте найдены готовые файлы: ${nOld} фраз${VO.idx.model?`, модель ${esc(VO.idx.model)}`:""}. Они войдут в новые файлы, озвучены будут только новые фразы.`:"Готовые файлы на сайте не найдены: будет озвучено всё."}</p>
+    ${nOld?`<label class="chk"><input type="checkbox" id="vg-redo"${VG.redo?" checked":""}> Озвучить всё заново (если поменяли голоса или модель)</label>`:""}
+    <p class="small">Всего к озвучке: <b class="mono">${total}</b> символов. Проверьте, что на балансе ElevenLabs хватает кредитов.</p></section>
   <section><h2>3. Озвучить</h2><div class="panel">
     <div class="row"><button type="button" class="btn primary" data-vg="run"${VG.busy?" disabled":""}>Озвучить</button><button type="button" class="btn ghost" data-vg="stop"${VG.busy?"":" hidden"}>Остановить</button></div>
     <div class="meter"><i id="vg-bar" style="width:${VG.total?Math.round(VG.done/VG.total*100):0}%"></i></div>
@@ -1476,22 +2115,28 @@ async function vgTTS(text,voice){for(let a=0;a<5;a++){
     throw {stop:false,msg:"Ошибка "+r.status+" "+d.slice(0,160)}}
   throw {stop:false,msg:"Слишком много запросов, попробуйте позже."}}
 async function vgRun(){if(VG.busy)return;if(!VG.key){VG.err="Вставьте ключ ElevenLabs.";vgPaint();return}
+  VG.packOk={};if(VO.idx&&VO.idx.packs&&!VG.redo){for(const p of Object.keys(VO.idx.packs)){try{await vPack(p);VG.packOk[p]=true}catch(e){VG.packOk[p]=false}}}
   const C=voiceClips();const jobs=[];
   for(const [r] of vgRoles()){if(VG.on[r]===false)continue;if(!VG.sel[r]){VG.err="Выберите голос для каждой роли.";vgPaint();return}
-    for(const t of C[r]||[])if(!VG.res[r+"|"+t])jobs.push([r,t])}
+    for(const t of C[r]||[])if(!vgDone(r,t))jobs.push([r,t])}
   VG.busy=true;VG.stop=false;VG.err="";VG.done=0;VG.total=jobs.length;vgPaint();
   let i=0;const worker=async()=>{while(i<jobs.length&&!VG.stop){const [r,t]=jobs[i++];
       try{VG.res[r+"|"+t]=await vgTTS(t,VG.sel[r])}
       catch(e){if(e instanceof TypeError){VG.err="Нет связи с ElevenLabs из браузера.";VG.stop=true}else{VG.err=e.msg||String(e);if(e.stop)VG.stop=true}}
       VG.done++;const b=$("#vg-bar");if(b)b.style.width=Math.round(VG.done/VG.total*100)+"%";const s=$("#vg-status");if(s)s.textContent=`Озвучено ${VG.done} из ${VG.total}…`}};
   await Promise.all([worker(),worker()]);
-  VG.busy=false;vgBuild();vgPaint()}
-function vgBuild(){const C=voiceClips();const idx={v:1,model:VG.model,created:new Date().toISOString(),voices:{},packs:{},clips:{}};const files=[];const live={};
-  for(const [r] of vgRoles()){const list=(C[r]||[]).filter(t=>VG.res[r+"|"+t]);if(!list.length)continue;
-    const name="voice-"+r.replace(/^p_/,"")+".mp3";let off=0;const parts=[];
-    for(const t of list){const b=new Uint8Array(VG.res[r+"|"+t]);idx.clips[r+"|"+t]=[r,off,b.length];parts.push(b);off+=b.length}
+  try{await vgBuild()}catch(e){VG.err="Не удалось собрать файлы: "+(e&&e.message||e)}
+  VG.busy=false;vgPaint()}
+async function vgBuild(){const C=voiceClips();const idx={v:1,model:VG.model,created:new Date().toISOString(),voices:{},packs:{},clips:{}};const files=[];const live={};
+  for(const [r] of vgRoles()){const name="voice-"+r.replace(/^p_/,"")+".mp3";let off=0;const parts=[];let fresh=false;
+    for(const t of C[r]||[]){const k=r+"|"+t;let b=null;
+      if(VG.res[k]){b=new Uint8Array(VG.res[k]);fresh=true}
+      else{const o=vgOld(r,t);if(o){const buf=await vPack(o[0]);b=new Uint8Array(buf.slice(o[1],o[1]+o[2]))}}
+      if(!b)continue;idx.clips[k]=[r,off,b.length];parts.push(b);off+=b.length}
+    if(!parts.length)continue;
     const all=new Uint8Array(off);let o=0;for(const p of parts){all.set(p,o);o+=p.length}
-    idx.packs[r]=name;const v=VG.voices.find(x=>x.voice_id===VG.sel[r]);idx.voices[r]=v?v.name:VG.sel[r];files.push({name,data:all});live[r]=all.buffer}
+    const v=VG.voices.find(x=>x.voice_id===VG.sel[r]);const prev=VO.idx&&VO.idx.voices&&VO.idx.voices[r];
+    idx.packs[r]=name;idx.voices[r]=fresh?(v?v.name:VG.sel[r]):(prev||(v?v.name:""));files.push({name,data:all});live[r]=all.buffer}
   if(!files.length){VG.out=null;return}
   files.push({name:"voice-index.json",data:new TextEncoder().encode(JSON.stringify(idx))});
   VG.out={files};VO.idx=idx;VO.packs={};for(const [r,b] of Object.entries(live))VO.packs[r]=Promise.resolve(b)}
@@ -1517,15 +2162,19 @@ document.addEventListener("click",async e=>{const b=e.target.closest&&e.target.c
 document.addEventListener("change",e=>{if(R.v!=="voices")return;const t=e.target;
   if(t.dataset&&t.dataset.vgsel){VG.sel[t.dataset.vgsel]=t.value;vgSave()}
   else if(t.dataset&&t.dataset.vgon){VG.on[t.dataset.vgon]=t.checked;vgPaint()}
-  else if(t.id==="vg-model"){VG.model=t.value;VG.res={};VG.out=null;vgPaint()}});
+  else if(t.id==="vg-model"){VG.model=t.value;VG.res={};VG.out=null;vgPaint()}
+  else if(t.id==="vg-redo"){VG.redo=t.checked;VG.out=null;vgPaint()}});
 /*}NOI18N*/
 
 /* ---------- router ---------- */
 function route(){const h=HASH;if(!h||h==="home")return {v:"home"};if(["vocab","cases","settings","exam","drill","mat","voices"].includes(h))return {v:h};
   const mm=h.match(/^mat-([a-z]+)$/);if(mm)return {v:"mat",id:mm[1]};
+  const ef=h.match(/^exam-(fsp|famed)$/);if(ef)return {v:"exam",fmt:ef[1]};
+  if(h==="famed")return {v:"famed"};const fa=h.match(/^famed-(aufkl|tel)-([a-z]+)$/);if(fa&&byId(fa[2]))return {v:"famed",mod:fa[1],id:fa[2]};
+  const fh=h.match(/^famed-hoer-(\d+)$/);if(fh&&hoerOf(fh[1]))return {v:"famed",mod:"hoer",id:fh[1]};
   const m=h.match(/^([a-z]+)-(anamnese|arztbrief|vorstellung)$/);if(m&&byId(m[1]))return {v:"case",id:m[1],tab:m[2]};return {v:"home"}}
-function render(){stopRec();stopVoice();
-  R=route();const sect=R.v==="case"?"cases":R.v;
+function render(){stopRec();HP.tok++;HP.on=false;stopVoice();
+  R=route();if(R.v==="exam"&&R.fmt&&!EX&&!FX){SET.fmt=R.fmt;saveSet()}const sect=R.v==="case"||R.v==="famed"?"cases":R.v;
   document.querySelectorAll("[data-lang]").forEach(a=>{a.href=a.dataset.f+(HASH?"#"+HASH:"");if(a.dataset.lang===document.documentElement.lang)a.setAttribute("aria-current","true");else a.removeAttribute("aria-current")});
   document.querySelectorAll("[data-nav]").forEach(a=>{if(a.dataset.nav===sect)a.setAttribute("aria-current","page");else a.removeAttribute("aria-current")});
   const m=$("#main");
@@ -1537,6 +2186,7 @@ function render(){stopRec();stopVoice();
   else if(R.v==="drill"){m.innerHTML=drillShellHTML();paintDrill()}
   else if(R.v==="mat")m.innerHTML=R.id?matHTML(R.id):matsListHTML();
   else if(R.v==="voices")m.innerHTML=voicesHTML();
+  else if(R.v==="famed"){m.innerHTML=famedView();afterFamed()}
   else{m.innerHTML=caseHTML(R.id,R.tab);afterCase(R.id,R.tab)}
   window.scrollTo(0,0)}
 let HASH=(location.hash||"").replace(/^#/,"");
@@ -1549,16 +2199,34 @@ const main=$("#main");
 main.addEventListener("click",async e=>{const b=e.target.closest("[data-action]");if(!b)return;const a=b.dataset.action;const kind=b.dataset.kind;
   switch(a){
   case "mic":{startRec(b.dataset.mic);break}
-  case "say":{unlockTTS();const cid=curId();const t=chatOf(cid,kind).turns[+b.dataset.i];if(t)speakSegs(t.segs||[t.content],kind==="patient"?"p_"+cid:"ober",true);break}
+  case "say":{unlockTTS();const cid=curId();const t=chatOf(cid,kind).turns[+b.dataset.i];if(t)speakSegs(t.segs||[t.content],roleOf(kind,cid),true);break}
   case "kb":{const f=$(`.chat-form[data-kind="${kind}"]`);if(f){f.hidden=!f.hidden;if(!f.hidden){const ta=f.querySelector("textarea");if(ta)ta.focus()}}break}
   case "reveal":{const p=b.nextElementSibling;if(!p)break;p.hidden=!p.hidden;b.setAttribute("aria-expanded",String(!p.hidden));b.textContent=p.hidden?"Pasiyentin cavabı":"Cavabı gizlət";break}
   case "stop":{const ch=chatOf(curId(),kind);if(ch.ctl)ch.ctl.abort();break}
   case "stop-fb":{if(FBRUN[kind])FBRUN[kind].ctl.abort();break}
-  case "reset-chat":{stopRec();stopVoice();const ch=chatOf(R.id,kind);if(ch.ctl)ch.ctl.abort();delete CH[R.id+":"+kind];
-    if(kind==="patient"){delete FREE[R.id];const fa=$("#free-anam");if(fa)fa.innerHTML=""}else{const fo=$("#free-ober");if(fo)fo.innerHTML=""}
-    if(kind==="patient"){delete FB[R.id+":anam"];delete COV[R.id];const s=$("#fb-anam");if(s)s.innerHTML="";const cl=$("#cl");if(cl)cl.innerHTML=checklistHTML(byId(R.id))}
-    paintChat(R.id,kind);paintRec();break}
-  case "start-ober":{unlockTTS();const cid=curId();const ch=chatOf(cid,"ober");if(!ch.start)ch.start=Date.now();send(cid,"ober",null);break}
+  case "reset-chat":{stopRec();stopVoice();const rid=curId();const ch=chatOf(rid,kind);if(ch.ctl)ch.ctl.abort();delete CH[rid+":"+kind];
+    {const fs=$("#free-"+(kind==="patient"?"anam":kind));if(fs)fs.innerHTML=""}
+    if(kind==="patient"){delete FREE[rid];delete FB[rid+":anam"];delete COV[rid];const s=$("#fb-anam");if(s)s.innerHTML="";const cl=$("#cl");if(cl)cl.innerHTML=checklistHTML(byId(rid))}
+    else if(kind!=="ober"){delete FB[rid+":"+kind];const s=$("#fb-"+kind);if(s)s.innerHTML=""}
+    paintChat(rid,kind);paintRec();break}
+  case "start-ober":case "start-tel":{unlockTTS();const k=a==="start-tel"?"tel":"ober";const cid=curId();const ch=chatOf(cid,k);if(!ch.start)ch.start=Date.now();if(SET.live&&SR){LIVE.on=true;LIVE.target="chat:"+k;LIVE.miss=0;LIVE.end=false}send(cid,k,null);break}
+  case "finish-aufkl":{stopRec();stopVoice();const id=curId();const ch=chatOf(id,"aufkl");const slot=$("#free-aufkl");
+    if(ch.turns.filter(t=>t.role==="user").length<2){if(slot)slot.innerHTML=`<p class="note">Nəticə üçün ən azı iki replikanız lazımdır. İzahı davam etdirin.</p>`;break}
+    if(ch.busy)break;aufklFinish(id);if(ch.mode==="ai"&&KEY)runJSON("aufkl",id,aufklPrompt(byId(id),ch.turns),()=>{});break}
+  case "ai-aufkl":{const id=curId();runJSON("aufkl",id,aufklPrompt(byId(id),chatOf(id,"aufkl").turns),()=>{});break}
+  case "finish-tel":{stopRec();stopVoice();const id=curId();const ch=chatOf(id,"tel");if(!ch.turns.length||ch.busy)break;ch.fin=true;telFinish(id);break}
+  case "say-src":{unlockTTS();speakSegs(srcSegs(b.dataset.src||""),"narr",true);break}
+  case "h-play":{const h=curHoer();if(h)hoerPlay(h);break}
+  case "h-stop":{HP.tok++;HP.on=false;stopVoice();const h=curHoer();if(h)hpPaint(h);break}
+  case "h-restart":{const h=curHoer();if(!h)break;HP.tok++;HP.on=false;stopVoice();HP.pos[h.id]=0;hoerPlay(h);break}
+  case "fx-next":{fxNext(false);break}
+  case "ex-fmt":{SET.fmt=b.dataset.f==="fsp"?"fsp":"famed";saveSet();render();break}
+  case "h-check":{const h=hoerOf(R.id);if(!h)break;const text=str(draft("h_"+h.id).brief).trim();const slot=$("#h-res");
+    if(words(text)<15){if(slot)slot.innerHTML=`<p class="note">Ən azı bir neçə cümlə yazın, sonra yoxlayın.</p>`;break}
+    if(slot)slot.innerHTML=hoerResHTML(h,text);fmSet("hoer_"+h.id,Math.round(hoerRes(h,text).filter(x=>x[1]).length/h.facts.length*100));break}
+  case "h-ai":{const h=hoerOf(R.id);if(!h)break;const text=str(draft("h_"+h.id).brief).trim();const slot=$("#fb-hoer");
+    if(words(text)<30){if(slot)slot.innerHTML=`<p class="note">Mətn təhlil üçün hələ çox qısadır. Ən azı 30 söz lazımdır.</p>`;break}
+    runJSON("hoer","h_"+h.id,hoerPrompt(h,text),()=>{});break}
   case "finish-anam":{stopRec();const id=R.id;const ch=chatOf(id,"patient");const slot=$("#fb-anam");
     if(ch.turns.filter(t=>t.role==="user").length<3){if(slot)slot.innerHTML=`<p class="note">Təhlil üçün ən azı üç replikanız lazımdır. Söhbəti davam etdirin.</p>`;break}
     if(ch.busy)break;if(!ch.end)ch.end=Date.now();
@@ -1568,14 +2236,14 @@ main.addEventListener("click",async e=>{const b=e.target.closest("[data-action]"
       if(viewIs(id)){const cl=$("#cl");if(cl)cl.innerHTML=checklistHTML(byId(id))}});break}
   case "mode":{const m=b.dataset.m;const cid=curId();if(m==="ai"&&!KEY){const ch=chatOf(cid,kind);ch.err="Sİ rejimi üçün ayarlarda API açarı əlavə edin.";paintChat(cid,kind);break}
     if((m==="free")===freeMode())break;SET.mode=m;saveSet();stopRec();setAIStatus();
-    Object.keys(CH).filter(k=>k.endsWith(":ober")).forEach(k=>{if(CH[k].ctl)CH[k].ctl.abort();delete CH[k]});const fo=$("#free-ober");if(fo)fo.innerHTML="";
-    if(cid){const p=chatOf(cid,"patient");p.err="";paintChat(cid,"patient");paintChat(cid,"ober");paintRec()}break}
+    Object.keys(CH).filter(k=>k.endsWith(":ober")||k.endsWith(":tel")).forEach(k=>{if(CH[k].ctl)CH[k].ctl.abort();delete CH[k]});["#free-ober","#free-tel"].forEach(q=>{const x=$(q);if(x)x.innerHTML=""});
+    if(cid){["patient","aufkl"].forEach(k=>{chatOf(cid,k).err=""});["patient","ober","aufkl","tel"].forEach(k=>paintChat(cid,k));paintRec()}break}
   case "ober-next":{stopRec();oberNext(curId());break}
   case "ai-anam":{const id=R.id;const ch=chatOf(id,"patient");runJSON("anam",id,anamPrompt(byId(id),ch.turns),d=>{COV[id]=new Set(arr(d.covered).map(String));markDone(id,"anam");if(R.v==="case"&&R.id===id){const cl=$("#cl");if(cl)cl.innerHTML=checklistHTML(byId(id))}});break}
-  case "ex-start":{unlockTTS();examStart();break}
+  case "ex-start":{unlockTTS();if(SET.fmt==="fsp")examStart();else fxStart();break}
   case "ex-next":{exNext(false);break}
-  case "ex-abort":{if(window.confirm("İmtahanı dayandırırsınız? Nəticə saxlanılmayacaq.")){stopRec();EX=null;go("home")}break}
-  case "ex-new":{EX=null;render();break}
+  case "ex-abort":{if(window.confirm("İmtahanı dayandırırsınız? Nəticə saxlanılmayacaq.")){stopRec();EX=null;FX=null;go("home")}break}
+  case "ex-new":{EX=null;FX=null;render();break}
   case "ex-ai":{examAI();break}
   case "ex-tpl":{const ta=$("#exbrief");if(!ta||!EX)break;const tpl=byId(EX.caseId).brief.map(([h])=>h+"\n").join("\n");ta.value=ta.value.trim()?ta.value.replace(/\s*$/,"")+"\n\n"+tpl:tpl;ta.dispatchEvent(new Event("input",{bubbles:true}));ta.focus();break}
   case "drill-next":{stopRec();if(DR){DR.i++;paintDrill()}break}
@@ -1612,7 +2280,10 @@ main.addEventListener("submit",e=>{const df=e.target.closest(".drill-form");if(d
   const f=e.target.closest(".chat-form");if(!f)return;e.preventDefault();unlockTTS();const ta=f.querySelector("textarea");const v=ta.value.trim();if(!v)return;const cid=curId();if(!cid)return;const ch=chatOf(cid,f.dataset.kind);if(ch.busy)return;ta.value="";send(cid,f.dataset.kind,v)});
 main.addEventListener("keydown",e=>{if(e.key==="Enter"&&!e.shiftKey&&!e.isComposing&&e.target.matches(".chat-form textarea")){e.preventDefault();const f=e.target.form;if(f.requestSubmit)f.requestSubmit();else f.dispatchEvent(new Event("submit",{cancelable:true,bubbles:true}))}});
 main.addEventListener("input",e=>{const t=e.target;
+  if(t.dataset&&t.dataset.fx&&FX){FX[t.dataset.fx]=t.value;if(t.id==="fxdoc"){const w=$("#wc-fxdoc");if(w)w.textContent=words(t.value)+" söz"}return}
+  if(t.dataset&&t.dataset.voc!=null&&EX&&EX.voc){EX.voc.ans[+t.dataset.voc]=t.value;return}
   if(t.dataset&&t.dataset.exam&&EX){EX[t.dataset.exam]=t.value;if(t.id==="exbrief"){const w=$("#wc-exbrief");if(w)w.textContent=words(t.value)+" söz"}return}
+  if(t.dataset&&t.dataset.hdraft){draft(t.dataset.hdraft).brief=t.value;saveSoon();const w=$("#wc-hoer");if(w)w.textContent=words(t.value)+" söz";return}
   if(t.dataset&&t.dataset.draft&&R.v==="case"){draft(R.id)[t.dataset.draft]=t.value;saveSoon();if(t.id==="brief")wc();return}
   if(t.id==="v-q"){V.q=t.value;const r=$("#v-rows");if(r)r.innerHTML=rowsHTML();return}
   if(t.id==="s-rate"){SET.rate=+t.value;saveSet();const rv=$("#rate-v");if(rv)rv.textContent=(+t.value).toFixed(2)}});
@@ -1621,8 +2292,10 @@ main.addEventListener("change",e=>{const t=e.target;
   else if(t.id==="v-only"){V.only=t.checked;rebuild();paintVocab()}
   else if(t.id==="s-tts"){SET.tts=t.checked;saveSet()}
   else if(t.id==="s-auto"){SET.autosend=t.checked;saveSet()}
+  else if(t.id==="s-live"){SET.live=t.checked;saveSet()}
   else if(t.id==="s-voice"){SET.voice=t.value;saveSet()}
-  else if(t.id==="ex-min"){SET.examMin=+t.value;saveSet()}});
+  else if(t.id==="ex-min"){SET.examMin=+t.value;saveSet()}
+  else if(t.id==="ex-voc"){SET.vocab=t.checked;saveSet();render()}});
 window.addEventListener("pagehide",save);
 document.addEventListener("visibilitychange",()=>{if(document.hidden){stopRec();paintRec()}});
 
