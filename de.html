@@ -1,0 +1,1489 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#1C6A57">
+<title>FaMed Trainer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Golos+Text:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&family=Unbounded:wght@500;600&display=swap">
+<style>
+/* Layout: one column on a clinic clipboard. Sticky header, a patient wristband label, a big round microphone; boxes only for interactive panels. */
+:root{
+  --paper:#F1F4F2; --sheet:#FFFFFF; --ink:#15212A; --muted:#566370; --line:#D2DAD6;
+  --op:#1C6A57; --op-ink:#FFFFFF; --op-soft:#DCECE5;
+  --pen:#B2382A; --pen-soft:#F8E4E0; --amber:#8F5D0C; --amber-soft:#F5EAD3;
+  --f-display:"Unbounded","Golos Text",system-ui,sans-serif;
+  --f-body:"Golos Text",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+  --r:10px; color-scheme:light;
+}
+@media (prefers-color-scheme: dark){:root{
+  --paper:#0E1517; --sheet:#152025; --ink:#E3EBE8; --muted:#97A7A4; --line:#2A383B;
+  --op:#5BC1A3; --op-ink:#08201A; --op-soft:#16332B;
+  --pen:#F08C7A; --pen-soft:#3B201C; --amber:#E2B05C; --amber-soft:#30271A; color-scheme:dark}}
+
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--f-body);font-size:16px;line-height:1.55;-webkit-font-smoothing:antialiased;padding-bottom:env(safe-area-inset-bottom,0px)}
+a{color:var(--op)}
+p{margin:0;max-width:65ch}
+h1,h2,h3{margin:0;text-wrap:balance}
+h1{font-family:var(--f-display);font-weight:600;font-size:clamp(23px,5.4vw,32px);line-height:1.18;letter-spacing:-.015em}
+h2{font-family:var(--f-display);font-weight:500;font-size:17px;letter-spacing:-.005em}
+.eyebrow{font-family:var(--f-mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.lede{color:var(--muted);font-size:17px}
+.lede-s{color:var(--muted);font-size:15px}
+.small{font-size:14px}
+.muted{color:var(--muted)}
+.mono{font-family:var(--f-mono);font-size:13px;font-variant-numeric:tabular-nums}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.pre{white-space:pre-wrap;overflow-wrap:anywhere}
+.ph{font-family:var(--f-mono);font-size:13px;background:var(--amber-soft);color:var(--amber);padding:1px 5px;border-radius:3px;white-space:nowrap}
+.err{color:var(--pen);font-size:14px}
+.ok-t{color:var(--op);font-size:14px}
+
+html:not([data-ai="ready"]) .ai-on{display:none!important}
+html:not([data-ai="off"]) .ai-off{display:none!important}
+
+/* Header */
+.top{position:sticky;top:0;z-index:10;background:var(--paper);border-bottom:1px solid var(--line);padding-top:env(safe-area-inset-top,0px)}
+.top-in{max-width:760px;margin:0 auto;padding:10px 16px;display:flex;flex-wrap:wrap;align-items:center;gap:8px 16px}
+.brand{order:1;display:flex;align-items:baseline;gap:8px;text-decoration:none;color:var(--ink)}
+.brand b{font-family:var(--f-display);font-weight:600;font-size:18px;letter-spacing:-.01em}
+.brand b em{font-style:normal;color:var(--op)}
+.brand span{font-family:var(--f-mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.langs{order:2;display:inline-flex;border:1px solid var(--line);border-radius:7px;overflow:hidden}
+.langs a{font-family:var(--f-mono);font-size:11px;padding:3px 7px;color:var(--muted);text-decoration:none}
+.langs a[aria-current]{background:var(--op-soft);color:var(--ink);font-weight:500}
+@media (max-width:389px){.brand span{display:none}}
+.ai-chip{order:2;margin-left:auto;font-family:var(--f-mono);font-size:11px;color:var(--muted);display:inline-flex;align-items:center;gap:6px;text-decoration:none}
+.ai-chip::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--amber)}
+html[data-ai="ready"] .ai-chip::before{background:var(--op)}
+nav.tabs{order:3;width:100%;display:flex;gap:0}
+nav.tabs a{flex:1 1 auto;text-align:center;padding:8px 4px;border-radius:8px;text-decoration:none;color:var(--muted);font-weight:500;font-size:13px;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+@media (min-width:400px){nav.tabs a{font-size:14px;padding:8px 4px}}
+nav.tabs a[aria-current="page"]{background:var(--sheet);color:var(--ink);box-shadow:inset 0 0 0 1px var(--line)}
+@media (min-width:660px){nav.tabs{order:2;width:auto;margin-left:12px}nav.tabs a{flex:none;padding:7px 14px;font-size:15px}.ai-chip{order:3}}
+
+.wrap{max-width:760px;margin:0 auto;padding-inline:16px;padding-block:24px 56px;display:flex;flex-direction:column;gap:28px}
+section{display:flex;flex-direction:column;gap:12px;min-width:0}
+.hero{gap:8px}
+.foot{max-width:760px;margin:0 auto;padding-inline:16px;padding-block:0 32px;color:var(--muted);font-size:13px}
+
+.btn{font:inherit;font-size:15px;font-weight:500;padding:9px 14px;border-radius:8px;border:1px solid var(--line);background:var(--sheet);color:var(--ink);cursor:pointer;min-height:44px;text-decoration:none;display:inline-flex;align-items:center;gap:6px}
+.btn.primary{background:var(--op);border-color:var(--op);color:var(--op-ink)}
+.btn.ghost{background:transparent;border-color:transparent;color:var(--muted)}
+.btn:disabled{opacity:.5;cursor:default}
+.row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+:focus-visible{outline:2px solid var(--op);outline-offset:2px}
+textarea,input[type="search"],input[type="password"],input[type="text"],select{font:inherit;font-size:16px;width:100%;padding:11px 12px;border:1px solid var(--line);border-radius:8px;background:var(--sheet);color:var(--ink);line-height:1.5}
+textarea{resize:vertical}
+select{width:auto;max-width:100%;min-height:40px;padding:6px 10px}
+input[type="range"]{width:100%;accent-color:var(--op)}
+.lbl{font-weight:600;font-size:15px}
+.note{border-radius:var(--r);padding:12px 14px;font-size:14px;background:var(--amber-soft);border:1px solid var(--line);max-width:none}
+.note.info{background:var(--op-soft)}
+
+/* Home */
+.parts{display:grid;grid-template-columns:1fr;gap:10px}
+@media (min-width:560px){.parts{grid-template-columns:1fr 1fr}}
+.part{background:var(--sheet);border:1px solid var(--line);border-radius:var(--r);padding:14px 16px;display:flex;flex-direction:column;gap:4px;text-decoration:none;color:var(--ink);min-width:0}
+.part:hover{border-color:var(--op)}
+.part .n{font-family:var(--f-mono);font-size:12px;color:var(--op)}
+.part .de{font-weight:600;font-size:16px}
+.part .ru{color:var(--muted);font-size:14px;flex:1}
+.part .go{font-size:14px;color:var(--op);font-weight:500;margin-top:6px}
+ul.prog{list-style:none;margin:0;padding:0;border:1px solid var(--line);border-radius:var(--r);background:var(--sheet)}
+ul.prog li{display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:4px 12px;padding:11px 14px;border-top:1px solid var(--line)}
+ul.prog li:first-child{border-top:0}
+ul.prog .mono{color:var(--muted)}
+
+/* Patient label */
+.etikett{background:var(--sheet);border:1px solid var(--line);border-radius:6px;padding:12px 14px;display:grid;grid-template-columns:minmax(0,1fr) 52px;gap:12px}
+.et-main{display:flex;flex-direction:column;gap:2px;min-width:0}
+.et-main .nm{font-family:var(--f-mono);font-weight:500;font-size:15px;letter-spacing:.03em}
+.et-main .meta{font-family:var(--f-mono);font-size:12px;color:var(--muted)}
+.et-main .ls{margin-top:6px;font-size:15px}
+.bc{background:repeating-linear-gradient(90deg,var(--ink) 0 1px,transparent 1px 3px,var(--ink) 3px 5px,transparent 5px 6px,var(--ink) 6px 7px,transparent 7px 10px,var(--ink) 10px 12px,transparent 12px 13px);opacity:.75;border-radius:1px;min-height:56px}
+.case-list{display:flex;flex-direction:column;gap:16px}
+.case-card{display:flex;flex-direction:column;gap:8px;text-decoration:none;color:var(--ink)}
+.case-card:hover .etikett{border-color:var(--op)}
+.cc-steps{display:flex;flex-wrap:wrap;gap:4px 14px;font-family:var(--f-mono);font-size:12px;color:var(--muted)}
+.cc-steps .ok{color:var(--op)}
+.cc-steps .ok::before{content:"✓ "}
+.back{font-size:14px;text-decoration:none;align-self:flex-start}
+
+.steps{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
+.steps a{display:flex;flex-direction:column;gap:1px;padding:8px 10px;border:1px solid var(--line);border-radius:8px;text-decoration:none;color:var(--muted);min-width:0}
+.steps .k{font-family:var(--f-mono);font-size:11px}
+.steps .l{font-weight:600;font-size:14px;color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.steps .s{font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.steps a[aria-current="page"]{background:var(--sheet);border-color:var(--op);box-shadow:inset 0 -2px 0 var(--op)}
+.steps a.done .k::after{content:" ✓";color:var(--op)}
+.tabbody{display:flex;flex-direction:column;gap:24px}
+
+/* Chat */
+.chat{background:var(--sheet);border:1px solid var(--line);border-radius:var(--r);display:flex;flex-direction:column;min-width:0}
+.chat-head{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px 12px;padding:8px 14px;border-bottom:1px solid var(--line);font-family:var(--f-mono);font-size:12px;color:var(--muted)}
+.mode{display:inline-flex;border:1px solid var(--line);border-radius:7px;overflow:hidden}
+.mode button{font:inherit;font-family:var(--f-body);font-size:13px;padding:5px 12px;border:0;background:transparent;color:var(--muted);cursor:pointer;min-height:32px}
+.mode button[aria-pressed="true"]{background:var(--op-soft);color:var(--ink);font-weight:500}
+.log{display:flex;flex-direction:column;gap:10px;padding:14px;max-height:min(50vh,440px);min-height:150px;overflow-y:auto}
+.msg{max-width:86%;display:flex;flex-direction:column;gap:2px;min-width:0}
+.msg .who{font-family:var(--f-mono);font-size:11px;color:var(--muted);display:flex;gap:10px;align-items:center}
+.msg .txt{padding:8px 12px;border-radius:12px;white-space:pre-wrap;overflow-wrap:anywhere}
+.msg.me{align-self:flex-end;align-items:flex-end}
+.msg.me .txt{background:var(--op-soft);border-bottom-right-radius:4px}
+.msg.them{align-self:flex-start}
+.msg.them .txt{background:var(--paper);border:1px solid var(--line);border-bottom-left-radius:4px}
+.say{font:inherit;font-family:var(--f-mono);font-size:11px;color:var(--op);background:none;border:0;padding:2px 0;cursor:pointer}
+.typing{color:var(--muted);font-style:italic}
+.empty{margin:auto;color:var(--muted);font-size:14px;text-align:center;max-width:38ch;display:flex;flex-direction:column;align-items:center;gap:10px}
+.voice-bar{display:flex;align-items:center;gap:14px;padding:12px 14px;border-top:1px solid var(--line)}
+.mic{flex:none;width:64px;height:64px;border-radius:50%;border:0;background:var(--op);color:var(--op-ink);display:grid;place-items:center;cursor:pointer;position:relative}
+.mic svg{width:26px;height:26px}
+.mic.on{background:var(--pen)}
+.mic.on::after{content:"";position:absolute;inset:-6px;border-radius:50%;border:2px solid var(--pen);animation:pulse 1.2s ease-out infinite}
+@keyframes pulse{from{transform:scale(.9);opacity:1}to{transform:scale(1.25);opacity:0}}
+@media (prefers-reduced-motion: reduce){.mic.on::after{animation:none;opacity:.6}}
+.mic:disabled{opacity:.5;cursor:default}
+.live{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
+.live .state{font-family:var(--f-mono);font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em}
+.live .said{font-size:15px;overflow-wrap:anywhere}
+.chat-form{display:flex;gap:8px;padding:10px;border-top:1px solid var(--line);align-items:flex-end}
+.chat-form textarea{flex:1;min-width:0;min-height:46px}
+.chat-actions{padding:0 10px 10px}
+.chat .err{padding:0 14px 8px}
+.dict{display:flex;align-items:center;gap:12px}
+.dict .mic{width:48px;height:48px}
+.dict .mic svg{width:20px;height:20px}
+
+/* Checklist */
+.cl-wrap>summary{display:flex;justify-content:space-between;align-items:center;gap:12px;cursor:pointer;padding:12px 14px;background:var(--sheet);border:1px solid var(--line);border-radius:var(--r);font-weight:600;list-style:none}
+.cl-wrap>summary::-webkit-details-marker{display:none}
+.cl-wrap>summary::after{content:"+";font-family:var(--f-mono);color:var(--muted);font-size:18px;line-height:1}
+.cl-wrap[open]>summary{border-radius:var(--r) var(--r) 0 0}
+.cl-wrap[open]>summary::after{content:"−"}
+.cl-wrap>summary .mono{margin-left:auto;color:var(--muted);font-weight:400}
+.cl{background:var(--sheet);border:1px solid var(--line);border-top:0;border-radius:0 0 var(--r) var(--r)}
+.cl-item{display:grid;grid-template-columns:20px minmax(0,1fr);gap:10px;padding:12px 14px;border-top:1px solid var(--line)}
+.cl-item:first-child{border-top:0}
+.box{width:18px;height:18px;border:1.5px solid var(--muted);border-radius:3px;margin-top:3px;display:grid;place-items:center;font-size:12px;line-height:1;color:var(--op-ink)}
+.cl-item.ok .box{background:var(--op);border-color:var(--op)}
+.cl-item.ok .box::after{content:"✓"}
+.cl-item.miss .box{border-color:var(--pen);background:var(--pen-soft)}
+.cl-body{display:flex;flex-direction:column;gap:2px;min-width:0}
+.cl-t{font-weight:600;font-size:15px}
+.cl-q{font-style:italic;color:var(--muted);font-size:14px}
+.cl-a{background:var(--paper);border-radius:6px;padding:8px 10px;font-size:14px;margin-top:4px;max-width:none}
+.linkbtn{font:inherit;font-size:13px;color:var(--op);background:none;border:0;padding:4px 0;cursor:pointer;text-align:left;align-self:flex-start;min-height:30px}
+
+/* Feedback */
+.fb{background:var(--sheet);border:1px solid var(--line);border-radius:var(--r);padding:16px;display:flex;flex-direction:column;gap:16px;min-width:0}
+.fb.thinking{flex-direction:row;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;color:var(--muted)}
+.fb-sum{font-size:16px}
+.fb-sec{display:flex;flex-direction:column;gap:8px}
+.fb h3{font-family:var(--f-mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);font-weight:500}
+.meter{height:8px;background:var(--paper);border:1px solid var(--line);border-radius:4px;overflow:hidden}
+.meter i{display:block;height:100%;background:var(--op)}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{font-size:13px;padding:3px 10px;border-radius:999px;border:1px solid var(--line);background:var(--paper)}
+.chip.miss{border-color:var(--pen);color:var(--pen);background:var(--pen-soft)}
+ul.corr{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:10px}
+ul.corr li{display:flex;flex-direction:column;gap:3px;padding-bottom:10px;border-bottom:1px dashed var(--line);overflow-wrap:anywhere}
+ul.corr li:last-child{border-bottom:0;padding-bottom:0}
+ul.corr del{color:var(--pen);text-decoration-thickness:1.5px}
+ul.corr ins{color:var(--op);text-decoration:none;font-weight:500}
+ul.corr .why{font-size:14px;color:var(--muted)}
+ul.plain{margin:0;padding-left:18px;display:flex;flex-direction:column;gap:4px}
+
+.muster{background:var(--sheet);border:1px solid var(--line);border-radius:var(--r);padding:16px;display:flex;flex-direction:column;gap:12px;min-width:0}
+.muster dl{margin:0;display:flex;flex-direction:column;gap:12px}
+.muster dt{font-family:var(--f-mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--op)}
+.muster dd{margin:2px 0 0;white-space:pre-line;overflow-wrap:anywhere}
+.notes-ro>summary{cursor:pointer;color:var(--op);font-size:14px}
+.notes-ro .pre{margin-top:8px;background:var(--sheet);border:1px solid var(--line);border-radius:8px;padding:10px 12px;font-size:14px;max-width:none}
+.phr{display:flex;flex-wrap:wrap;gap:6px}
+.chip-btn{font:inherit;font-size:13px;padding:6px 11px;border-radius:999px;border:1px solid var(--line);background:var(--sheet);color:var(--ink);cursor:pointer;text-align:left;min-height:36px}
+.chip-btn:hover{border-color:var(--op)}
+
+/* Vocab */
+.seg{display:inline-flex;flex-wrap:wrap;gap:2px;border:1px solid var(--line);border-radius:9px;padding:3px;background:var(--sheet);align-self:flex-start}
+.seg button{font:inherit;font-size:14px;border:0;background:transparent;padding:6px 14px;border-radius:6px;color:var(--muted);cursor:pointer;min-height:36px}
+.seg button[aria-pressed="true"]{background:var(--op-soft);color:var(--ink);font-weight:500}
+.chk{display:inline-flex;align-items:center;gap:8px;font-size:15px;cursor:pointer}
+.chk input{width:18px;height:18px;accent-color:var(--op);flex:none}
+.card{background:var(--sheet);border:1px solid var(--line);border-radius:14px;padding:22px 20px;min-height:210px;display:flex;flex-direction:column;justify-content:center;gap:10px}
+.term{font-family:var(--f-display);font-weight:500;font-size:clamp(22px,6vw,30px);line-height:1.2;overflow-wrap:anywhere}
+.lay{font-size:19px;font-weight:500}
+.ru{color:var(--muted)}
+.hint{color:var(--muted);font-size:14px}
+.opts{display:grid;gap:8px}
+.opt{justify-content:flex-start;text-align:left;font-weight:400;width:100%}
+.opt.right{border-color:var(--op);background:var(--op-soft)}
+.opt.wrong{border-color:var(--pen);background:var(--pen-soft)}
+.tbl-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:var(--r);background:var(--sheet)}
+table{border-collapse:collapse;width:100%;min-width:520px;font-size:14px}
+th,td{padding:8px 12px;text-align:left;border-top:1px solid var(--line);vertical-align:top}
+thead th{border-top:0;font-family:var(--f-mono);font-size:11px;font-weight:500;text-transform:uppercase;letter-spacing:.1em;color:var(--muted)}
+.tick{width:32px;height:32px;border-radius:6px;border:1px solid var(--line);background:transparent;color:transparent;cursor:pointer;font-size:15px}
+.tick.on{background:var(--op);border-color:var(--op);color:var(--op-ink)}
+
+/* Exam + drill */
+.exam-pill{order:2;font-size:12px;padding:3px 9px;border-radius:999px;background:var(--pen-soft);color:var(--pen);text-decoration:none}
+@media (min-width:660px){.exam-pill{order:3}}
+.exhead{gap:8px;position:sticky;top:calc(env(safe-area-inset-top,0px) + 96px);z-index:5;background:var(--paper);padding-block:6px}
+@media (min-width:660px){.exhead{top:calc(env(safe-area-inset-top,0px) + 56px)}}
+.ex-top{display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex-wrap:wrap}
+.ex-clock{font-size:26px;font-weight:500;color:var(--ink)}
+.ex-clock.low{color:var(--pen)}
+.bar-row{display:flex;justify-content:space-between;gap:12px;font-size:14px}
+.steps-ol{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:6px}
+.drill-form input{flex:1;min-width:0}
+html[lang="de"] .c3{display:none}
+/* Materials */
+.mat-list{display:grid;grid-template-columns:1fr;gap:10px}
+@media (min-width:560px){.mat-list{grid-template-columns:1fr 1fr}}
+.mat-sec{gap:10px}
+ul.ph-list{list-style:none;margin:0;padding:0;background:var(--sheet);border:1px solid var(--line);border-radius:var(--r)}
+.ph-row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:2px 12px;padding:10px 14px;border-top:1px solid var(--line);align-items:baseline}
+.ph-row:first-child{border-top:0}
+.ph-de{font-weight:500;overflow-wrap:anywhere}
+.ph-ru{grid-column:1/-1;color:var(--muted);font-size:14px}
+.mat-tbl{min-width:0}
+.mat-tbl th{width:1%;font-family:var(--f-mono);font-size:13px;font-weight:500;color:var(--op);text-transform:none;letter-spacing:0;border-top:1px solid var(--line)}
+.mat-tbl tr:first-child th,.mat-tbl tr:first-child td{border-top:0}
+/* Settings */
+.panel{background:var(--sheet);border:1px solid var(--line);border-radius:var(--r);padding:16px;display:flex;flex-direction:column;gap:12px}
+.stat-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:4px;font-size:14px}
+.stat-list .y{color:var(--op)}
+.stat-list .n{color:var(--pen)}
+</style>
+</head>
+<body>
+<header class="top"><div class="top-in">
+  <a class="brand" href="#home"><b>Fa<em>Med</em></b><span>Trainer</span></a>
+  <a class="ai-chip" id="aichip" href="#settings">Kein Schlüssel</a>
+  <a class="exam-pill mono" id="exam-pill" href="#exam" hidden>Prüfung</a>
+  <span class="langs" role="group" aria-label="Sprache"><a data-lang="ru" data-f="index.html" href="index.html">RU</a><a data-lang="az" data-f="az.html" href="az.html">AZ</a><a data-lang="en" data-f="en.html" href="en.html">EN</a><a data-lang="de" data-f="de.html" href="de.html">DE</a></span>
+  <nav class="tabs" aria-label="Bereiche">
+    <a href="#home" data-nav="home">Start</a>
+    <a href="#mat" data-nav="mat">Materialien</a>
+    <a href="#vocab" data-nav="vocab">Begriffe</a>
+    <a href="#cases" data-nav="cases">Fälle</a>
+    <a href="#settings" data-nav="settings">Einstellungen</a>
+  </nav>
+</div></header>
+<main class="wrap" id="main"></main>
+<footer class="foot">Prototyp · Schlüssel, Fortschritt und Entwürfe werden nur in diesem Browser gespeichert</footer>
+
+<script>
+const CAT = { sym: "Symptome", dis: "Erkrankungen", diag: "Diagnostik", ther: "Therapie und Allgemeines" };
+
+const VOCAB = [
+  ["Dyspnoe", "Atemnot, Luftnot", "Atemnot, Luftnot", "sym"],
+  ["Palpitationen", "Herzklopfen, Herzstolpern", "Herzklopfen, Herzstolpern", "sym"],
+  ["Tachykardie", "Herzrasen, zu schneller Herzschlag", "Herzrasen, zu schneller Herzschlag", "sym"],
+  ["Synkope", "kurze Ohnmacht, kurzer Bewusstseinsverlust", "kurze Ohnmacht, kurzer Bewusstseinsverlust", "sym"],
+  ["Vertigo", "Schwindel", "Schwindel", "sym"],
+  ["Zephalgie", "Kopfschmerzen", "Kopfschmerzen", "sym"],
+  ["Nausea", "Übelkeit", "Übelkeit", "sym"],
+  ["Emesis", "Erbrechen", "Erbrechen", "sym"],
+  ["Hämatemesis", "Bluterbrechen", "Bluterbrechen", "sym"],
+  ["Meläna", "Teerstuhl, schwarzer glänzender Stuhl", "Teerstuhl, schwarzer glänzender Stuhl", "sym"],
+  ["Diarrhö", "Durchfall", "Durchfall", "sym"],
+  ["Obstipation", "Verstopfung", "Verstopfung", "sym"],
+  ["Dysphagie", "Schluckbeschwerden", "Schluckbeschwerden", "sym"],
+  ["Inappetenz", "Appetitlosigkeit", "Appetitlosigkeit", "sym"],
+  ["Pruritus", "Juckreiz", "Juckreiz", "sym"],
+  ["Exanthem", "Hautausschlag", "Hautausschlag", "sym"],
+  ["Ikterus", "Gelbsucht, Gelbfärbung der Haut", "Gelbsucht, Gelbfärbung der Haut", "sym"],
+  ["Ödem", "Schwellung durch Wassereinlagerung", "Schwellung durch Wassereinlagerung", "sym"],
+  ["Dysurie", "Schmerzen oder Brennen beim Wasserlassen", "Schmerzen oder Brennen beim Wasserlassen", "sym"],
+  ["Pollakisurie", "häufiges Wasserlassen in kleinen Mengen", "häufiges Wasserlassen in kleinen Mengen", "sym"],
+  ["Nykturie", "nächtliches Wasserlassen", "nächtliches Wasserlassen", "sym"],
+  ["Hämaturie", "Blut im Urin", "Blut im Urin", "sym"],
+  ["Hämoptyse", "Bluthusten, Abhusten von Blut", "Bluthusten, Abhusten von Blut", "sym"],
+  ["Sputum", "Auswurf", "Auswurf", "sym"],
+  ["Epistaxis", "Nasenbluten", "Nasenbluten", "sym"],
+  ["Arthralgie", "Gelenkschmerzen", "Gelenkschmerzen", "sym"],
+  ["Myalgie", "Muskelschmerzen", "Muskelschmerzen", "sym"],
+  ["Parästhesien", "Kribbeln, Ameisenlaufen", "Kribbeln, Ameisenlaufen", "sym"],
+  ["Insomnie", "Schlaflosigkeit, Schlafstörung", "Schlaflosigkeit, Schlafstörung", "sym"],
+  ["Tremor", "Zittern", "Zittern", "sym"],
+  ["Hyperhidrose", "übermäßiges Schwitzen", "übermäßiges Schwitzen", "sym"],
+  ["Kachexie", "starke Abmagerung, Auszehrung", "starke Abmagerung, Auszehrung", "sym"],
+
+  ["Myokardinfarkt", "Herzinfarkt", "Herzinfarkt", "dis"],
+  ["Apoplex", "Schlaganfall", "Schlaganfall", "dis"],
+  ["Arterielle Hypertonie", "Bluthochdruck", "Bluthochdruck", "dis"],
+  ["Hypotonie", "niedriger Blutdruck", "niedriger Blutdruck", "dis"],
+  ["Herzinsuffizienz", "Herzschwäche", "Herzschwäche", "dis"],
+  ["Angina pectoris", "anfallsartiges Engegefühl in der Brust", "anfallsartiges Engegefühl in der Brust", "dis"],
+  ["Diabetes mellitus", "Zuckerkrankheit", "Zuckerkrankheit", "dis"],
+  ["Hypercholesterinämie", "erhöhter Cholesterinwert", "erhöhter Cholesterinwert", "dis"],
+  ["Hypothyreose", "Schilddrüsenunterfunktion", "Schilddrüsenunterfunktion", "dis"],
+  ["Hyperthyreose", "Schilddrüsenüberfunktion", "Schilddrüsenüberfunktion", "dis"],
+  ["Pneumonie", "Lungenentzündung", "Lungenentzündung", "dis"],
+  ["Tonsillitis", "Mandelentzündung", "Mandelentzündung", "dis"],
+  ["Otitis media", "Mittelohrentzündung", "Mittelohrentzündung", "dis"],
+  ["Appendizitis", "Blinddarmentzündung", "Blinddarmentzündung", "dis"],
+  ["Cholezystolithiasis", "Gallensteine in der Gallenblase", "Gallensteine in der Gallenblase", "dis"],
+  ["Cholezystitis", "Gallenblasenentzündung", "Gallenblasenentzündung", "dis"],
+  ["Gastritis", "Magenschleimhautentzündung", "Magenschleimhautentzündung", "dis"],
+  ["Ulcus ventriculi", "Magengeschwür", "Magengeschwür", "dis"],
+  ["Zystitis", "Blasenentzündung", "Blasenentzündung", "dis"],
+  ["Pyelonephritis", "Nierenbeckenentzündung", "Nierenbeckenentzündung", "dis"],
+  ["Niereninsuffizienz", "Nierenschwäche", "Nierenschwäche", "dis"],
+  ["Tiefe Beinvenenthrombose", "Blutgerinnsel in einer tiefen Beinvene", "Blutgerinnsel in einer tiefen Beinvene", "dis"],
+  ["Lungenembolie", "Verschluss eines Blutgefäßes in der Lunge durch ein Blutgerinnsel", "Verschluss eines Blutgefäßes in der Lunge durch ein Blutgerinnsel", "dis"],
+  ["Varikosis", "Krampfadern", "Krampfadern", "dis"],
+  ["Fraktur", "Knochenbruch", "Knochenbruch", "dis"],
+  ["Distorsion", "Verstauchung", "Verstauchung", "dis"],
+  ["Luxation", "Ausrenkung, Verrenkung", "Ausrenkung, Verrenkung", "dis"],
+  ["Kontusion", "Prellung", "Prellung", "dis"],
+  ["Adipositas", "starkes Übergewicht", "starkes Übergewicht", "dis"],
+  ["Osteoporose", "Knochenschwund", "Knochenschwund", "dis"],
+
+  ["Sonographie", "Ultraschalluntersuchung", "Ultraschalluntersuchung", "diag"],
+  ["Auskultation", "Abhören mit dem Stethoskop", "Abhören mit dem Stethoskop", "diag"],
+  ["Palpation", "Abtasten", "Abtasten", "diag"],
+  ["Elektrokardiogramm (EKG)", "Aufzeichnung der Herzströme", "Aufzeichnung der Herzströme", "diag"],
+  ["Gastroskopie", "Magenspiegelung", "Magenspiegelung", "diag"],
+  ["Koloskopie", "Darmspiegelung", "Darmspiegelung", "diag"],
+  ["Computertomographie (CT)", "Röntgenuntersuchung, die Schnittbilder des Körpers macht", "Röntgenuntersuchung, die Schnittbilder des Körpers macht", "diag"],
+  ["Magnetresonanztomographie (MRT)", "Untersuchung in der „Röhre“ mit Magnetfeldern, ohne Röntgenstrahlen", "Untersuchung in der „Röhre“ mit Magnetfeldern, ohne Röntgenstrahlen", "diag"],
+  ["Biopsie", "Entnahme einer Gewebeprobe", "Entnahme einer Gewebeprobe", "diag"],
+  ["Punktion", "Einstich mit einer Nadel, um Flüssigkeit oder Gewebe zu entnehmen", "Einstich mit einer Nadel, um Flüssigkeit oder Gewebe zu entnehmen", "diag"],
+  ["Blutgasanalyse", "Messung von Sauerstoff und Kohlendioxid im Blut", "Messung von Sauerstoff und Kohlendioxid im Blut", "diag"],
+
+  ["Analgetikum", "Schmerzmittel", "Schmerzmittel", "ther"],
+  ["Antipyretikum", "fiebersenkendes Mittel", "fiebersenkendes Mittel", "ther"],
+  ["Antikoagulans", "blutverdünnendes Medikament", "blutverdünnendes Medikament", "ther"],
+  ["Antihypertensivum", "Blutdrucksenker", "Blutdrucksenker", "ther"],
+  ["Diuretikum", "Entwässerungstablette, harntreibendes Mittel", "Entwässerungstablette, harntreibendes Mittel", "ther"],
+  ["Antibiotikum", "Medikament gegen Bakterien", "Medikament gegen Bakterien", "ther"],
+  ["Antiemetikum", "Mittel gegen Übelkeit und Erbrechen", "Mittel gegen Übelkeit und Erbrechen", "ther"],
+  ["intravenös (i. v.)", "über die Vene, als Infusion oder Spritze", "über die Vene, als Infusion oder Spritze", "ther"],
+  ["Nahrungskarenz", "vorerst nichts essen", "vorerst nichts essen", "ther"],
+  ["Mobilisation", "aufstehen und sich bewegen", "aufstehen und sich bewegen", "ther"],
+  ["Prophylaxe", "Vorbeugung", "Vorbeugung", "ther"],
+  ["Kontraindikation", "Gegenanzeige, Grund gegen ein Medikament oder eine Behandlung", "Gegenanzeige, Grund gegen ein Medikament oder eine Behandlung", "ther"],
+  ["Rezidiv", "Rückfall, erneutes Auftreten", "Rückfall, erneutes Auftreten", "ther"],
+  ["Nikotinabusus", "Rauchen", "Rauchen", "ther"],
+  ["Anamnese", "Krankengeschichte, Vorgeschichte", "Krankengeschichte, Vorgeschichte", "ther"],
+  ["akut", "plötzlich auftretend", "plötzlich auftretend", "ther"],
+  ["chronisch", "lang andauernd", "lang andauernd", "ther"],
+  ["benigne", "gutartig", "gutartig", "ther"],
+  ["maligne", "bösartig", "bösartig", "ther"]
+];
+
+const CASES = [
+  {
+    id: "galle", nr: "01", anrede: "Frau", name: "Sabine Keller", sex: "w", geb: "14.03.1974", alter: 52,
+    fach: "Chirurgie", titleRu: "Schmerzen im rechten Oberbauch",
+    leit: "Starke Schmerzen im rechten Oberbauch seit gestern Abend",
+    persona: "Du bist Frau Sabine Keller, 52 Jahre alt, Bürokauffrau. Du hast starke Bauchschmerzen, bist erschöpft und etwas besorgt, aber freundlich und kooperativ. Wenn es passt, darfst du einmal fragen: „Muss ich jetzt operiert werden?“",
+    items: [
+      { id: "pers", t: "Persönliche Daten", q: "Wie ist Ihr vollständiger Name? Wann sind Sie geboren? Wie groß sind Sie und wie viel wiegen Sie?", a: "Sabine Keller, geboren am 14. März 1974. Ich bin 1,65 Meter groß und wiege ungefähr 84 Kilo." },
+      { id: "leit", t: "Hauptbeschwerde", q: "Was führt Sie heute zu uns?", a: "Ich habe seit gestern Abend ganz starke Bauchschmerzen, hier rechts oben." },
+      { id: "beginn", t: "Beginn und Verlauf", q: "Seit wann genau haben Sie die Schmerzen, und wie haben sie sich seitdem entwickelt?", a: "Gestern Abend gegen acht, ungefähr eine Stunde nach dem Essen auf einer Geburtstagsfeier. Erst kamen sie in Wellen, seit heute Nacht sind sie dauernd da und werden eher schlimmer." },
+      { id: "lok", t: "Lokalisation und Ausstrahlung", q: "Wo genau tut es weh? Strahlen die Schmerzen irgendwohin aus?", a: "Hier rechts unter den Rippen. Manchmal zieht es bis in die rechte Schulter." },
+      { id: "char", t: "Charakter und Intensität", q: "Wie würden Sie den Schmerz beschreiben, eher stechend, drückend oder krampfartig? Wie stark ist er auf einer Skala von 0 bis 10?", a: "Am Anfang krampfartig, jetzt eher ein dumpfer Dauerschmerz. Ich würde sagen, 8 von 10." },
+      { id: "ausl", t: "Auslöser, Verstärkung, Linderung", q: "Gibt es etwas, das die Schmerzen auslöst, verstärkt oder lindert?", a: "Angefangen hat es nach einem fettigen Schweinebraten. Beim tiefen Einatmen und bei Bewegung wird es schlimmer. Eine Ibuprofen gestern Abend hat kaum geholfen." },
+      { id: "begl", t: "Begleitsymptome", q: "Haben Sie noch andere Beschwerden, zum Beispiel Übelkeit, Erbrechen oder Fieber?", a: "Mir ist übel, und ich habe heute Nacht zweimal erbrochen, aber ohne Blut. Heute Morgen hatte ich 38,6 Grad Fieber und Schüttelfrost." },
+      { id: "frueher", t: "Frühere Episoden", q: "Hatten Sie solche Beschwerden schon einmal?", a: "Ja, in den letzten Monaten drei- oder viermal nach fettem Essen, aber kürzer und schwächer. Das ging immer von allein weg." },
+      { id: "veg", t: "Vegetative Anamnese", q: "Wie sind Ihr Appetit, Ihr Gewicht und Ihr Schlaf? Haben Sie Veränderungen beim Stuhlgang oder beim Wasserlassen bemerkt?", a: "Appetit habe ich seit gestern gar keinen. Mein Gewicht ist gleich geblieben. Heute Nacht konnte ich vor Schmerzen kaum schlafen. Stuhlgang und Urin sind normal, auch die Farbe. Gelb geworden bin ich nicht." },
+      { id: "vorerk", t: "Vorerkrankungen", q: "Sind bei Ihnen Vorerkrankungen bekannt?", a: "Ich habe seit ungefähr sechs Jahren Bluthochdruck und seit zehn Jahren eine Schilddrüsenunterfunktion, Hashimoto." },
+      { id: "voroper", t: "Voroperationen", q: "Wurden Sie schon einmal operiert?", a: "Mit 15 wurde mir der Blinddarm entfernt, und 2002 hatte ich einen Kaiserschnitt." },
+      { id: "med", t: "Medikamente", q: "Welche Medikamente nehmen Sie regelmäßig ein?", a: "Ramipril 5 Milligramm morgens gegen den Blutdruck und L-Thyroxin 75 Mikrogramm morgens auf nüchternen Magen. Bei Bedarf nehme ich Ibuprofen 400." },
+      { id: "allerg", t: "Allergien", q: "Haben Sie Allergien, zum Beispiel gegen Medikamente?", a: "Ja, gegen Penicillin. Als Kind habe ich davon einen Hautausschlag bekommen." },
+      { id: "noxen", t: "Noxen (Rauchen, Alkohol, Drogen)", q: "Rauchen Sie? Trinken Sie Alkohol? Nehmen Sie Drogen?", a: "Ich rauche nicht. Am Wochenende trinke ich mal ein Glas Wein. Drogen nehme ich keine." },
+      { id: "gyn", t: "Gynäkologische Anamnese", q: "Wann hatten Sie Ihre letzte Regelblutung?", a: "Ich habe seit ungefähr zwei Jahren keine Periode mehr." },
+      { id: "fam", t: "Familienanamnese", q: "Gibt es in Ihrer Familie Erkrankungen?", a: "Meine Mutter hatte Gallensteine und wurde an der Gallenblase operiert. Mein Vater ist mit 70 an einem Herzinfarkt gestorben." },
+      { id: "sozial", t: "Sozialanamnese", q: "Wie leben Sie, und was machen Sie beruflich?", a: "Ich bin Bürokauffrau, verheiratet und wohne mit meinem Mann in einer Wohnung. Wir haben zwei erwachsene Kinder." }
+    ],
+    brief: [
+      ["Persönliche Daten", "Frau Sabine Keller, geb. am 14.03.1974 (52 Jahre), 165 cm, 84 kg"],
+      ["Aufnahmegrund", "Frau Keller stellte sich heute in unserer Notaufnahme mit seit gestern Abend bestehenden starken Schmerzen im rechten Oberbauch vor."],
+      ["Aktuelle Anamnese", "Die Patientin berichtete, dass die Schmerzen gestern gegen 20 Uhr etwa eine Stunde nach einer fettreichen Mahlzeit aufgetreten seien. Die Schmerzen seien zunächst kolikartig gewesen und bestünden seit der Nacht als dumpfer Dauerschmerz mit zunehmender Tendenz. Sie seien im rechten Oberbauch lokalisiert und strahlten gelegentlich in die rechte Schulter aus. Die Schmerzintensität gab sie mit 8/10 auf der numerischen Rating-Skala an. Bei tiefer Inspiration und Bewegung würden sich die Beschwerden verstärken. Die Einnahme von Ibuprofen 400 mg habe kaum Linderung gebracht. Begleitend seien Nausea sowie in der Nacht zweimalige Emesis ohne Blutbeimengung aufgetreten. Heute Morgen habe sie eine Temperatur von 38,6 °C gemessen; zudem habe sie Schüttelfrost gehabt. In den letzten Monaten seien drei- bis viermal ähnliche, jedoch schwächere und selbstlimitierende Beschwerden nach fettreichen Mahlzeiten aufgetreten."],
+      ["Vegetative Anamnese", "Inappetenz seit gestern, Schlafstörungen aufgrund der Schmerzen. Gewicht konstant. Stuhlgang und Miktion unauffällig, keine Entfärbung des Stuhls, kein dunkler Urin, kein Ikterus."],
+      ["Vorerkrankungen", "– Arterielle Hypertonie seit ca. 6 Jahren\n– Hypothyreose bei Hashimoto-Thyreoiditis seit ca. 10 Jahren"],
+      ["Voroperationen", "– Appendektomie im Alter von 15 Jahren\n– Sectio caesarea 2002"],
+      ["Medikation", "– Ramipril 5 mg 1-0-0\n– L-Thyroxin 75 µg 1-0-0 (nüchtern)\n– Ibuprofen 400 mg bei Bedarf"],
+      ["Allergien", "Penicillin (Exanthem im Kindesalter)"],
+      ["Noxen", "Nikotin: verneint. Alkohol: gelegentlich, ca. ein Glas Wein am Wochenende. Drogen: verneint."],
+      ["Gynäkologische Anamnese", "Postmenopausal seit ca. 2 Jahren"],
+      ["Familienanamnese", "Mutter: Cholezystolithiasis, Z. n. Cholezystektomie. Vater: mit 70 Jahren an einem Myokardinfarkt verstorben."],
+      ["Sozialanamnese", "Bürokauffrau, verheiratet, lebt mit dem Ehemann in einer Wohnung, zwei erwachsene Kinder."],
+      ["Verdachtsdiagnose", "Akute Cholezystitis bei Cholezystolithiasis"],
+      ["Differenzialdiagnosen", "– Gallenkolik bei symptomatischer Cholezystolithiasis\n– Choledocholithiasis mit Cholangitis\n– Akute Pankreatitis\n– Ulcus duodeni oder ventriculi\n– Hinterwandinfarkt"],
+      ["Procedere", "– Körperliche Untersuchung (u. a. Murphy-Zeichen), Vitalparameter\n– Labor: Blutbild, CRP, Leber- und Cholestasewerte (GOT, GPT, γ-GT, AP, Bilirubin), Lipase, Nierenwerte, Elektrolyte, Gerinnung\n– Abdomensonographie\n– EKG\n– Bei Hinweis auf Gallengangssteine: MRCP bzw. ERCP\n– Stationäre Aufnahme, Nahrungskarenz, i. v. Flüssigkeitsgabe, Analgesie\n– Kalkulierte Antibiose unter Berücksichtigung der Penicillinallergie\n– Chirurgisches Konsil zur Planung einer laparoskopischen Cholezystektomie"]
+    ],
+    vorstellung: "Ich möchte Ihnen Frau Sabine Keller vorstellen. Sie ist 52 Jahre alt und hat sich heute in unserer Notaufnahme mit seit gestern Abend bestehenden starken Schmerzen im rechten Oberbauch vorgestellt. Die Schmerzen haben etwa eine Stunde nach einer fettreichen Mahlzeit begonnen, waren zunächst kolikartig und bestehen inzwischen als Dauerschmerz mit Ausstrahlung in die rechte Schulter. Die Intensität liegt bei 8 von 10. Begleitend hatte sie Übelkeit, zweimaliges Erbrechen ohne Blut sowie heute Morgen Fieber von 38,6 °C mit Schüttelfrost. Ähnliche, aber schwächere Episoden sind in den letzten Monaten mehrfach nach fettem Essen aufgetreten. Einen Ikterus oder Veränderungen von Stuhl- und Urinfarbe hat sie verneint.\n\nAn Vorerkrankungen sind eine arterielle Hypertonie und eine Hypothyreose bei Hashimoto-Thyreoiditis bekannt. Sie nimmt Ramipril und L-Thyroxin ein. Wichtig ist eine Penicillinallergie. Die Mutter hatte ebenfalls Gallensteine.\n\nWir gehen am ehesten von einer akuten Cholezystitis bei Cholezystolithiasis aus. Differenzialdiagnostisch kommen eine Choledocholithiasis, eine akute Pankreatitis, ein Ulkusleiden sowie ein Hinterwandinfarkt infrage.\n\nWir würden die Patientin gern stationär aufnehmen, Blut abnehmen, unter anderem für Entzündungs-, Leber- und Pankreaswerte, und eine Abdomensonographie sowie ein EKG durchführen. Therapeutisch planen wir Nahrungskarenz, Infusionen, Schmerzmittel und eine Antibiose unter Berücksichtigung der Penicillinallergie. Außerdem würden wir die Kollegen der Chirurgie hinzuziehen, um eine laparoskopische Cholezystektomie zu planen."
+  },
+  {
+    id: "lunge", nr: "02", anrede: "Herr", name: "Dieter Wagner", sex: "m", geb: "02.11.1958", alter: 67,
+    fach: "Innere Medizin", titleRu: "Husten, Fieber, Atemnot",
+    leit: "Husten, hohes Fieber und Atemnot seit vier Tagen",
+    persona: "Du bist Herr Dieter Wagner, 67 Jahre alt, Rentner. Du fühlst dich krank und schlapp und hustest zwischendurch, bist aber freundlich. Wenn es passt, darfst du einmal fragen: „Ist das etwas Ernstes?“",
+    items: [
+      { id: "pers", t: "Persönliche Daten", q: "Wie ist Ihr vollständiger Name? Wann sind Sie geboren? Wie groß sind Sie und wie viel wiegen Sie?", a: "Dieter Wagner, geboren am 2. November 1958. Ich bin 1,78 Meter groß und wiege 92 Kilo." },
+      { id: "leit", t: "Hauptbeschwerde", q: "Was führt Sie heute zu uns?", a: "Ich habe seit ein paar Tagen Husten und hohes Fieber, und ich bekomme schlecht Luft." },
+      { id: "beginn", t: "Beginn und Verlauf", q: "Seit wann haben Sie die Beschwerden, und wie haben sie sich entwickelt?", a: "Vor vier Tagen fing es mit trockenem Husten an. Seit zwei Tagen kommt Schleim, und das Fieber ist gestiegen. Es wird jeden Tag schlimmer." },
+      { id: "atem", t: "Atemnot", q: "Wann haben Sie Atemnot, in Ruhe oder bei Belastung?", a: "Beim Treppensteigen. Schon nach einem Stockwerk muss ich stehen bleiben. Im Sitzen geht es noch." },
+      { id: "schmerz", t: "Brustschmerzen", q: "Haben Sie Schmerzen in der Brust? Wenn ja, wo und wann?", a: "Ja, rechts im Brustkorb sticht es, wenn ich tief einatme oder huste." },
+      { id: "fieber", t: "Fieber, Schüttelfrost, Nachtschweiß", q: "Haben Sie Fieber gemessen? Hatten Sie Schüttelfrost oder Nachtschweiß?", a: "Gestern Abend hatte ich 39,2 Grad, mit Schüttelfrost. Nachts schwitze ich stark, das Bett ist ganz nass." },
+      { id: "auswurf", t: "Auswurf", q: "Husten Sie etwas ab? Wie sieht der Auswurf aus? Ist Blut dabei?", a: "Gelblich-grüner, zäher Schleim. Blut habe ich nicht gesehen." },
+      { id: "kontakt", t: "Umgebung, Reisen, Krankenhaus", q: "Ist in Ihrer Umgebung jemand krank? Waren Sie in letzter Zeit verreist oder im Krankenhaus?", a: "Meine Enkelin war letzte Woche erkältet. Verreist war ich nicht, im Krankenhaus auch nicht." },
+      { id: "veg", t: "Vegetative Anamnese", q: "Wie sind Ihr Appetit, Ihr Gewicht und Ihr Schlaf? Haben Sie Veränderungen beim Stuhlgang oder beim Wasserlassen bemerkt?", a: "Appetit habe ich kaum, ich fühle mich total schlapp. Abgenommen habe ich aber nicht. Wegen des Hustens schlafe ich schlecht. Stuhlgang und Wasserlassen sind normal." },
+      { id: "vorerk", t: "Vorerkrankungen", q: "Sind bei Ihnen Vorerkrankungen bekannt?", a: "Ich bin seit zwölf Jahren zuckerkrank, Typ 2. Außerdem habe ich Bluthochdruck und zu hohes Cholesterin." },
+      { id: "voroper", t: "Voroperationen", q: "Wurden Sie schon einmal operiert?", a: "2015 wurde ich an einem Leistenbruch rechts operiert." },
+      { id: "med", t: "Medikamente", q: "Welche Medikamente nehmen Sie regelmäßig ein?", a: "Metformin 1000 morgens und abends, Amlodipin 5 morgens und Simvastatin 20 abends." },
+      { id: "allerg", t: "Allergien", q: "Haben Sie Allergien, zum Beispiel gegen Medikamente?", a: "Allergien sind mir keine bekannt." },
+      { id: "noxen", t: "Noxen (Rauchen, Alkohol, Drogen)", q: "Rauchen Sie? Trinken Sie Alkohol? Nehmen Sie Drogen?", a: "Ich rauche seit 40 Jahren, ungefähr eine Schachtel am Tag, also 20 Zigaretten. Abends trinke ich meistens zwei Flaschen Bier. Drogen nehme ich nicht." },
+      { id: "impf", t: "Impfungen", q: "Sind Sie gegen Grippe und gegen Pneumokokken geimpft?", a: "Gegen Grippe habe ich mich dieses Jahr nicht impfen lassen. Pneumokokken? Das weiß ich nicht, ich glaube nicht." },
+      { id: "fam", t: "Familienanamnese", q: "Gibt es in Ihrer Familie Erkrankungen?", a: "Meine Mutter war auch zuckerkrank. Mein Vater hatte mit 75 einen Schlaganfall." },
+      { id: "sozial", t: "Sozialanamnese", q: "Wie leben Sie, und was machen oder machten Sie beruflich?", a: "Ich bin Rentner, früher war ich Busfahrer. Ich wohne mit meiner Frau in einem Einfamilienhaus. Wir haben einen Sohn." }
+    ],
+    brief: [
+      ["Persönliche Daten", "Herr Dieter Wagner, geb. am 02.11.1958 (67 Jahre), 178 cm, 92 kg"],
+      ["Aufnahmegrund", "Herr Wagner stellte sich heute in unserer Notaufnahme mit seit vier Tagen bestehendem Husten, Fieber und Belastungsdyspnoe vor."],
+      ["Aktuelle Anamnese", "Der Patient berichtete, dass vor vier Tagen ein zunächst unproduktiver Husten aufgetreten sei. Seit zwei Tagen sei der Husten produktiv mit gelblich-grünem, zähem Sputum; Hämoptysen wurden verneint. Er leide unter Fieber bis 39,2 °C mit Schüttelfrost sowie unter Nachtschweiß. Zudem bestehe eine Belastungsdyspnoe bereits nach einem Stockwerk Treppensteigen; eine Ruhedyspnoe wurde verneint. Beim tiefen Einatmen und beim Husten habe er stechende Schmerzen im rechten Thorax. Die Beschwerden hätten seit Beginn kontinuierlich zugenommen. Die Enkelin des Patienten sei in der vergangenen Woche an einem Infekt der oberen Atemwege erkrankt gewesen. Reisen und Krankenhausaufenthalte in letzter Zeit wurden verneint."],
+      ["Vegetative Anamnese", "Inappetenz, Abgeschlagenheit, Nachtschweiß. Schlafstörungen aufgrund des Hustens. Kein Gewichtsverlust. Stuhlgang und Miktion unauffällig."],
+      ["Vorerkrankungen", "– Diabetes mellitus Typ 2 seit ca. 12 Jahren\n– Arterielle Hypertonie\n– Hypercholesterinämie"],
+      ["Voroperationen", "– Leistenhernien-Operation rechts 2015"],
+      ["Medikation", "– Metformin 1000 mg 1-0-1\n– Amlodipin 5 mg 1-0-0\n– Simvastatin 20 mg 0-0-1"],
+      ["Allergien", "Keine bekannt"],
+      ["Noxen", "Nikotinabusus seit 40 Jahren, ca. 20 Zigaretten/Tag (ca. 40 pack years). Alkohol: ca. zwei Flaschen Bier am Abend. Drogen: verneint."],
+      ["Impfstatus", "Keine Influenza-Impfung in dieser Saison, Pneumokokken-Impfung nicht erinnerlich"],
+      ["Familienanamnese", "Mutter: Diabetes mellitus Typ 2. Vater: Apoplex im Alter von 75 Jahren."],
+      ["Sozialanamnese", "Rentner, ehemals Busfahrer, verheiratet, lebt mit der Ehefrau in einem Einfamilienhaus, ein Sohn."],
+      ["Verdachtsdiagnose", "Ambulant erworbene Pneumonie, am ehesten rechtsseitig"],
+      ["Differenzialdiagnosen", "– Akute Bronchitis\n– Akute Exazerbation einer bislang nicht diagnostizierten COPD\n– Lungenembolie\n– Poststenotische Pneumonie bei Bronchialkarzinom\n– Virale Atemwegsinfektion (z. B. Influenza, COVID-19)"],
+      ["Procedere", "– Körperliche Untersuchung, insbesondere Auskultation der Lunge\n– Vitalparameter einschließlich Atemfrequenz und Sauerstoffsättigung, Einschätzung des Schweregrades (z. B. CRB-65)\n– Labor: Blutbild, CRP, Procalcitonin, Nierenwerte, Elektrolyte, Blutzucker\n– Blutgasanalyse\n– Röntgen-Thorax in zwei Ebenen\n– Blutkulturen und Sputumdiagnostik, Abstrich auf SARS-CoV-2 und Influenza\n– Kalkulierte antibiotische Therapie nach Leitlinie, Antipyrese, ausreichende Flüssigkeitszufuhr, Sauerstoffgabe bei Bedarf\n– Engmaschige Blutzuckerkontrollen\n– Beratung zum Rauchstopp"]
+    ],
+    vorstellung: "Ich möchte Ihnen Herrn Dieter Wagner vorstellen. Er ist 67 Jahre alt und hat sich heute bei uns mit seit vier Tagen bestehendem Husten, Fieber und Atemnot vorgestellt. Der Husten war zunächst trocken, seit zwei Tagen hat er gelblich-grünen Auswurf, aber kein Blut. Er hatte Fieber bis 39,2 °C mit Schüttelfrost und Nachtschweiß. Atemnot hat er bei Belastung, schon nach einem Stockwerk, außerdem atemabhängige stechende Schmerzen im rechten Thorax. Seine Enkelin war letzte Woche erkältet.\n\nHerr Wagner hat einen Diabetes mellitus Typ 2, eine arterielle Hypertonie und eine Hypercholesterinämie. Er nimmt Metformin, Amlodipin und Simvastatin ein. Allergien sind nicht bekannt. Er raucht seit 40 Jahren etwa eine Schachtel täglich, also circa 40 pack years, und trinkt abends etwa zwei Flaschen Bier. Gegen Influenza ist er in dieser Saison nicht geimpft.\n\nWir vermuten eine ambulant erworbene Pneumonie, am ehesten rechtsseitig. Differenzialdiagnostisch müssen wir an eine akute Bronchitis, eine Exazerbation einer COPD, eine Lungenembolie und bei dem langjährigen Nikotinabusus auch an ein Bronchialkarzinom denken.\n\nWir würden die Lunge auskultieren, die Vitalparameter inklusive Sauerstoffsättigung messen und den CRB-65-Score erheben. Außerdem möchten wir Blut abnehmen, auch für Blutkulturen, und eine Blutgasanalyse sowie eine Röntgenaufnahme des Thorax durchführen. Je nach Schweregrad würden wir ihn ambulant oder stationär behandeln, mit einer kalkulierten Antibiose nach Leitlinie, Fiebersenkung, ausreichend Flüssigkeit und regelmäßigen Blutzuckerkontrollen."
+  },
+  {
+    id: "bein", nr: "03", anrede: "Frau", name: "Anna Schmid", sex: "w", geb: "21.07.1992", alter: 34,
+    fach: "Innere Medizin", titleRu: "Schwellung und Schmerzen im linken Unterschenkel",
+    leit: "Schmerzhafte Schwellung des linken Unterschenkels seit drei Tagen",
+    persona: "Du bist Frau Anna Schmid, 34 Jahre alt, Grundschullehrerin. Du bist beunruhigt, weil deine Mutter auch einmal eine Thrombose hatte, aber du bist freundlich und kooperativ. Wenn es passt, darfst du einmal fragen: „Kann das gefährlich werden?“",
+    items: [
+      { id: "pers", t: "Persönliche Daten", q: "Wie ist Ihr vollständiger Name? Wann sind Sie geboren? Wie groß sind Sie und wie viel wiegen Sie?", a: "Anna Schmid, geboren am 21. Juli 1992. Ich bin 1,70 Meter groß und wiege 78 Kilo." },
+      { id: "leit", t: "Hauptbeschwerde", q: "Was führt Sie heute zu uns?", a: "Mein linkes Bein ist seit ein paar Tagen geschwollen und tut weh." },
+      { id: "beginn", t: "Beginn und Verlauf", q: "Seit wann haben Sie die Beschwerden, und wie haben sie sich entwickelt?", a: "Seit drei Tagen. Zuerst dachte ich an einen Muskelkater, aber es wird jeden Tag schlimmer." },
+      { id: "lok", t: "Lokalisation und Ausstrahlung", q: "Wo genau haben Sie die Schmerzen und die Schwellung? Strahlt der Schmerz aus?", a: "In der linken Wade. Der ganze linke Unterschenkel ist dicker als der rechte. Ausstrahlen tut es nicht." },
+      { id: "char", t: "Charakter, Intensität, Verstärkung und Linderung", q: "Wie fühlt sich der Schmerz an, und wie stark ist er von 0 bis 10? Was macht ihn schlimmer oder besser?", a: "Ziehend und spannend, etwa 5 von 10. Beim Gehen und Stehen wird es schlimmer. Wenn ich das Bein hochlege, wird es etwas besser." },
+      { id: "haut", t: "Hautveränderungen", q: "Hat sich die Haut am Bein verändert, zum Beispiel die Farbe oder die Temperatur?", a: "Das Bein fühlt sich warm und gespannt an und ist ein bisschen rötlich-bläulich." },
+      { id: "reise", t: "Risikofaktoren: Reise, Operation, Verletzung", q: "Waren Sie in letzter Zeit länger unbeweglich, zum Beispiel auf einer langen Reise, nach einer Operation oder einer Verletzung?", a: "Vor einer Woche bin ich von Bangkok nach Frankfurt zurückgeflogen, elf Stunden. Ich habe wenig getrunken und bin kaum aufgestanden. Verletzt habe ich mich nicht." },
+      { id: "begl", t: "Warnzeichen", q: "Haben Sie Atemnot, Schmerzen in der Brust oder Herzrasen? Husten Sie Blut? Haben Sie Fieber?", a: "Nein, nichts davon. Fieber habe ich auch nicht." },
+      { id: "veg", t: "Vegetative Anamnese", q: "Wie sind Ihr Appetit, Ihr Gewicht und Ihr Schlaf? Haben Sie Veränderungen beim Stuhlgang oder beim Wasserlassen bemerkt?", a: "Appetit und Gewicht sind normal. Ich schlafe etwas schlechter, weil das Bein wehtut. Stuhlgang und Wasserlassen sind ganz normal." },
+      { id: "vorerk", t: "Vorerkrankungen", q: "Sind bei Ihnen Vorerkrankungen bekannt?", a: "Seit der Jugend habe ich Migräne, aber ohne Aura. Sonst bin ich gesund." },
+      { id: "voroper", t: "Voroperationen", q: "Wurden Sie schon einmal operiert?", a: "Als Kind wurden mir die Mandeln entfernt." },
+      { id: "med", t: "Medikamente", q: "Welche Medikamente nehmen Sie regelmäßig ein? Auch die Pille?", a: "Ich nehme seit zehn Jahren die Pille, den Namen weiß ich gerade nicht. Bei Migräne nehme ich manchmal Ibuprofen 400." },
+      { id: "allerg", t: "Allergien", q: "Haben Sie Allergien, zum Beispiel gegen Medikamente?", a: "Ich habe Heuschnupfen, gegen Pollen. Gegen Medikamente bin ich nicht allergisch." },
+      { id: "noxen", t: "Noxen (Rauchen, Alkohol, Drogen)", q: "Rauchen Sie? Trinken Sie Alkohol? Nehmen Sie Drogen?", a: "Ich rauche etwa zehn Zigaretten am Tag, seit 15 Jahren. Alkohol trinke ich nur selten, Drogen nehme ich keine." },
+      { id: "gyn", t: "Gynäkologische Anamnese", q: "Wann war Ihre letzte Regelblutung? Könnten Sie schwanger sein?", a: "Meine letzte Periode war vor zwei Wochen, ganz normal. Schwanger bin ich nicht, soweit ich weiß." },
+      { id: "fam", t: "Familienanamnese", q: "Gibt es in Ihrer Familie Erkrankungen, zum Beispiel Thrombosen?", a: "Meine Mutter hatte mit 45 eine Thrombose im Bein. Mein Vater hat Bluthochdruck." },
+      { id: "sozial", t: "Sozialanamnese", q: "Wie leben Sie, und was machen Sie beruflich?", a: "Ich bin Grundschullehrerin und wohne mit meinem Partner zusammen. Kinder haben wir keine." }
+    ],
+    brief: [
+      ["Persönliche Daten", "Frau Anna Schmid, geb. am 21.07.1992 (34 Jahre), 170 cm, 78 kg"],
+      ["Aufnahmegrund", "Frau Schmid stellte sich heute in unserer Notaufnahme mit einer seit drei Tagen bestehenden schmerzhaften Schwellung des linken Unterschenkels vor."],
+      ["Aktuelle Anamnese", "Die Patientin berichtete, dass vor drei Tagen ziehende Schmerzen in der linken Wade aufgetreten seien, die seitdem progredient seien. Der gesamte linke Unterschenkel sei geschwollen, überwärmt, gespannt und rötlich-livide verfärbt. Die Schmerzintensität gab sie mit 5/10 an. Beim Gehen und Stehen würden sich die Beschwerden verstärken, bei Hochlagerung des Beines würden sie sich bessern. Eine Schmerzausstrahlung wurde verneint. Vor einer Woche sei sie von einem elfstündigen Langstreckenflug aus Bangkok zurückgekehrt, bei dem sie wenig getrunken und sich kaum bewegt habe. Ein Trauma wurde verneint. Dyspnoe, thorakale Schmerzen, Palpitationen, Hämoptysen und Fieber wurden ebenfalls verneint."],
+      ["Vegetative Anamnese", "Appetit und Gewicht unauffällig. Schlafstörungen aufgrund der Schmerzen. Stuhlgang und Miktion unauffällig."],
+      ["Vorerkrankungen", "– Migräne ohne Aura seit der Jugend\n– Allergische Rhinitis (Pollen)"],
+      ["Voroperationen", "– Tonsillektomie im Kindesalter"],
+      ["Medikation", "– Orales Kontrazeptivum („Pille“) seit ca. 10 Jahren, Präparat der Patientin nicht bekannt\n– Ibuprofen 400 mg bei Bedarf (bei Migräne)"],
+      ["Allergien", "Pollen. Keine Medikamentenallergien bekannt."],
+      ["Noxen", "Nikotinabusus seit 15 Jahren, ca. 10 Zigaretten/Tag (ca. 7,5 pack years). Alkohol: selten. Drogen: verneint."],
+      ["Gynäkologische Anamnese", "Letzte Menstruation vor zwei Wochen, regelrecht. Eine Schwangerschaft sei nicht bekannt."],
+      ["Familienanamnese", "Mutter: tiefe Beinvenenthrombose im Alter von 45 Jahren. Vater: arterielle Hypertonie."],
+      ["Sozialanamnese", "Grundschullehrerin, lebt mit ihrem Partner zusammen, keine Kinder."],
+      ["Verdachtsdiagnose", "Tiefe Beinvenenthrombose links"],
+      ["Differenzialdiagnosen", "– Rupturierte Baker-Zyste\n– Muskelfaserriss bzw. Hämatom\n– Erysipel\n– Oberflächliche Thrombophlebitis\n– Lymphödem"],
+      ["Procedere", "– Körperliche Untersuchung mit Messung der Umfangsdifferenz der Unterschenkel\n– Einschätzung der klinischen Wahrscheinlichkeit (Wells-Score), D-Dimere\n– Kompressionssonographie der Beinvenen beidseits\n– Labor: Blutbild, Gerinnung, Nierenwerte; Schwangerschaftstest\n– Bei Bestätigung: therapeutische Antikoagulation, Kompressionstherapie, frühe Mobilisation\n– Absetzen des hormonellen Kontrazeptivums nach gynäkologischer Rücksprache, Beratung zu alternativer Verhütung\n– Beratung zum Rauchstopp\n– Ggf. Thrombophiliediagnostik bei positiver Familienanamnese"]
+    ],
+    vorstellung: "Ich möchte Ihnen Frau Anna Schmid vorstellen. Sie ist 34 Jahre alt und hat sich heute mit einer seit drei Tagen bestehenden schmerzhaften Schwellung des linken Unterschenkels vorgestellt. Die Schmerzen sind ziehend, etwa 5 von 10, und nehmen beim Gehen und Stehen zu. Das Bein ist warm, gespannt und rötlich-livide verfärbt. Vor einer Woche hatte sie einen elfstündigen Flug aus Bangkok, bei dem sie sich kaum bewegt hat. Atemnot, Brustschmerzen, Herzrasen, Bluthusten und Fieber hat sie verneint.\n\nFrau Schmid nimmt seit zehn Jahren ein orales Kontrazeptivum ein und raucht etwa zehn Zigaretten am Tag. Außerdem hat sie eine Migräne ohne Aura. Ihre Mutter hatte mit 45 Jahren eine Beinvenenthrombose.\n\nWir gehen von einer tiefen Beinvenenthrombose links aus. Differenzialdiagnostisch kommen eine rupturierte Baker-Zyste, ein Muskelfaserriss, ein Erysipel und eine oberflächliche Thrombophlebitis infrage.\n\nWir würden die Umfangsdifferenz messen, den Wells-Score erheben, die D-Dimere bestimmen und eine Kompressionssonographie der Beinvenen durchführen. Zusätzlich möchten wir einen Schwangerschaftstest machen. Bei Bestätigung würden wir eine Antikoagulation beginnen, eine Kompressionstherapie einleiten und sie über das Absetzen der Pille sowie über einen Rauchstopp beraten."
+  }
+];
+
+const PHRASES = [
+  "Ich möchte Ihnen … vorstellen.",
+  "Sie/Er ist … Jahre alt und hat sich heute mit … bei uns vorgestellt.",
+  "Die Beschwerden bestehen seit …",
+  "Begleitend klagt sie/er über …",
+  "… hat sie/er verneint.",
+  "An Vorerkrankungen sind … bekannt.",
+  "Sie/Er nimmt regelmäßig … ein.",
+  "Wir gehen am ehesten von … aus.",
+  "Differenzialdiagnostisch kommen … infrage.",
+  "Wir würden gern folgende Untersuchungen durchführen: …",
+  "Therapeutisch planen wir …"
+];
+
+/* Split answers for the no-AI patient: a narrow question gets only the matching part. */
+const PARTS = {
+  galle: {
+    pers: [["name", "Sabine Keller."], ["geb", "Am 14. März 1974."], ["alter", "Ich bin 52."], ["groesse", "1,65 Meter."], ["gewicht", "Ungefähr 84 Kilo."]],
+    noxen: [["rauchen", "Nein, ich rauche nicht."], ["alkohol", "Am Wochenende trinke ich mal ein Glas Wein."], ["drogen", "Nein, Drogen nehme ich keine."]],
+    veg: [["appetit", "Appetit habe ich seit gestern gar keinen."], ["gewichtv", "Mein Gewicht ist gleich geblieben."], ["schlaf", "Heute Nacht konnte ich vor Schmerzen kaum schlafen."], ["stuhl", "Stuhlgang und Urin sind normal, auch die Farbe."], ["gelb", "Gelb geworden bin ich nicht."]]
+  },
+  lunge: {
+    pers: [["name", "Dieter Wagner."], ["geb", "Am 2. November 1958."], ["alter", "Ich bin 67."], ["groesse", "1,78 Meter."], ["gewicht", "92 Kilo."]],
+    noxen: [["rauchen", "Ich rauche seit 40 Jahren, ungefähr eine Schachtel am Tag, also 20 Zigaretten."], ["alkohol", "Abends trinke ich meistens zwei Flaschen Bier."], ["drogen", "Drogen nehme ich nicht."]],
+    veg: [["appetit", "Appetit habe ich kaum, ich fühle mich total schlapp."], ["gewichtv", "Abgenommen habe ich nicht."], ["schlaf", "Wegen des Hustens schlafe ich schlecht."], ["stuhl", "Stuhlgang und Wasserlassen sind normal."]]
+  },
+  bein: {
+    pers: [["name", "Anna Schmid."], ["geb", "Am 21. Juli 1992."], ["alter", "Ich bin 34."], ["groesse", "1,70 Meter."], ["gewicht", "78 Kilo."]],
+    noxen: [["rauchen", "Ich rauche etwa zehn Zigaretten am Tag, seit 15 Jahren."], ["alkohol", "Alkohol trinke ich nur selten."], ["drogen", "Drogen nehme ich keine."]],
+    veg: [["appetit", "Mein Appetit ist normal."], ["gewichtv", "Mein Gewicht ist gleich geblieben."], ["schlaf", "Ich schlafe etwas schlechter, weil das Bein wehtut."], ["stuhl", "Stuhlgang und Wasserlassen sind ganz normal."]]
+  }
+};
+for (const [cid, m] of Object.entries(PARTS)) { const c = CASES.find(x => x.id === cid); if (!c) continue; for (const [iid, p] of Object.entries(m)) { const it = c.items.find(i => i.id === iid); if (it) it.parts = p; } }
+
+/* Key facts the exam result looks for in the documentation and the case presentation (label, pattern). */
+const KEYS = {
+  galle: [["Cholezystitis", /cholezystitis/i], ["Penicillinallergie", /penicillin/i], ["Ramipril", /ramipril/i], ["L-Thyroxin", /thyroxin/i], ["Fieber 38,6 °C", /38[,.]6/], ["Ausstrahlung in die rechte Schulter", /schulter/i]],
+  lunge: [["Pneumonie", /pneumonie/i], ["Diabetes mellitus", /diabetes/i], ["Metformin", /metformin/i], ["Fieber 39,2 °C", /39[,.]2/], ["Nikotinabusus", /nikotin|raucher|rauch|pack ?years/i], ["Sputum / Auswurf", /sputum|auswurf/i]],
+  bein: [["Beinvenenthrombose", /thrombose/i], ["Langstreckenflug", /flug/i], ["orales Kontrazeptivum", /kontrazept|pille/i], ["Nikotinabusus", /nikotin|rauch/i], ["Thrombose der Mutter", /mutter/i], ["Atemnot verneint", /dyspnoe|atemnot/i]]
+};
+
+(function(){
+'use strict';
+const MODEL_CHAT="claude-haiku-4-5-20251001";
+const MODEL_REVIEW="claude-sonnet-5-5";
+const TABS=[["anamnese","Anamnese","Mit dem Patienten","anam"],["arztbrief","Arztbrief","Dokumentation","brief"],["vorstellung","Vorstellung","Für den Oberarzt","vor"]];
+const MIC_SVG='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 10a7 7 0 0 0 14 0"/><path d="M12 17v4"/><path d="M8 21h8"/></svg>';
+const STOP_SVG='<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="6" y="6" width="12" height="12" rx="2"/></svg>';
+const $=(s,r)=>(r||document).querySelector(s);
+const esc=s=>String(s==null?"":s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const arr=x=>Array.isArray(x)?x:[];
+const str=x=>typeof x==="string"?x:(x==null?"":String(x));
+const words=s=>str(s).trim().split(/\s+/).filter(Boolean).length;
+const byId=id=>CASES.find(c=>c.id===id);
+let R={v:"home"};
+let EX=null;
+function curId(){return R.v==="case"?R.id:(R.v==="exam"&&EX&&EX.stage<=3?EX.caseId:null)}
+function viewIs(id){return !!id&&curId()===id}
+
+/* ---------- storage ---------- */
+const LS="famed-trainer.v1",KEY_LS="famed-voice.key",SET_LS="famed-voice.settings";
+const S={known:[],drafts:{},done:{},hist:[]};
+try{const raw=localStorage.getItem(LS);if(raw){const p=JSON.parse(raw);if(p&&typeof p==="object"){S.known=arr(p.known);if(p.drafts&&typeof p.drafts==="object")S.drafts=p.drafts;if(p.done&&typeof p.done==="object")S.done=p.done;if(Array.isArray(p.hist))S.hist=p.hist;}}}catch(e){}
+let KEY="";try{KEY=localStorage.getItem(KEY_LS)||""}catch(e){}
+const SET={tts:true,autosend:true,rate:0.95,voice:"",examMin:20};
+try{const p=JSON.parse(localStorage.getItem(SET_LS)||"{}");if(p&&typeof p==="object")Object.assign(SET,p)}catch(e){}
+if(SET.mode!=="free"&&SET.mode!=="ai")SET.mode=KEY?"ai":"free";
+function freeMode(){return SET.mode==="free"||!KEY}
+let saveT=0;
+function save(){try{localStorage.setItem(LS,JSON.stringify(S))}catch(e){}}
+function saveSoon(){clearTimeout(saveT);saveT=setTimeout(save,400)}
+function saveSet(){try{localStorage.setItem(SET_LS,JSON.stringify(SET))}catch(e){}}
+function draft(id){return S.drafts[id]||(S.drafts[id]={notes:"",brief:"",vor:""})}
+function doneOf(id){return S.done[id]||{anam:false,brief:false,vor:false}}
+function markDone(id,k){const d=S.done[id]||(S.done[id]={anam:false,brief:false,vor:false});d[k]=true;save();
+  const t=TABS.find(x=>x[3]===k);if(t&&R.v==="case"&&R.id===id){const a=$('.steps a[href="#'+id+'-'+t[0]+'"]');if(a)a.classList.add("done");}}
+const known=new Set(S.known);
+function setKnown(term,on){if(on)known.add(term);else known.delete(term);S.known=[...known];save()}
+
+/* ---------- Claude API ---------- */
+function setAIStatus(){document.documentElement.setAttribute("data-ai",KEY?"ready":"off");const c=$("#aichip");if(c)c.textContent=!KEY?"Kein Schlüssel":freeMode()?"Modus ohne KI":"KI bereit"}
+setAIStatus();
+async function callClaude({model,system,messages,max_tokens,signal}){
+  if(!KEY)throw {code:"no_key"};
+  const body={model,max_tokens:max_tokens||600,messages};if(system)body.system=system;
+  const res=await fetch("https://api.anthropic.com/v1/messages",{method:"POST",signal,headers:{"content-type":"application/json","x-api-key":KEY,"anthropic-version":"2023-06-01","anthropic-dangerous-direct-browser-access":"true"},body:JSON.stringify(body)});
+  let data=null;try{data=await res.json()}catch(e){}
+  if(!res.ok)throw {code:"http",status:res.status,message:data&&data.error&&data.error.message||""};
+  const text=arr(data&&data.content).filter(b=>b&&b.type==="text").map(b=>b.text).join("").trim();
+  if(!text)throw {code:"empty"};
+  return text}
+/* If the fast model is ever retired (404), fall back to the review model so the patient keeps talking. */
+async function chatCall(system,messages,max_tokens,signal){try{return await callClaude({model:MODEL_CHAT,system,messages,max_tokens,signal})}
+  catch(e){if(e&&e.code==="http"&&e.status===404)return await callClaude({model:MODEL_REVIEW,system,messages,max_tokens,signal});throw e}}
+function parseJSON(t){t=str(t).trim().replace(/^```(?:json)?\s*/i,"").replace(/```\s*$/,"");try{return JSON.parse(t)}catch(e){}
+  const a=t.indexOf("{"),b=t.lastIndexOf("}");if(a>=0&&b>a){try{return JSON.parse(t.slice(a,b+1))}catch(e){}}throw {code:"invalid_json"}}
+function errText(e){if(!e)return "Fehler.";if(e.name==="AbortError"||e.code==="cancelled")return "";
+  if(e.code==="no_key")return "Fügen Sie in den Einstellungen einen API-Schlüssel hinzu.";
+  if(e.code==="http"){const m=str(e.message).toLowerCase();
+    if(e.status===401)return "Der Schlüssel funktioniert nicht. Prüfen Sie ihn in den Einstellungen.";
+    if(e.status===400&&m.includes("credit"))return "Ihr Anthropic-Guthaben reicht nicht aus. Laden Sie es unter console.anthropic.com auf.";
+    if(e.status===403)return "Dieser Schlüssel hat keinen Zugriff auf diese Anfrage.";
+    if(e.status===404)return "Das Modell ist für diesen Schlüssel nicht verfügbar.";
+    if(e.status===429)return "Zu viele Anfragen. Warten Sie eine Minute.";
+    if(e.status>=500)return "Der Claude-Dienst ist überlastet. Versuchen Sie es in einer Minute erneut.";
+    return "Anfragefehler ("+e.status+"). "+str(e.message)}
+  if(e.code==="empty")return "Leere Antwort. Versuchen Sie es erneut.";
+  if(e.code==="invalid_json")return "Die Antwort konnte nicht gelesen werden. Drücken Sie die Taste erneut.";
+  return "Keine Verbindung zu Claude. Prüfen Sie Ihre Internetverbindung."}
+function normalize(turns,kick){const out=[];for(const t of turns){const c=str(t.content).trim();if(!c)continue;const l=out[out.length-1];if(l&&l.role===t.role)l.content+="\n"+c;else out.push({role:t.role,content:c})}
+  if(!out.length||out[0].role!=="user")out.unshift({role:"user",content:kick||"(Das Gespräch beginnt.)"});
+  if(out[out.length-1].role!=="user")out.push({role:"user",content:"(…)"});return out}
+
+/* ---------- speech ---------- */
+const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+const TTS=("speechSynthesis" in window)&&typeof window.SpeechSynthesisUtterance==="function";
+const REC={r:null,target:"",text:"",state:"idle",err:""};
+let ttsUnlocked=false;
+function unlockTTS(){if(!TTS||ttsUnlocked)return;try{const u=new SpeechSynthesisUtterance(" ");u.volume=0;speechSynthesis.speak(u)}catch(e){}ttsUnlocked=true}
+function deVoices(){if(!TTS)return [];try{return speechSynthesis.getVoices().filter(v=>/^de([-_]|$)/i.test(v.lang))}catch(e){return []}}
+function pickVoice(){const vs=deVoices();return vs.find(v=>v.voiceURI===SET.voice)||vs.find(v=>/^de[-_]DE/i.test(v.lang))||vs[0]||null}
+function speak(text,force){if(!TTS||(!SET.tts&&!force)||!text)return;try{speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(text);u.lang="de-DE";const v=pickVoice();if(v)u.voice=v;u.rate=+SET.rate||0.95;speechSynthesis.speak(u)}catch(e){}}
+if(TTS){try{speechSynthesis.getVoices();speechSynthesis.onvoiceschanged=()=>{if(R.v==="settings")paintVoices()}}catch(e){}}
+function recErr(code){switch(code){
+  case "not-allowed":case "service-not-allowed":return "Kein Zugriff auf das Mikrofon. Erlauben Sie das Mikrofon für diese Seite in den Browsereinstellungen.";
+  case "no-speech":return "Nichts gehört. Drücken Sie auf das Mikrofon und sprechen Sie etwas lauter.";
+  case "network":return "Für die Spracherkennung wird eine Internetverbindung benötigt.";
+  case "audio-capture":return "Kein Mikrofon gefunden.";
+  case "language-not-supported":return "Dieser Browser erkennt kein gesprochenes Deutsch.";
+  case "aborted":return "";
+  default:return "Fehler bei der Spracherkennung."}}
+function startRec(target){
+  if(!SR)return;
+  if(REC.state==="listening"){if(REC.r)try{REC.r.stop()}catch(e){}return}
+  if(TTS)try{speechSynthesis.cancel()}catch(e){}
+  unlockTTS();
+  const r=new SR();r.lang="de-DE";r.interimResults=true;r.continuous=false;r.maxAlternatives=1;
+  REC.r=r;REC.target=target;REC.text="";REC.err="";REC.state="listening";paintRec();
+  r.onresult=e=>{if(REC.r!==r)return;REC.text=Array.from(e.results).map(x=>x[0].transcript).join(" ").replace(/\s+/g," ").trim();paintRec()};
+  r.onerror=e=>{if(REC.r!==r)return;REC.err=recErr(e.error)};
+  r.onend=()=>{if(REC.r!==r)return;const t=REC.text.trim(),tg=REC.target;REC.state="idle";REC.r=null;
+    if(t){REC.err="";deliver(tg,t)}else if(!REC.err)REC.err="Nichts erkannt. Versuchen Sie es erneut.";paintRec()};
+  try{r.start()}catch(e){REC.state="idle";REC.r=null;REC.err="Das Mikrofon konnte nicht eingeschaltet werden.";paintRec()}}
+function stopRec(){const r=REC.r;REC.r=null;REC.state="idle";REC.text="";REC.err="";if(r)try{r.abort()}catch(e){}}
+function deliver(tg,t){const [type,name]=tg.split(":");if(type==="drill"){drillCheck(t);return}const cid=curId();if(!cid)return;
+  if(type==="chat"){if(SET.autosend)send(cid,name,t);else{const ta=$("#in-"+name);if(ta){ta.value=(ta.value.trim()?ta.value.trim()+" ":"")+t;const f=ta.closest("form");if(f)f.hidden=false;ta.focus()}}}
+  else{const ta=$("#"+name);if(!ta)return;const sep=ta.value&&!/\s$/.test(ta.value)?" ":"";ta.value+=sep+t;ta.dispatchEvent(new Event("input",{bubbles:true}))}}
+function paintRec(){document.querySelectorAll("[data-mic]").forEach(b=>{const on=REC.state==="listening"&&REC.target===b.dataset.mic;b.classList.toggle("on",on);b.innerHTML=on?STOP_SVG:MIC_SVG;b.setAttribute("aria-label",on?"Aufnahme beenden":"Sprechen")});
+  document.querySelectorAll("[data-live]").forEach(el=>{const mine=REC.target===el.dataset.live;const st=el.querySelector(".state"),sd=el.querySelector(".said");
+    if(mine&&REC.state==="listening"){st.textContent="Ich höre zu…";sd.textContent=REC.text||"Sprechen Sie Deutsch";sd.className="said"}
+    else if(mine&&REC.err){st.textContent="";sd.textContent=REC.err;sd.className="said err"}
+    else{st.textContent="";sd.textContent=el.dataset.idle||"";sd.className="said muted"}})}
+
+/* ---------- prompts ---------- */
+function factsText(c){return [`Name: ${c.anrede} ${c.name}, geb. ${c.geb}, ${c.alter} Jahre`,...c.items.map(i=>`${i.t}: ${i.a}`)].join("\n")}
+function patientRules(c){return [
+ "Rollenspiel zur Vorbereitung auf die Fachsprachprüfung Medizin (Deutsch).",
+ c.persona,
+ "Der Nutzer spielt die Ärztin oder den Arzt in der Notaufnahme und erhebt die Anamnese auf Deutsch. Jede Nutzernachricht ist das, was die Ärztin oder der Arzt zu dir sagt. Die Nachrichten stammen aus einer Spracherkennung und können Erkennungsfehler oder fehlende Satzzeichen enthalten: Verstehe sie sinnvoll; wenn etwas wirklich unverständlich ist, bitte freundlich um Wiederholung.",
+ "Deine Antworten werden laut vorgelesen. Schreibe deshalb nur gesprochene Sprache: keine Aufzählungen, keine Sternchen, keine Regieanweisungen in Klammern.",
+ "Regeln:",
+ "- Antworte nur als Patient/in, in der Ich-Form, auf Deutsch und in einfacher Alltagssprache. Benutze keine Fachbegriffe.",
+ "- Wenn die Ärztin oder der Arzt einen Fachbegriff benutzt, den ein Laie nicht kennt (z. B. „Dyspnoe“, „Emesis“, „Noxen“), verstehst du ihn nicht und fragst freundlich nach, was das bedeutet.",
+ "- Antworte kurz (1 bis 3 Sätze) und nur auf das, was gefragt wurde. Erzähle nichts ungefragt.",
+ "- Halte dich genau an die Fakten unten. Wird etwas gefragt, das dort nicht steht, antworte unauffällig (z. B. „Nein, das ist mir nicht aufgefallen.“) und erfinde keine neuen Krankheiten oder Befunde.",
+ "- Bleib immer in der Rolle: keine Bewertung, keine Tipps, keine Erklärungen zur Prüfung, kein Wechsel ins Russische oder Englische.",
+ "- Wenn sich die Ärztin oder der Arzt verabschiedet, verabschiede dich auch.",
+ "",
+ "Fakten (nur diese Informationen kennst du über dich):",
+ ...c.items.map(i=>`- ${i.t}: ${i.a}`)
+].join("\n")}
+function oberRules(c,vor){const v=str(vor).trim();return `Rollenspiel zur Vorbereitung auf die Fachsprachprüfung Medizin (Teil: Arzt-Arzt-Gespräch). Du bist Oberärztin bzw. Oberarzt in der Zentralen Notaufnahme. Der Nutzer ist Assistenzärztin bzw. Assistenzarzt und hat dir gerade ${c.sex==="w"?"die Patientin":"den Patienten"} ${c.anrede} ${c.name} vorgestellt. Seine Nachrichten stammen aus einer Spracherkennung und können Erkennungsfehler enthalten. Deine Antworten werden laut vorgelesen: nur gesprochene Sprache, keine Aufzählungen oder Sternchen.
+
+Fakten des Falls:
+${factsText(c)}
+
+${v?"Vorstellung durch den Assistenzarzt:\n"+v.slice(0,4000):"Die Vorstellung erfolgte mündlich; der Text liegt dir nicht vor."}
+
+Regeln:
+- Sprich Deutsch, kollegial und knapp, wie im Klinikalltag. Siezen.
+- Stelle in jeder Nachricht genau EINE Frage. Davor höchstens ein kurzer Satz als Reaktion auf die letzte Antwort.
+- Frage nach fehlenden Angaben, nach der Bedeutung von Fachbegriffen („Was bedeutet …?“), wie man einen Begriff der Patientin oder dem Patienten erklären würde, nach Verdachtsdiagnose, Differenzialdiagnosen, Diagnostik, Therapie und Aufklärung.
+- Keine Sprachkorrekturen, keine Bewertung, kein Russisch oder Englisch.
+- Nach etwa sechs Fragen bedankst du dich und beendest das Gespräch mit einem Satz.`}
+const ASR_NOTE="Die Äußerungen des Arztes stammen teilweise aus automatischer Spracherkennung. Ignoriere offensichtliche Erkennungsfehler (fehlende Satzzeichen, Groß- und Kleinschreibung, einzelne falsch erkannte Wörter) und bewerte nur echte sprachliche Fehler.";
+const JSON_SHAPE='{"corrections":[{"original":"...","korrektur":"...","erklaerung":"..."}],"fehlend":["..."],"falsch":["..."],"staerken":["..."],"tipps":["..."],"fazit":"..."}';
+function anamPrompt(c,turns){const tr=turns.map(t=>(t.role==="user"?"ARZT: ":"PATIENT: ")+t.content).join("\n");return `Du bist erfahrene Prüferin in der Fachsprachprüfung Medizin (Niveau C1). Ein ausländischer Arzt hat mit einer simulierten Patientin bzw. einem simulierten Patienten mündlich ein Anamnesegespräch geführt. Bewerte nur Sprache und Gesprächsführung, nicht das medizinische Fachwissen. ${ASR_NOTE}
+
+Themen einer vollständigen Anamnese (id: Thema):
+${c.items.map(i=>i.id+": "+i.t).join("\n")}
+
+Gespräch:
+${tr}
+
+Aufgaben:
+1. Welche Themen hat der Arzt erfragt (covered) und welche fehlen (missed)? Verwende nur die ids oben.
+2. Bis zu 8 echte sprachliche Fehler in den ARZT-Äußerungen (Grammatik, Wortwahl, Höflichkeit, Fachbegriffe, die ein Patient nicht versteht). Für jeden Fehler: Original wörtlich aus dem Gespräch, Korrektur, kurze Erklärung auf Deutsch. Erfinde keine Fehler.
+3. 1 bis 3 Stärken und 2 bis 4 konkrete Tipps zur Gesprächsführung, auf Deutsch.
+4. Ein Fazit in 2 bis 3 Sätzen auf Deutsch.
+
+Antworte nur mit JSON in genau dieser Form:
+{"covered":["id"],"missed":["id"],"corrections":[{"original":"...","korrektur":"...","erklaerung":"..."}],"staerken":["..."],"tipps":["..."],"fazit":"..."}`}
+function briefPrompt(c,text){return `Du bist erfahrene Prüferin in der Fachsprachprüfung Medizin (Niveau C1). Ein ausländischer Arzt hat nach einem Anamnesegespräch die schriftliche Dokumentation (Arztbrief) verfasst. Bewerte Sprache, Fachsprache, Stil und Vollständigkeit. Das medizinische Fachwissen wird nicht bewertet. ${ASR_NOTE}
+
+Fakten aus dem Gespräch (Aussagen der Patientin bzw. des Patienten):
+${factsText(c)}
+
+Musterlösung (nur als Referenz für Struktur und Formulierungen; der Text muss nicht wörtlich übereinstimmen):
+${c.brief.map(([h,b])=>h+"\n"+b).join("\n\n")}
+
+Text des Arztes:
+<<<
+${text}
+>>>
+
+Aufgaben:
+1. Bis zu 10 echte sprachliche Fehler aus dem Text des Arztes (Grammatik, indirekte Rede mit Konjunktiv I, Fachterminologie, Stil). Für jeden Fehler: Original wörtlich aus dem Text, Korrektur, kurze Erklärung auf Deutsch. Erfinde keine Fehler.
+2. Wichtige Informationen, die fehlen (kurz, auf Deutsch).
+3. Fakten, die falsch wiedergegeben wurden (kurz, auf Deutsch; leere Liste, wenn keine).
+4. 1 bis 2 Stärken und 2 bis 3 konkrete Tipps zu Stil und Struktur, auf Deutsch.
+5. Ein Fazit in 2 bis 3 Sätzen auf Deutsch.
+
+Antworte nur mit JSON in genau dieser Form:
+${JSON_SHAPE}`}
+function vorPrompt(c,text){return `Du bist erfahrene Prüferin in der Fachsprachprüfung Medizin (Niveau C1). Ein ausländischer Arzt hat eine mündliche Fallvorstellung für die Oberärztin bzw. den Oberarzt gehalten. Bewerte Struktur (Vorstellung der Person, Leitsymptom, Anamnese, Verdachtsdiagnose, Differenzialdiagnosen, Procedere), Sprache, Fachsprache und Verständlichkeit. Das medizinische Fachwissen wird nicht bewertet. ${ASR_NOTE}
+
+Fakten des Falls:
+${factsText(c)}
+
+Musterlösung (nur als Referenz):
+${c.vorstellung}
+
+Text des Arztes:
+<<<
+${text}
+>>>
+
+Aufgaben:
+1. Bis zu 8 echte sprachliche Fehler: Original wörtlich aus dem Text, Korrektur, kurze Erklärung auf Deutsch. Erfinde keine Fehler.
+2. Fehlende wichtige Teile oder Informationen (kurz, auf Deutsch).
+3. Falsch wiedergegebene Fakten (kurz, auf Deutsch; leere Liste, wenn keine).
+4. 1 bis 2 Stärken und 2 bis 3 konkrete Tipps für den mündlichen Vortrag, auf Deutsch.
+5. Ein Fazit in 2 bis 3 Sätzen auf Deutsch.
+
+Antworte nur mit JSON in genau dieser Form:
+${JSON_SHAPE}`}
+
+/* ---------- free mode (no AI): patient answers from the case, Oberarzt with standard questions ---------- */
+function norm(s){return " "+str(s).toLowerCase().replace(/ß/g,"ss").replace(/[.,!?;:„“"()«»\-–]/g," ").replace(/\s+/g," ").trim()+" "}
+const INTENTS=[
+ {ids:["allerg"],re:/allergi|unverträglich|vertragen sie/,hist:1},
+ {ids:["med"],re:/medikament|tablette|arznei|pille|präparat|dosis|eingenommen|nehmen sie (?!platz)|verhütung/,hist:1},
+ {ids:["noxen"],re:/rauchen|raucher|zigarett|nikotin|alkohol|trinken sie|\bbier\b|\bwein\b|drogen|cannabis|genussmittel/,hist:1},
+ {ids:["fam"],re:/familie|eltern|mutter|vater|geschwister|bruder|schwester|verwandt|erblich/,hist:1},
+ {ids:["impf"],re:/impf|geimpft/,hist:1},
+ {ids:["gyn"],re:/regelblutung|\bregel\b|periode|menstruation|schwanger|frauenarzt|gynäkolog|wechseljahre/,hist:1},
+ {ids:["voroper"],re:/operiert|operation|\bop\b|eingriff/,hist:1},
+ {ids:["vorerk"],re:/vorerkrank|erkrankungen|krankheiten|chronisch|bluthochdruck|zuckerkrank|diabetes|schilddrüse/,not:/familie|eltern|mutter|vater|geschwister/,hist:1},
+ {ids:["sozial"],re:/beruf|arbeiten sie|tätig|wohnen sie|leben sie (allein|zusammen|mit)|verheiratet|partner|familienstand|rentner|wohnsituation|kinder/,not:/schwanger/,hist:1},
+ {ids:["reise","kontakt"],re:/verreist|reise|urlaub|flug|geflogen|lange gesessen|unbeweglich|bettlägerig|verletz|unfall|gestürzt|sturz/,neg:"Nein."},
+ {ids:["kontakt"],re:/umgebung|angesteckt|jemand (krank|erkältet)|kontakt|im krankenhaus|krankenhausaufenthalt/,neg:"Nein, nicht dass ich wüsste."},
+ {ids:["fieber","begl","veg"],re:/fieber|temperatur|schüttelfrost|nachtschweiss|schwitzen/,own:["fieber"],ans:/fieber|grad|schwitz/,neg:"Nein, Fieber hatte ich nicht."},
+ {ids:["begl","veg"],re:/übel|erbroch|erbrechen|übergeben|brechreiz/,ans:/übel|erbroch/,neg:"Nein, übel ist mir nicht."},
+ {ids:["atem","begl"],re:/atemnot|luftnot|luft bekommen|kurzatmig|schlecht luft|atmen sie/,own:["atem"],ans:/luft|atem|nichts davon/,neg:"Nein, Luft bekomme ich gut."},
+ {ids:["begl"],re:/herzrasen|herzklopfen|herzstolpern/,ans:/nichts davon|herz/,neg:"Nein, Herzrasen habe ich nicht."},
+ {ids:["schmerz","begl"],re:/brust|thorax/,own:["schmerz"],ans:/brust|nichts davon/,neg:"Nein, in der Brust habe ich nichts."},
+ {ids:["auswurf","begl"],re:/husten|auswurf|schleim|abgehustet|bluthusten/,own:["auswurf"],ans:/schleim|blut|nichts davon/,neg:"Nein, Husten habe ich nicht."},
+ {ids:["haut"],re:/\bhaut|verfärb|bläulich|rötlich|überwärmt|\bwarm\b/,neg:"Nein, da ist mir nichts aufgefallen."},
+ {ids:["veg","begl"],re:/\bgelb|gelbsucht/,ans:/gelb/,neg:"Nein, gelb bin ich nicht."},
+ {ids:["frueher"],re:/schon (einmal|mal|früher)|früher schon|vorher schon|zum ersten mal|erstes mal|kennen sie (das|diese)|ähnliche beschwerden/,not:/operiert|operation|geimpft|allergi|schwanger/,neg:"Nein, so etwas hatte ich noch nie."},
+ {ids:["pers"],re:/heissen sie|ihr(en)? (vollständigen )?namen|wie ist ihr name|geboren|geburtsdatum|wie alt|ihr alter|wie gross|grösse|wie viel wiegen|wie schwer|ihr gewicht|körpergewicht/},
+ {ids:["leit"],re:/was führt|was fehlt ihnen|warum sind sie|was kann ich|welche beschwerden|was ist (los|passiert)|weshalb sind|wie kann ich ihnen helfen|was bringt sie|was haben sie für|was ist ihr problem|grund ihres|was ist der grund/},
+ {ids:["beginn"],re:/seit wann|wann (hat|haben|hatten|fing|begann|ging)|angefangen|begonnen|aufgetreten|wie lange|verlauf|entwickelt|schlimmer geworden|besser geworden|plötzlich|allmählich/,not:/geboren|periode|regel|menstruation|operiert|geimpft/},
+ {ids:["lok","schmerz"],re:/wo genau|wo tut|wo haben sie|welche stelle|wo sind die|zeigen sie|ausstrahl|strahl|wohin zieht|lokalis/},
+ {ids:["char","schmerz"],re:/beschreiben|stechend|drückend|brennend|krampf|dumpf|ziehend|skala|von (0|null|1|eins) bis (10|zehn)|wie stark|intensität|stärke|wie fühlt sich/},
+ {ids:["ausl","char","schmerz"],re:/auslös|verstärk|schlimmer wenn|wann (wird|ist) es schlimmer|lindert|linder|besser wenn|hilft|geholfen|schmerzmittel|hochleg|nach dem essen|bei bewegung|beim atmen|was macht (die|den|es|sie)|schlimmer oder besser|besser oder schlimmer|wodurch/},
+ {ids:["veg"],re:/appetit|abgenommen|zugenommen|gewicht(s)?(verlust|abnahme|zunahme| verändert)|schlaf|stuhlgang|\bstuhl\b|wasserlassen|urin|\bharn|verdauung|durchfall|verstopfung/}
+];
+const PLAIN=new Set(["akut","chronisch","Antibiotikum","Diabetes mellitus","Fraktur","Anamnese"].map(s=>s.toLowerCase()));
+const EXTRA_FACH=[["Noxen","Rauchen, Alkohol, Drogen"],["Miktion","Wasserlassen"],["Defäkation","Stuhlgang"],["Thorax","Brustkorb"],["Abdomen","Bauch"],["Inspiration","Einatmen"],["Analgesie","Schmerzbehandlung"],["Lokalisation","Stelle, Ort"],["Symptomatik","Beschwerden"],["Anamnese","Krankengeschichte, Vorgeschichte"]];
+const FACH=[...VOCAB.filter(v=>!PLAIN.has(v[0].toLowerCase())).map(v=>[v[0],v[1]]),...EXTRA_FACH].map(([term,lay])=>{
+  const base=term.replace(/\s*\(.*\)/,"");const ws=base.split(/\s+/);let w=ws[0];for(const x of ws)if(x.length>=w.length)w=x;
+  let stem=w.toLowerCase().replace(/ß/g,"ss");if(stem.length>6)stem=stem.slice(0,-1);
+  return {term:base,lay,re:new RegExp("\\s"+stem.replace(/[.*+?^${}()|[\]\\]/g,"\\$&"))}});
+const PART_RE={name:/heissen|name/,geb:/geboren|geburtsdatum|geburtstag/,alter:/wie alt|ihr alter/,groesse:/wie gross|grösse/,gewicht:/wiegen|wie schwer|ihr gewicht|körpergewicht/,
+  rauchen:/rauch|zigarett|nikotin/,alkohol:/alkohol|trinken sie|\bbier\b|\bwein\b/,drogen:/drogen|cannabis|rauschmittel/,
+  appetit:/appetit/,gewichtv:/abgenommen|zugenommen|gewicht(s)?(verlust|abnahme|zunahme| verändert)|gewicht verändert|hat sich ihr gewicht/,schlaf:/schlaf/,stuhl:/stuhl|verdauung|durchfall|verstopfung|wasserlassen|urin|\bharn/,gelb:/gelb/};
+const PART_LABEL={name:"Name",geb:"Geburtsdatum",alter:"Alter",groesse:"Größe",gewicht:"Gewicht",rauchen:"Rauchen",alkohol:"Alkohol",drogen:"Drogen",appetit:"Appetit",gewichtv:"Gewichtsveränderung",schlaf:"Schlaf",stuhl:"Stuhlgang und Wasserlassen",gelb:"Gelbsucht, Gelbfärbung der Haut"};
+function findFach(n){for(const f of FACH)if(f.re.test(n))return f;return null}
+function freeReply(c,text,ch){
+  const n=norm(text);const has=id=>c.items.find(i=>i.id===id);
+  const f=findFach(n);
+  if(f)return {reply:`Entschuldigung, was bedeutet „${f.term}“? Das Wort kenne ich nicht.`,ids:[],fach:f};
+  if(/wie bitte|wiederholen|noch ?mal/.test(n)&&ch.last)return {reply:ch.last,ids:[]};
+  if(/auf wiedersehen|tschüss|danke für das gespräch|alles gute|gute besserung/.test(n))return {reply:"Vielen Dank. Auf Wiedersehen.",ids:[]};
+  if(/haben sie (noch )?(eine )?frage|gibt es noch etwas|möchten sie noch etwas/.test(n)){const m=c.persona.match(/„([^“]+)“/);return {reply:m?m[1]:"Nein, im Moment nicht. Danke.",ids:[]}}
+  const out=[],ids=[],asked=[],negs=[];
+  let hits=INTENTS.filter(it=>it.re.test(n)&&!(it.not&&it.not.test(n)));
+  if(hits.some(it=>it.hist))hits=hits.filter(it=>it.ids[0]!=="beginn");
+  else if(/seit wann|wie lange/.test(n)&&has("beginn"))hits=hits.filter(it=>it.ids[0]==="beginn");
+  for(const it of hits){if(out.length>=2)break;
+    let item=null;for(const id of it.ids){const x=has(id);if(x&&((it.own&&it.own.includes(id))||!it.ans||it.ans.test(x.a.toLowerCase()))){item=x;break}}
+    if(item){if(!ids.includes(item.id)){ids.push(item.id);let a=item.a;
+      if(item.parts){const ps=item.parts.filter(([k])=>PART_RE[k]&&PART_RE[k].test(n));const use=ps.length?ps:item.parts;a=use.map(p=>p[1]).join(" ");asked.push([item.id,use.map(p=>p[0])])}
+      out.push(a)}}
+    else if(it.neg&&!negs.includes(it.neg))negs.push(it.neg)}
+  if(out.length)return {reply:out.join(" "),ids,asked};
+  if(negs.length)return {reply:negs.slice(0,2).join(" "),ids:[]};
+  if(/(darf ich|möchte|würde)( ihnen)?( gern| gerne)?( ein paar| einige)? fragen/.test(n))return {reply:"Ja, natürlich. Fragen Sie ruhig.",ids:[]};
+  if(/guten (tag|morgen|abend)|hallo|grüss gott|mein name ist|ich bin (dr|doktor|ihr|ihre|die|der|assistenz)/.test(n))return {reply:"Guten Tag. Schön, dass Sie Zeit für mich haben.",ids:[]};
+  if(/^ (ja|gut|okay|ok|alles klar|verstehe|ich verstehe|danke|sehr gut|in ordnung|aha|mhm) /.test(n))return {reply:"Mhm.",ids:[]};
+  const alt=["Wie bitte? Das habe ich nicht ganz verstanden.","Entschuldigung, können Sie die Frage anders stellen?","Das verstehe ich leider nicht. Was meinen Sie genau?"];
+  return {reply:alt[(ch.miss||0)%alt.length],ids:[],unmatched:true}}
+function oberQs(c){const sec=nm=>{const s=c.brief.find(b=>b[0]===nm);return s?s[1]:""};const w=c.sex==="w";
+  const pool=VOCAB.filter(v=>(v[3]==="sym"||v[3]==="dis")&&!PLAIN.has(v[0].toLowerCase()));const v=pool[Math.floor(Math.random()*pool.length)];
+  return [
+    {q:`Bitte stellen Sie mir ${w?"die Patientin":"den Patienten"} kurz vor.`,a:c.vorstellung.split("\n\n")[0]},
+    {q:"Was ist Ihre Verdachtsdiagnose?",a:sec("Verdachtsdiagnose")},
+    {q:"Welche Differenzialdiagnosen kommen infrage?",a:sec("Differenzialdiagnosen")},
+    {q:`Welche Medikamente nimmt ${w?"die Patientin":"der Patient"} ein, und gibt es Allergien?`,a:sec("Medikation")+"\nAllergien: "+sec("Allergien")},
+    {q:`Was bedeutet „${v[0]}“, und wie würden Sie das ${w?"der Patientin":"dem Patienten"} erklären?`,a:v[1]},
+    {q:"Wie möchten Sie weiter vorgehen?",a:sec("Procedere")}]}
+function trackQ(c,ch,text,countUnm){const r=freeReply(c,text,ch);ch.recorded=false;ch.cov=ch.cov||new Set();r.ids.forEach(x=>ch.cov.add(x));
+  ch.parts=ch.parts||{};(r.asked||[]).forEach(([iid,ks])=>{const s=ch.parts[iid]||(ch.parts[iid]=new Set());ks.forEach(k=>s.add(k))});
+  if(r.fach){ch.fach=ch.fach||[];if(!ch.fach.some(x=>x.term===r.fach.term))ch.fach.push(r.fach)}
+  if(r.unmatched&&countUnm){ch.miss=(ch.miss||0)+1;ch.unm=ch.unm||[];ch.unm.push(text)}
+  return r}
+function sendFree(id,kind,text){const ch=chatOf(id,kind);const c=byId(id);
+  if(kind==="patient"){if(!text)return;ch.turns.push({role:"user",content:text});if(!ch.start)ch.start=Date.now();ch.end=0;
+    const r=trackQ(c,ch,text,true);
+    ch.turns.push({role:"assistant",content:r.reply});ch.last=r.reply;ch.err="";paintChat(id,kind);speak(r.reply);return}
+  if(!ch.qs){ch.qs=oberQs(c);ch.qi=0;ch.ans=ch.qs.map(()=>[]);ch.fin=false;if(!ch.start)ch.start=Date.now();
+    ch.turns.push({role:"assistant",content:ch.qs[0].q});ch.err="";paintChat(id,kind);speak(ch.qs[0].q);if(!text)return}
+  if(text&&!ch.fin){ch.turns.push({role:"user",content:text});ch.ans[ch.qi].push(text);paintChat(id,kind)}}
+function oberNext(id){const ch=chatOf(id,"ober");if(!ch.qs||ch.fin)return;
+  if(ch.qi<ch.qs.length-1){ch.qi++;const q=ch.qs[ch.qi].q;ch.turns.push({role:"assistant",content:q});paintChat(id,"ober");speak(q)}
+  else{ch.fin=true;ch.end=Date.now();const t="Vielen Dank, das war's. Gute Arbeit.";ch.turns.push({role:"assistant",content:t});paintChat(id,"ober");speak(t);
+    const s=$("#free-ober");if(s)s.innerHTML=oberSumHTML(ch)}}
+function mmss(ch){const s=Math.max(0,Math.floor(((ch.end||Date.now())-(ch.start||Date.now()))/1000));return String(Math.floor(s/60)).padStart(2,"0")+":"+String(s%60).padStart(2,"0")}
+function freeSumHTML(c,ch){const got=ch.cov||new Set();const cov=c.items.filter(i=>got.has(i.id));const miss=c.items.filter(i=>!got.has(i.id));const pct=Math.round(cov.length/c.items.length*100);
+  let h=`<div class="fb"><span class="eyebrow">${freeMode()?"Ergebnis · ohne KI":"Ergebnis · Themenabdeckung"}</span><p class="fb-sum">Gefragt: ${cov.length} von ${c.items.length} Themen, Zeit ${mmss(ch)}.</p>`;
+  h+=`<div class="fb-sec"><h3>Anamnesethemen</h3><div class="meter" role="img" aria-label="Abgedeckt: ${cov.length} von ${c.items.length} Themen"><i style="width:${pct}%"></i></div>${miss.length?`<p class="small">Ausgelassen:</p><div class="chips">${miss.map(i=>`<span class="chip miss" lang="de">${esc(i.t)}</span>`).join("")}</div>`:`<p class="small">Alle Anamnesethemen abgedeckt.</p>`}</div>`;
+  const partial=cov.filter(i=>i.parts).map(i=>{const s=(ch.parts&&ch.parts[i.id])||new Set();return [i,i.parts.map(p=>p[0]).filter(k=>!s.has(k))]}).filter(x=>x[1].length);
+  if(partial.length)h+=`<div class="fb-sec"><h3>Nur teilweise gefragt</h3><ul class="plain">${partial.map(([i,ks])=>`<li><span lang="de"><b>${esc(i.t)}</b></span>: nicht gefragt nach ${ks.map(k=>PART_LABEL[k]||k).join(", ")}</li>`).join("")}</ul></div>`;
+  if(ch.fach&&ch.fach.length)h+=`<div class="fb-sec"><h3>Begriffe, die der Patient nicht verstanden hat</h3><ul class="plain">${ch.fach.map(f=>`<li lang="de"><b>${esc(f.term)}</b> → ${esc(f.lay)}</li>`).join("")}</ul><p class="small muted">Verwenden Sie mit dem Patienten einfache Wörter.</p></div>`;
+  if(ch.unm&&ch.unm.length)h+=`<div class="fb-sec"><h3>Fragen, die der Trainer nicht verstanden hat</h3><ul class="plain">${ch.unm.slice(-8).map(t=>`<li lang="de">${esc(t)}</li>`).join("")}</ul><p class="small muted">Ohne KI erkennt der Patient typische Formulierungen. Fragen Sie einfacher oder prüfen Sie, ob Ihre Sprache richtig erkannt wurde.</p></div>`;
+  h+=`<p class="small muted">Ohne KI wird nur die Themenabdeckung geprüft, nicht die Grammatik.</p>`;
+  if(KEY&&freeMode())h+=`<div class="row"><button type="button" class="btn primary" data-action="ai-anam">Grammatikanalyse mit KI</button></div>`;
+  return h+"</div>"}
+function oberSumHTML(ch){return `<div class="fb"><span class="eyebrow">Ergebnis · ohne KI</span><p class="small muted">Vergleichen Sie Ihre Antworten mit den Mustern. Zeit ${mmss(ch)}.</p>${ch.qs.map((q,i)=>`<div class="fb-sec"><h3>Frage ${i+1}</h3><p lang="de"><b>${esc(q.q)}</b></p><p class="small"><span class="muted">Sie:</span> <span lang="de">${esc(ch.ans[i].join(" ")||"—")}</span></p><p class="small muted">Muster:</p><p class="pre small" lang="de">${esc(q.a)}</p></div>`).join("")}</div>`}
+
+/* ---------- chats ---------- */
+const CH={},FB={},COV={},FBRUN={},FREE={};
+function chatOf(id,kind){const k=id+":"+kind;return CH[k]||(CH[k]={turns:[],busy:false,ctl:null,start:0,end:0,err:""})}
+function themLabel(c,kind){return kind==="patient"?(c.sex==="w"?"Patientin":"Patient"):"Oberarzt"}
+function paintChat(id,kind){if(!viewIs(id))return;const log=$("#log-"+kind);if(!log)return;const ch=chatOf(id,kind);const c=byId(id);const isP=kind==="patient";
+  let h="";
+  if(!ch.turns.length&&!ch.busy){h=isP?`<p class="empty">Drücken Sie auf das Mikrofon und beginnen Sie: Begrüßen Sie den Patienten, stellen Sie sich vor und fragen Sie, was ihn zu Ihnen führt.${freeMode()?" Im Modus ohne KI erkennt der Patient typische Anamnesefragen.":""}</p>`:`<div class="empty"><p>Der Oberarzt stellt Fragen zu Ihrer Vorstellung: Begriffe, Diagnosen, nächste Schritte.</p><button type="button" class="btn primary" data-action="start-ober">Gespräch beginnen</button></div>`}
+  ch.turns.forEach((t,i)=>{const me=t.role==="user";h+=`<div class="msg ${me?"me":"them"}"><span class="who">${me?"Sie":themLabel(c,kind)}${!me&&TTS?`<button type="button" class="say" data-action="say" data-kind="${kind}" data-i="${i}">erneut anhören</button>`:""}</span><div class="txt" lang="de">${esc(t.content)}</div></div>`});
+  if(ch.busy)h+=`<div class="msg them"><span class="who">${themLabel(c,kind)}</span><div class="txt"><span class="typing">denkt nach…</span></div></div>`;
+  log.innerHTML=h;log.scrollTop=log.scrollHeight;
+  const err=$("#err-"+kind);if(err){err.textContent=ch.err;err.hidden=!ch.err}
+  const started=isP||ch.turns.length||ch.busy;
+  const vb=$("#vb-"+kind);if(vb)vb.hidden=!started;
+  const mic=vb&&vb.querySelector(".mic");if(mic)mic.disabled=ch.busy||!SR;
+  const form=$(`.chat-form[data-kind="${kind}"]`);if(form){if(!started)form.hidden=true;else if(!SR)form.hidden=false;const b=form.querySelector("button");if(b)b.disabled=ch.busy}
+  const kb=$(`[data-action="kb"][data-kind="${kind}"]`);if(kb)kb.hidden=!started||!SR;
+  const stop=$(`[data-action="stop"][data-kind="${kind}"]`);if(stop)stop.hidden=!ch.busy;
+  const nx=$(`[data-action="ober-next"]`);if(nx&&kind==="ober")nx.hidden=!(freeMode()&&ch.qs&&!ch.fin);
+  document.querySelectorAll('[data-action="mode"]').forEach(x=>x.setAttribute("aria-pressed",String((x.dataset.m==="free")===freeMode())));
+  document.querySelectorAll(".free-note").forEach(x=>{x.hidden=!freeMode()})}
+async function send(id,kind,text){if(freeMode())return sendFree(id,kind,text);const ch=chatOf(id,kind);if(ch.busy)return;
+  if(!KEY){ch.err="Fügen Sie in den Einstellungen einen API-Schlüssel hinzu.";paintChat(id,kind);return}
+  const c=byId(id);
+  if(text){ch.turns.push({role:"user",content:text});if(!ch.start)ch.start=Date.now();ch.end=0;if(kind==="patient")trackQ(c,ch,text,false)}
+  ch.busy=true;ch.err="";paintChat(id,kind);
+  const system=kind==="patient"?patientRules(c):oberRules(c,(R.v==="exam"&&EX&&EX.caseId===id)?EX.vor:draft(id).vor);
+  const msgs=normalize(ch.turns.slice(-40),kind==="ober"?"(Die Fallvorstellung ist beendet. Bitte stellen Sie Ihre erste Frage.)":"");
+  const ctl=new AbortController();ch.ctl=ctl;let reply="";
+  try{reply=await chatCall(system,msgs,400,ctl.signal);ch.turns.push({role:"assistant",content:reply})}
+  catch(e){ch.err=errText(e)}
+  finally{ch.busy=false;ch.ctl=null;paintChat(id,kind)}
+  if(reply&&viewIs(id))speak(reply)}
+
+/* ---------- feedback ---------- */
+function thinkingHTML(kind){return `<div class="fb thinking"><span>Claude prüft… Das dauert meist bis zu einer Minute.</span><button type="button" class="btn ghost" data-action="stop-fb" data-kind="${kind}">Stopp</button></div>`}
+async function runJSON(kind,id,prompt,onOk){const slot=$("#fb-"+kind);
+  if(!KEY){if(slot)slot.innerHTML=`<p class="err">Fügen Sie einen API-Schlüssel hinzu unter <a href="#settings">Einstellungen</a>.</p>`;return}
+  if(FBRUN[kind])FBRUN[kind].ctl.abort();
+  const ctl=new AbortController();FBRUN[kind]={ctl,id};
+  if(slot)slot.innerHTML=thinkingHTML(kind);
+  try{const t=await callClaude({model:MODEL_REVIEW,system:"Du antwortest ausschließlich mit gültigem JSON, ohne weiteren Text.",messages:[{role:"user",content:prompt}],max_tokens:2500,signal:ctl.signal});
+    const d=parseJSON(t);if(!d||typeof d!=="object"||Array.isArray(d))throw {code:"invalid_json"};FB[id+":"+kind]=d;onOk(d);
+    const s=viewIs(id)?$("#fb-"+kind):null;if(s)s.innerHTML=fbHTML(kind,byId(id),d)}
+  catch(e){const msg=errText(e);const s=viewIs(id)?$("#fb-"+kind):null;if(s)s.innerHTML=msg?`<p class="err">${esc(msg)}</p>`:""}
+  finally{if(FBRUN[kind]&&FBRUN[kind].ctl===ctl)FBRUN[kind]=null}}
+function fbHTML(kind,c,d){
+  const corr=arr(d.corrections).filter(x=>x&&typeof x==="object"&&(x.original||x.korrektur));
+  let h=`<div class="fb"><span class="eyebrow">Analyse</span>`;
+  if(d.fazit)h+=`<p class="fb-sum">${esc(str(d.fazit))}</p>`;
+  if(kind==="anam"){const ids=new Set(c.items.map(i=>i.id));const cov=[...new Set(arr(d.covered).map(String).filter(x=>ids.has(x)))];const miss=c.items.filter(i=>!cov.includes(i.id));const pct=Math.round(cov.length/c.items.length*100);
+    h+=`<div class="fb-sec"><h3>Anamnesethemen</h3><div class="meter" role="img" aria-label="Abgedeckt: ${cov.length} von ${c.items.length} Themen"><i style="width:${pct}%"></i></div><p class="small">Gefragt: ${cov.length} von ${c.items.length} Themen${miss.length?". Ausgelassen:":"."}</p>${miss.length?`<div class="chips">${miss.map(i=>`<span class="chip miss" lang="de">${esc(i.t)}</span>`).join("")}</div>`:""}</div>`}
+  h+=`<div class="fb-sec"><h3>Korrekturen</h3>`+(corr.length?`<ul class="corr">${corr.map(x=>`<li><span lang="de"><del>${esc(str(x.original))}</del></span><span lang="de"><ins>${esc(str(x.korrektur))}</ins></span>${x.erklaerung?`<span class="why">${esc(str(x.erklaerung))}</span>`:""}</li>`).join("")}</ul>`:`<p class="small">Keine offensichtlichen Sprachfehler gefunden.</p>`)+`</div>`;
+  for(const [k,l] of [["fehlend","Was fehlt"],["falsch","Sachliche Ungenauigkeiten"],["staerken","Was gut war"],["tipps","Tipps"]]){const a=arr(d[k]).map(str).filter(Boolean);if(a.length)h+=`<div class="fb-sec"><h3>${l}</h3><ul class="plain">${a.map(s=>`<li>${esc(s)}</li>`).join("")}</ul></div>`}
+  return h+`<p class="small muted">Die Analyse stammt von einer KI und kann Fehler enthalten. Vergleichen Sie mit dem Muster.</p></div>`}
+
+/* ---------- views ---------- */
+function etikett(c){const parts=c.name.split(" ");return `<div class="etikett"><div class="et-main"><span class="nm">${esc(parts.slice(1).join(" ").toUpperCase())}, ${esc(parts[0])}</span><span class="meta">Fall ${c.nr} · ZNA · ${c.sex} · ${c.alter} J. · ${esc(c.fach)}</span><span class="ls" lang="de">${esc(c.leit)}</span></div><span class="bc" aria-hidden="true"></span></div>`}
+function keyNote(){return `<p class="note info ai-off">Ohne Schlüssel funktioniert der kostenlose Modus: Patient und Oberarzt antworten mit vorbereiteten Sätzen. Für einen echten KI-Gesprächspartner und eine Grammatikanalyse fügen Sie einen API-Schlüssel hinzu unter <a href="#settings">Einstellungen</a>.</p>`}
+function freeNote(){return `<p class="note info free-note"${freeMode()?"":" hidden"}>Aktuell Modus ohne KI: Ihr Gegenüber antwortet mit vorbereiteten Sätzen, das ist kostenlos. ${KEY?"Wechseln Sie zu „KI“, um mit einem echten KI-Gesprächspartner zu sprechen.":`Für einen echten KI-Gesprächspartner und eine Grammatikanalyse fügen Sie einen Schlüssel hinzu unter <a href="#settings">Einstellungen</a>.`}</p>`}
+function homeHTML(){const nK=VOCAB.filter(v=>known.has(v[0])).length;const f=CASES[0].id;
+  const parts=[["1","Fachbegriffe → Patientensprache","Fachbegriffe in Patientensprache übersetzen, mit Aussprache.","#vocab","Begriffe"],
+    ["2","Arzt-Patienten-Gespräch","Sprechen Sie mit dem Patienten, er antwortet laut. Ohne KI kostenlos, mit KI ein freies Gespräch.","#"+f+"-anamnese","Fall 01"],
+    ["3","Arztbrief / Dokumentation","Dokumentation nach dem Gespräch, mit Fehleranalyse.","#"+f+"-arztbrief","Fall 01"],
+    ["4","Arzt-Arzt-Gespräch","Mündliche Fallvorstellung beim Oberarzt und Antworten auf seine Fragen.","#"+f+"-vorstellung","Fall 01"]];
+  return `<section class="hero"><span class="eyebrow">Prototyp · Sprachversion</span><h1>Vorbereitung auf FaMed und Fachsprachprüfung</h1><p class="lede">Sprechen Sie mit KI-Patient und Oberarzt auf Deutsch. Drei klinische Fälle, ${VOCAB.length} Begriffe, Fehleranalyse auf Deutsch.</p>
+  <div class="row"><a class="btn primary" href="#exam">Probeprüfung</a><a class="btn" href="#cases">Training mit Fällen</a></div></section>
+  ${keyNote()}
+  ${weakHTML()}
+  ${SR?"":`<p class="note">Die Spracheingabe funktioniert in diesem Browser nicht. Öffnen Sie die Seite in Chrome.</p>`}
+  <section><h2>Prüfungsteile</h2><div class="parts">${parts.map(p=>`<a class="part" href="${p[3]}"><span class="n">Teil ${p[0]}</span><span class="de" lang="de">${p[1]}</span><span class="ru">${p[2]}</span><span class="go">${p[4]} →</span></a>`).join("")}</div>
+  <p class="note">Die Teile stammen aus öffentlichen Beschreibungen der Fachsprachprüfung einzelner Ärztekammern. Das genaue Format der FaMed (Reihenfolge, Zeit, Bewertungskriterien) <span class="ph">[beim Veranstalter erfragen]</span>.</p></section>
+  <section><h2>Lernmaterialien</h2><ul class="prog">${MATS.map(m=>`<li><a href="#mat-${m.id}">${esc(m.title)}</a><span class="mono">${m.min} Min.</span></li>`).join("")}</ul></section>
+  <section><h2>Fortschritt</h2><ul class="prog"><li><a href="#vocab">Begriffe</a><span class="mono">${nK} von ${VOCAB.length} gelernt</span></li>${CASES.map(c=>{const d=doneOf(c.id);const n=[d.anam,d.brief,d.vor].filter(Boolean).length;return `<li><a href="#${c.id}-anamnese">Fall ${c.nr} · ${esc(c.titleRu)}</a><span class="mono">${n} von 3 Schritten</span></li>`}).join("")}</ul></section>
+  <section><h2>Über den Prototyp</h2><p class="small">Deutsche Texte, Muster und medizinische Details sind noch ein Entwurf. Vor dem Verkauf muss sie eine muttersprachliche Person mit medizinischer Ausbildung prüfen. Die Fälle sind erfunden und kopieren keine echten Prüfungsaufgaben.</p></section>`}
+function casesHTML(){return `<section class="hero"><span class="eyebrow">Fälle</span><h1>Klinische Fälle</h1><p class="lede">Jeder Fall hat drei Schritte wie in der Prüfung: Gespräch mit dem Patienten, Dokumentation, Vorstellung beim Oberarzt.</p><div class="row"><a class="btn primary" href="#exam">Probeprüfung mit zufälligem Fall</a></div></section>
+  <section class="case-list">${CASES.map(c=>{const d=doneOf(c.id);return `<a class="case-card" href="#${c.id}-anamnese">${etikett(c)}<span class="cc-steps">${TABS.map((t,i)=>`<span class="${d[t[3]]?"ok":""}">${i+1} ${t[1]}</span>`).join("")}</span></a>`}).join("")}</section>`}
+function micBtn(target,big){return `<button type="button" class="mic" data-action="mic" data-mic="${target}" aria-label="Sprechen"${SR?"":" disabled"}>${MIC_SVG}</button>`}
+function liveBox(target,idle){return `<div class="live" data-live="${target}" data-idle="${esc(idle)}" aria-live="polite"><span class="state"></span><span class="said muted">${esc(idle)}</span></div>`}
+function chatBox(kind,exam){const isP=kind==="patient";const tg="chat:"+kind;return `<div class="chat">
+  <div class="chat-head">${exam?`<span>${freeMode()?"Ohne KI":"KI"} · Modus für diesen Teil festgelegt</span>`:`<span class="mode" role="group" aria-label="Modus des Gesprächspartners"><button type="button" data-action="mode" data-m="free" data-kind="${kind}" aria-pressed="${freeMode()}">Ohne KI</button><button type="button" data-action="mode" data-m="ai" data-kind="${kind}" aria-pressed="${!freeMode()}">KI</button></span>`}<span class="js-timer" data-kind="${kind}">00:00</span></div>
+  <div class="log" id="log-${kind}" aria-live="polite"></div>
+  <p class="err" id="err-${kind}" hidden></p>
+  <div class="voice-bar" id="vb-${kind}">${SR?micBtn(tg)+liveBox(tg,"Drücken und sprechen. Zum Beenden erneut drücken."):`<p class="small muted">Die Spracheingabe funktioniert in diesem Browser nicht. Öffnen Sie die Seite in Chrome oder tippen Sie unten.</p>`}</div>
+  <form class="chat-form" data-kind="${kind}"${SR?" hidden":""}><label class="sr" for="in-${kind}">Ihre Äußerung</label><textarea id="in-${kind}" rows="2" lang="de" placeholder="${isP?"Guten Tag, mein Name ist … Was führt Sie zu uns?":"Ihre Antwort …"}"></textarea><button class="btn primary" type="submit">Senden</button></form>
+  <div class="chat-actions row"><button type="button" class="btn ghost" data-action="kb" data-kind="${kind}">Tastatur</button><button type="button" class="btn ghost" data-action="stop" data-kind="${kind}" hidden>Stopp</button>${isP?(exam?"":`<button type="button" class="btn" data-action="finish-anam">Beenden und Analyse erhalten</button>`):`<button type="button" class="btn primary" data-action="ober-next" hidden>Nächste Frage</button>`}${exam?"":`<button type="button" class="btn ghost" data-action="reset-chat" data-kind="${kind}">Neu beginnen</button>`}</div>
+</div>`}
+function dictBox(field,idle){const tg="field:"+field;return SR?`<div class="dict">${micBtn(tg)}${liveBox(tg,idle)}</div>`:""}
+function checklistHTML(c){const cov=COV[c.id];return c.items.map(it=>{const st=cov?(cov.has(it.id)?"ok":"miss"):"";return `<div class="cl-item ${st}"><span class="box" aria-hidden="true"></span><div class="cl-body"><span class="cl-t" lang="de">${esc(it.t)}${st?`<span class="sr"> (${st==="ok"?"gefragt":"ausgelassen"})</span>`:""}</span><span class="cl-q" lang="de">${esc(it.q)}</span><button type="button" class="linkbtn" data-action="reveal" aria-expanded="false">Antwort des Patienten</button><p class="cl-a" lang="de" hidden>${esc(it.a)}</p></div></div>`}).join("")}
+function anamHTML(c){const dr=draft(c.id);return `<section>
+  <p class="lede-s">Sie sind Arzt in der Notaufnahme (ZNA). Erheben Sie mündlich eine vollständige Anamnese: Siezen Sie den Patienten, stellen Sie offene Fragen und erklären Sie Fachbegriffe in einfachen Worten. Der Patient antwortet laut.</p>
+  ${weakHint()}
+  ${freeNote()}
+  ${chatBox("patient")}
+  <div id="free-anam"></div>
+  <div id="fb-anam"></div>
+</section>
+<section><details class="cl-wrap" data-open-off ${KEY?"":"open"}><summary><span>Anamnese-Checkliste</span><span class="mono">${c.items.length} Themen</span></summary><div class="cl" id="cl">${checklistHTML(c)}</div></details></section>
+<section><label class="lbl" for="notes">Notizen während des Gesprächs</label>
+  <textarea id="notes" data-draft="notes" rows="5" lang="de" placeholder="Stichpunkte: Beginn, Lokalisation, Ausstrahlung, Intensität, Begleitsymptome …">${esc(dr.notes)}</textarea>
+  <p class="small muted">Die Notizen werden in diesem Browser gespeichert und helfen beim Schritt Arztbrief.</p>
+  <div class="row"><a class="btn" href="#${c.id}-arztbrief">Weiter: Arztbrief →</a></div></section>`}
+function briefHTML(c){const dr=draft(c.id);return `<section>
+  <p class="lede-s">Dokumentation des Gesprächs auf Deutsch. In der Anamnese brauchen Sie indirekte Rede (Konjunktiv I: «Die Patientin berichtete, dass … seien»), bei den Diagnosen Fachsprache. In der Prüfung wird dieser Text geschrieben, üben Sie also zumindest manchmal schriftlich. Form des Dokuments bei der FaMed <span class="ph">[erfragen]</span>.</p>
+  ${dictBox("brief","Sie können diktieren: Mikrofon drücken, Satz sprechen, der Text wird am Ende angefügt.")}
+  <div class="row"><button type="button" class="btn" data-action="tpl-brief">Gliederung einfügen</button><span class="mono muted" id="wc-brief"></span></div>
+  <label class="sr" for="brief">Text des Arztbriefs</label>
+  <textarea id="brief" data-draft="brief" rows="16" lang="de" placeholder="Persönliche Daten …">${esc(dr.brief)}</textarea>
+  <div class="row"><button type="button" class="btn primary ai-on" data-action="check" data-kind="brief">Mit KI prüfen</button><button type="button" class="btn" data-action="muster" data-kind="brief" aria-expanded="false">Muster anzeigen</button></div>
+  <div id="fb-brief"></div>
+  <div id="muster-brief" hidden><div class="muster"><span class="eyebrow">Muster · Entwurf, muss muttersprachlich geprüft werden</span><dl>${c.brief.map(([h,b])=>`<div><dt lang="de">${esc(h)}</dt><dd lang="de">${esc(b)}</dd></div>`).join("")}</dl></div></div>
+  ${dr.notes.trim()?`<details class="notes-ro"><summary>Ihre Notizen aus dem Gespräch</summary><p class="pre" lang="de">${esc(dr.notes)}</p></details>`:""}
+  <div class="row"><a class="btn" href="#${c.id}-vorstellung">Weiter: Vorstellung →</a></div></section>`}
+function vorHTML(c){const dr=draft(c.id);return `<section>
+  <p class="lede-s">Stellen Sie den Patienten dem Oberarzt mündlich vor: wer er ist, womit er kommt, wichtige Anamnese, Verdachtsdiagnose, Differenzialdiagnosen und Plan. Sprechen Sie jeweils ein bis zwei Sätze, der Text entsteht unten.</p>
+  ${dictBox("vor","Mikrofon drücken, Satz sprechen, erneut drücken. So Satz für Satz.")}
+  <details class="notes-ro"><summary>Redemittel</summary><div class="phr" role="group" aria-label="Redemittel" style="margin-top:8px">${PHRASES.map((p,i)=>`<button type="button" class="chip-btn" data-action="phrase" data-i="${i}" lang="de">${esc(p)}</button>`).join("")}</div></details>
+  <label class="sr" for="vor">Text der Vorstellung</label>
+  <textarea id="vor" data-draft="vor" rows="10" lang="de" placeholder="Ich möchte Ihnen … vorstellen.">${esc(dr.vor)}</textarea>
+  <div class="row"><button type="button" class="btn primary ai-on" data-action="check" data-kind="vor">Mit KI prüfen</button><button type="button" class="btn" data-action="muster" data-kind="vor" aria-expanded="false">Muster anzeigen</button></div>
+  <div id="fb-vor"></div>
+  <div id="muster-vor" hidden><div class="muster"><span class="eyebrow">Muster · Entwurf, muss muttersprachlich geprüft werden</span><p class="pre" lang="de">${esc(c.vorstellung)}</p></div></div></section>
+  <section><h2>Fragen des Oberarztes</h2><p class="small muted">Der Oberarzt stellt seine Fragen laut, Sie antworten mündlich. Ohne KI sind die Fragen standardisiert: Nach Ihrer Antwort drücken Sie „Nächste Frage“, am Ende vergleichen Sie Ihre Antworten mit den Mustern. Mit KI reagiert der Oberarzt auf Ihre Vorstellung und Ihre Antworten.</p>${freeNote()}${chatBox("ober")}<div id="free-ober"></div></section>`}
+function caseHTML(id,tab){const c=byId(id);const d=doneOf(id);
+  return `<a class="back" href="#cases">← Alle Fälle</a>${etikett(c)}
+  <nav class="steps" aria-label="Schritte des Falls">${TABS.map((t,i)=>`<a href="#${id}-${t[0]}" class="${d[t[3]]?"done":""}"${t[0]===tab?' aria-current="page"':""}><span class="k">Schritt ${i+1}</span><span class="l" lang="de">${t[1]}</span><span class="s">${t[2]}</span></a>`).join("")}</nav>
+  <div class="tabbody">${tab==="anamnese"?anamHTML(c):tab==="arztbrief"?briefHTML(c):vorHTML(c)}</div>`}
+function afterCase(id,tab){const c=byId(id);
+  const fill=k=>{const s=$("#fb-"+k);if(!s)return;if(FBRUN[k]&&FBRUN[k].id===id)s.innerHTML=thinkingHTML(k);else if(FB[id+":"+k])s.innerHTML=fbHTML(k,c,FB[id+":"+k])};
+  if(tab==="anamnese"){paintChat(id,"patient");fill("anam");const s=$("#free-anam");if(s&&FREE[id])s.innerHTML=freeSumHTML(c,chatOf(id,"patient"))}
+  if(tab==="arztbrief"){wc();fill("brief")}
+  if(tab==="vorstellung"){paintChat(id,"ober");fill("vor");const o=chatOf(id,"ober");const so=$("#free-ober");if(so&&o.fin&&o.qs)so.innerHTML=oberSumHTML(o)}
+  paintRec()}
+function wc(){const el=$("#wc-brief");if(el&&R.v==="case")el.textContent=words(draft(R.id).brief)+" Wörter"}
+
+/* ---------- settings ---------- */
+function maskKey(k){return k?k.slice(0,7)+"…"+k.slice(-4):""}
+function settingsHTML(){const nv=deVoices().length;return `<section class="hero"><span class="eyebrow">Einstellungen</span><h1>Schlüssel und Stimme</h1></section>
+  <section><h2>Anthropic-API-Schlüssel</h2>
+  <div class="panel">
+    <p class="small">Der Schlüssel wird für den KI-Patienten benötigt. Erstellen Sie ihn unter console.anthropic.com im Bereich API Keys und fügen Sie ihn hier ein. Der Schlüssel wird nur in diesem Browser auf diesem Gerät gespeichert und nur an Anthropic gesendet.</p>
+    <p class="small" id="key-state">${KEY?`Gespeicherter Schlüssel <span class="mono">${esc(maskKey(KEY))}</span>`:"Noch kein Schlüssel hinzugefügt."}</p>
+    <label class="lbl" for="key">${KEY?"Schlüssel ersetzen":"Schlüssel"}</label>
+    <input id="key" type="password" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="sk-ant-…">
+    <div class="row"><button type="button" class="btn primary" data-action="key-save">Speichern</button><button type="button" class="btn" data-action="key-test"${KEY?"":" hidden"}>Schlüssel prüfen</button><button type="button" class="btn ghost" data-action="key-del"${KEY?"":" hidden"}>Schlüssel löschen</button></div>
+    <p class="small" id="key-msg" aria-live="polite"></p>
+  </div></section>
+  <section><h2>Stimme</h2>
+  <div class="panel">
+    <ul class="stat-list">
+      <li>Spracherkennung: ${SR?'<span class="y">funktioniert in diesem Browser</span>':'<span class="n">funktioniert nicht, in Chrome öffnen</span>'}</li>
+      <li>Vorlesen: ${TTS?'<span class="y">funktioniert</span>':'<span class="n">nicht unterstützt</span>'}</li>
+      <li>Deutsche Stimmen auf dem Gerät: <span class="mono" id="nv">${nv}</span></li>
+    </ul>
+    <label class="chk"><input type="checkbox" id="s-tts"${SET.tts?" checked":""}> Antworten von Patient und Oberarzt vorlesen</label>
+    <label class="chk"><input type="checkbox" id="s-auto"${SET.autosend?" checked":""}> Direkt nach dem Sprechen senden</label>
+    <p class="small muted">Wenn ausgeschaltet, erscheint der erkannte Text zuerst im Feld, und Sie können ihn vor dem Senden korrigieren.</p>
+    <label class="lbl" for="s-voice">Deutsche Stimme</label>
+    <select id="s-voice"></select>
+    <label class="lbl" for="s-rate">Sprechtempo: <span class="mono" id="rate-v">${(+SET.rate).toFixed(2)}</span></label>
+    <input type="range" id="s-rate" min="0.7" max="1.2" step="0.05" value="${+SET.rate}">
+    <div class="row"><button type="button" class="btn" data-action="tts-test"${TTS?"":" disabled"}>Anhören</button></div>
+  </div></section>
+  <section><h2>Fehlergedächtnis</h2><div class="panel"><p class="small">Gespeicherte abgeschlossene Versuche in diesem Browser: ${arr(S.hist).length}. Sie werden für den Block „Ihre Schwachstellen“ und kurze persönliche Übungen verwendet.</p><div class="row"><button type="button" class="btn ghost" data-action="hist-clear"${arr(S.hist).length?"":" disabled"}>Fehlergedächtnis löschen</button></div></div></section>
+  <section><h2>Kosten</h2><p class="small">Jede Patientenantwort und jede Analyse ist eine kostenpflichtige Anfrage an Claude von Ihrem Anthropic-Guthaben. Was ein vollständiges Gespräch kostet — <span class="ph">[im Test berechnen]</span>. Die Ausgaben sehen Sie in der Anthropic-Konsole.</p></section>`}
+function paintVoices(){const sel=$("#s-voice");if(!sel)return;const vs=deVoices();const cur=pickVoice();
+  sel.innerHTML=vs.length?vs.map(v=>`<option value="${esc(v.voiceURI)}"${cur&&cur.voiceURI===v.voiceURI?" selected":""}>${esc(v.name)} (${esc(v.lang)})</option>`).join(""):`<option value="">Standardstimme</option>`;
+  const nv=$("#nv");if(nv)nv.textContent=vs.length}
+
+/* ---------- vocab ---------- */
+const V={mode:"cards",cat:"all",only:false,deck:null,i:0,flipped:false,quiz:null,score:0,total:0,q:""};
+function pool(){return VOCAB.filter(v=>(V.cat==="all"||v[3]===V.cat)&&(!V.only||!known.has(v[0])))}
+function shuffle(a){a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
+function rebuild(){V.deck=shuffle(pool());V.i=0;V.flipped=false;V.quiz=null}
+function vocabHTML(){if(!V.deck)rebuild();return `<section class="hero"><span class="eyebrow">Teil 1 · Fachbegriffe</span><h1>Fachbegriffe und Patientensprache</h1><p class="lede">In der Prüfung müssen Sie dem Patienten einen Fachbegriff in einfachen Worten erklären: <span lang="de">Dyspnoe → Atemnot</span>.</p></section>
+  <section><div class="seg" role="group" aria-label="Modus">${[["cards","Karten"],["quiz","Test"],["list","Liste"]].map(([k,l])=>`<button type="button" data-action="v-mode" data-m="${k}" aria-pressed="${V.mode===k}">${l}</button>`).join("")}</div>
+  <div class="row"><label class="sr" for="v-cat">Kategorie</label><select id="v-cat"><option value="all"${V.cat==="all"?" selected":""}>Alle Kategorien</option>${Object.entries(CAT).map(([k,l])=>`<option value="${k}"${V.cat===k?" selected":""}>${l}</option>`).join("")}</select>
+  <label class="chk"><input type="checkbox" id="v-only"${V.only?" checked":""}> Nur nicht gelernte</label></div>
+  <p class="mono muted" id="v-count"></p></section>
+  <section id="v-body"></section>`}
+function paintVocab(){const b=$("#v-body");if(!b)return;const cnt=$("#v-count");if(cnt)cnt.textContent=`Gelernt: ${VOCAB.filter(v=>known.has(v[0])).length} von ${VOCAB.length}`;
+  b.innerHTML=V.mode==="cards"?cardsHTML():V.mode==="quiz"?quizHTML():listHTML()}
+const emptyV=()=>`<p class="note info">In dieser Auswahl ist alles gelernt. Schalten Sie den Filter „Nur nicht gelernte“ aus oder wählen Sie eine andere Kategorie.</p>`;
+function cardsHTML(){if(!V.deck.length)return emptyV();if(V.i>=V.deck.length)V.i=0;const v=V.deck[V.i];
+  return `<div class="card"><span class="eyebrow">${CAT[v[3]]} · ${V.i+1} / ${V.deck.length}${known.has(v[0])?" · gelernt":""}</span><span class="term" lang="de">${esc(v[0])}</span>${V.flipped?`<span class="lay" lang="de">${esc(v[1])}</span>${v[2]!==v[1]?`<span class="ru">${esc(v[2])}</span>`:""}`:`<span class="hint">Wie sagen Sie es dem Patienten?</span>`}${TTS?`<button type="button" class="say" data-action="v-say" style="align-self:flex-start;font-size:13px">Aussprache</button>`:""}</div>
+  <div class="row">${V.flipped?`<button type="button" class="btn" data-action="v-learn">Lerne ich noch</button><button type="button" class="btn primary" data-action="v-know">Kann ich</button>`:`<button type="button" class="btn primary" data-action="v-flip">Antwort zeigen</button><button type="button" class="btn ghost" data-action="v-skip">Überspringen</button>`}</div>`}
+function newQ(){const p=V.deck&&V.deck.length?V.deck:pool();if(!p.length){V.quiz=null;return}const v=p[Math.floor(Math.random()*p.length)];const same=VOCAB.filter(x=>x!==v&&x[3]===v[3]);const others=shuffle(same.length>=3?same:VOCAB.filter(x=>x!==v)).slice(0,3);V.quiz={v,opts:shuffle([v,...others]),pick:-1}}
+function quizHTML(){if(!V.quiz)newQ();const q=V.quiz;if(!q)return emptyV();
+  return `<div class="card"><span class="eyebrow">Test · ${V.score} von ${V.total} richtig</span><span class="term" lang="de">${esc(q.v[0])}</span><span class="hint">Wählen Sie die Erklärung für den Patienten</span></div>
+  <div class="opts">${q.opts.map((o,i)=>{let cls="";if(q.pick>=0){if(o===q.v)cls=" right";else if(i===q.pick)cls=" wrong"}return `<button type="button" class="btn opt${cls}" data-action="v-opt" data-i="${i}" lang="de">${esc(o[1])}</button>`}).join("")}</div>
+  ${q.pick>=0?`<p class="small">${q.opts[q.pick]===q.v?"Richtig.":"Falsch."} <span lang="de">${esc(q.v[0])}</span>: ${esc(q.v[2])}.</p><div class="row"><button type="button" class="btn primary" data-action="v-nextq">Weiter</button></div>`:""}`}
+function rowsHTML(){const q=V.q.trim().toLowerCase();const rows=pool().filter(v=>!q||v.slice(0,3).some(s=>s.toLowerCase().includes(q)));
+  if(!rows.length)return `<tr><td colspan="4" class="muted">Nichts gefunden.</td></tr>`;
+  return rows.map(v=>{const on=known.has(v[0]);return `<tr><td lang="de"><b>${esc(v[0])}</b></td><td lang="de">${esc(v[1])}</td><td class="c3">${esc(v[2])}</td><td><button type="button" class="tick${on?" on":""}" data-action="v-toggle" data-t="${esc(v[0])}" aria-pressed="${on}" aria-label="Gelernt: ${esc(v[0])}">✓</button></td></tr>`}).join("")}
+function listHTML(){return `<label class="sr" for="v-q">Suche</label><input id="v-q" type="search" placeholder="Suche nach Fachbegriff oder Patientensprache" value="${esc(V.q)}">
+  <div class="tbl-wrap"><table><thead><tr><th>Fachbegriff</th><th>Patientensprache</th><th class="c3">Übersetzung</th><th><span class="sr">Gelernt:</span></th></tr></thead><tbody id="v-rows">${rowsHTML()}</tbody></table></div>`}
+
+/* ---------- memory of mistakes (kept in this browser) ---------- */
+const fmt=s=>{s=Math.max(0,Math.round(s||0));return String(Math.floor(s/60)).padStart(2,"0")+":"+String(s%60).padStart(2,"0")};
+function recFromChat(id,ch,kind){const c=byId(id);const cov=ch.cov||new Set();
+  return {ts:Date.now(),case:id,kind,missed:c.items.filter(i=>!cov.has(i.id)).map(i=>i.id),
+    partial:c.items.filter(i=>i.parts&&cov.has(i.id)).map(i=>{const s=(ch.parts&&ch.parts[i.id])||new Set();return [i.id,i.parts.map(p=>p[0]).filter(k=>!s.has(k))]}).filter(x=>x[1].length),
+    fach:(ch.fach||[]).map(f=>f.term),unm:(ch.unm||[]).length,dur:Math.round(((ch.end||Date.now())-(ch.start||Date.now()))/1000),cov:cov.size,total:c.items.length}}
+function pushHist(rec){S.hist=arr(S.hist).concat([rec]).slice(-40);save()}
+function topicLabel(id){for(const c of CASES){const i=c.items.find(x=>x.id===id);if(i)return i.t}return id}
+function topicQ(id){for(const c of CASES){const i=c.items.find(x=>x.id===id);if(i)return i.q}return ""}
+function weak(){const H=arr(S.hist).slice(-10);if(!H.length)return null;
+  const miss={},seen={},fach={},part={};let covSum=0,durSum=0,unmSum=0,n=0,exams=0,trains=0;
+  for(const h of H){const c=byId(h.case);if(!c)continue;n++;if(h.kind==="exam")exams++;else trains++;c.items.forEach(i=>{seen[i.id]=(seen[i.id]||0)+1});
+    arr(h.missed).forEach(id=>{miss[id]=(miss[id]||0)+1});arr(h.fach).forEach(t=>{fach[t]=(fach[t]||0)+1});
+    arr(h.partial).forEach(x=>arr(x[1]).forEach(k=>{part[k]=(part[k]||0)+1}));covSum+=h.total?h.cov/h.total:0;durSum+=Math.max(0,+h.dur||0);unmSum+=Math.max(0,+h.unm||0)}
+  if(!n)return null;
+  const sort=o=>Object.entries(o).sort((a,b)=>b[1]-a[1]);
+  return {n,exams,trains,avgDur:Math.round(durSum/n),unm:unmSum,topics:sort(miss).map(([id,k])=>[id,k,seen[id]||k]),fach:sort(fach),parts:sort(part),cov:Math.round(covSum/n*100)}}
+function weakHTML(){const w=weak();
+  if(!w)return `<section><h2>Ihre Schwachstellen</h2><p class="small muted">Führen Sie ein Patientengespräch bis zum Ergebnis oder machen Sie eine Probeprüfung. Hier erscheinen die Themen, die Sie am häufigsten vergessen, und Begriffe, die der Patient nicht verstanden hat.</p></section>`;
+  const tp=w.topics.slice(0,5),fc=w.fach.slice(0,5),pt=w.parts.slice(0,4);
+  return `<section><h2>Ihre Schwachstellen</h2><div class="panel">
+    <p class="small muted">Letzte Versuche: ${w.n} (${w.trains} Trainings, ${w.exams} Prüfungen). Durchschnittliche Anamneseabdeckung: ${w.cov}%. Durchschnittliche Anamnesedauer: ${fmt(w.avgDur)}.</p>
+    ${w.unm?`<p class="small muted">Der Trainer hat ${w.unm} Ihrer Formulierungen nicht erkannt. Auch das ist ein Signal: Fragen Sie kürzer und klarer.</p>`:""}
+    ${tp.length?`<div class="fb-sec"><h3>Am häufigsten vergessen</h3><ul class="plain">${tp.map(([id,k,s])=>`<li><span lang="de">${esc(topicLabel(id))}</span> <span class="muted">— ${k} von ${s}</span></li>`).join("")}</ul></div>`:""}
+    ${fc.length?`<div class="fb-sec"><h3>Begriffe, die der Patient nicht verstanden hat</h3><ul class="plain">${fc.map(([t,k])=>`<li><span lang="de">${esc(t)}</span> <span class="muted">— ${k} Mal</span></li>`).join("")}</ul></div>`:""}
+    ${pt.length?`<div class="fb-sec"><h3>Sie fragen nur teilweise</h3><p class="small">${pt.map(([k,c])=>`${esc(PART_LABEL[k]||k)} (${c})`).join(", ")}</p></div>`:""}
+    <div class="row"><a class="btn primary" href="#drill">Training der Schwachstellen · 5 Minuten</a></div></div></section>`}
+function weakHint(){const w=weak();if(!w)return "";const t=w.topics.filter(([,k])=>k>=2).slice(0,3);if(!t.length)return "";
+  return `<p class="note">Sie vergessen oft: <span lang="de">${t.map(([id])=>esc(topicLabel(id))).join(", ")}</span>. Lassen Sie sie heute nicht aus.</p>`}
+
+/* ---------- 5-minute drill on weak spots ---------- */
+let DR=null;
+const STOPW=new Set(["eine","einer","einem","einen","oder","durch","über","sich","nicht","beim","sehr","eines","wenn","dass","statt","ohne"]);
+function buildDrill(){const w=weak();const tasks=[];
+  const hasIntent=id=>INTENTS.some(it=>it.ids.includes(id));
+  const topicIds=(w?w.topics.map(t=>t[0]):[]).filter(id=>id!=="leit"&&hasIntent(id));
+  for(const id of [...topicIds,"allerg","med","fam","noxen","voroper","vorerk"]){if(tasks.length>=4)break;if(!tasks.some(t=>t.id===id))tasks.push({type:"topic",id})}
+  const terms=[];
+  for(const [t] of (w?w.fach:[])){const f=FACH.find(x=>x.term===t);if(f&&terms.length<3&&!terms.includes(f))terms.push(f)}
+  for(const f of shuffle(FACH.filter(x=>VOCAB.some(v=>v[0].startsWith(x.term)&&v[3]==="sym")))){if(terms.length>=3)break;if(!terms.includes(f))terms.push(f)}
+  terms.forEach(f=>tasks.push({type:"term",f}));
+  DR={tasks:shuffle(tasks),i:0,res:[]}}
+function layStems(lay){return str(lay).toLowerCase().replace(/ß/g,"ss").split(/[^a-zäöü]+/).filter(x=>x.length>=4&&!STOPW.has(x)).map(x=>x.slice(0,4))}
+function drillCheck(text){if(!DR)return;const t=DR.tasks[DR.i];if(!t||DR.res[DR.i])return;const n=norm(text);let ok=false,msg="";
+  if(t.type==="topic"){const f=findFach(n);const hit=INTENTS.some(it=>it.ids.includes(t.id)&&it.re.test(n)&&!(it.not&&it.not.test(n)));
+    if(f)msg=`Der Patient versteht das Wort „${f.term}“ nicht. Sagen Sie es einfacher: ${f.lay}.`;
+    else if(hit){ok=true;msg="Thema erkannt: Der Patient würde diese Frage verstehen."}
+    else msg="Der Trainer hat das Thema in diesem Satz nicht erkannt."}
+  else{const used=t.f.re.test(n);const hit=layStems(t.f.lay).some(s=>n.includes(s));
+    if(used)msg=`Sie haben den Fachbegriff „${t.f.term}“ selbst wiederholt. Der Patient braucht eine Erklärung ohne ihn.`;
+    else if(hit){ok=true;msg="Klingt nach einer verständlichen Erklärung."}
+    else msg="In der Erklärung fehlen die wichtigsten einfachen Wörter."}
+  DR.res[DR.i]={ok,msg,text};paintDrill()}
+function drillShellHTML(){return `<section class="hero"><span class="eyebrow">Training der Schwachstellen</span><h1>5 Minuten für Ihre Fehler</h1><p class="lede">Die Aufgaben stammen aus Ihren bisherigen Übungen: Themen, die Sie vergessen, und Begriffe, die der Patient nicht verstanden hat. Antworten Sie mündlich auf Deutsch.</p></section><section id="drill-body"></section>`}
+function paintDrill(){const b=$("#drill-body");if(!b)return;if(!DR)buildDrill();const t=DR.tasks[DR.i];
+  if(!t){const ok=DR.res.filter(r=>r&&r.ok).length;b.innerHTML=`<div class="card"><span class="eyebrow">Ergebnis</span><span class="term">${ok} von ${DR.tasks.length}</span><span class="hint">Wiederholen Sie das Training, bis alle Aufgaben bestanden sind.</span></div><div class="row"><button type="button" class="btn primary" data-action="drill-new">Noch einmal</button><a class="btn" href="#home">Zur Startseite</a></div>`;return}
+  const r=DR.res[DR.i];const ex=t.type==="topic"?topicQ(t.id):t.f.lay;
+  b.innerHTML=`<div class="card"><span class="eyebrow">Aufgabe ${DR.i+1} von ${DR.tasks.length}</span>
+    ${t.type==="topic"?`<span class="hint">Fragen Sie den Patienten nach diesem Thema:</span><span class="term" lang="de">${esc(topicLabel(t.id))}</span>`:`<span class="hint">Erklären Sie dem Patienten in einfachen Worten:</span><span class="term" lang="de">${esc(t.f.term)}</span>`}</div>
+    ${SR?`<div class="dict">${micBtn("drill:answer")}${liveBox("drill:answer","Drücken Sie auf das Mikrofon und sprechen Sie einen Satz auf Deutsch.")}</div>`:""}
+    <form class="drill-form row" data-drill="1"><label class="sr" for="drill-in">Ihre Antwort</label><input id="drill-in" type="text" lang="de" placeholder="Oder Antwort eintippen" style="flex:1;min-width:0"><button type="submit" class="btn">Prüfen</button></form>
+    ${r?`<div class="fb"><p class="${r.ok?"ok-t":"err"}">${r.ok?"Bestanden. ":"Nicht bestanden. "}${esc(r.msg)}</p><p class="small"><span class="muted">Sie sagten:</span> <span lang="de">${esc(r.text)}</span></p><p class="small"><span class="muted">${t.type==="topic"?"Beispielfrage":"In einfachen Worten"}:</span> <span lang="de">${esc(ex)}</span></p>${TTS?`<button type="button" class="say" data-action="drill-say">Beispiel anhören</button>`:""}</div>`:""}
+    <div class="row"><button type="button" class="btn ${r?"primary":"ghost"}" data-action="drill-next">${r?"Weiter":"Überspringen"}</button></div>`;
+  paintRec()}
+
+/* ---------- exam mode ---------- */
+const EXAM_STAGES=["Anamnese","Dokumentation","Vorstellung"];
+function examStart(caseId){stopRec();const last=arr(S.hist).filter(h=>h.kind==="exam").map(h=>h.case);
+  let id=caseId;if(!id){const fresh=CASES.filter(c=>!last.slice(-2).includes(c.id));const pool=fresh.length?fresh:CASES;id=pool[Math.floor(Math.random()*pool.length)].id}
+  ["patient","ober"].forEach(k=>{const ch=CH[id+":"+k];if(ch&&ch.ctl)ch.ctl.abort();delete CH[id+":"+k]});delete FREE[id];delete COV[id];
+  EX={caseId:id,stage:1,per:(+SET.examMin||20)*60,t0:{1:Date.now()},dur:{},timeout:{},notes:"",brief:"",vor:"",res:null,ai:null};render()}
+function examLeft(){if(!EX||EX.stage>3)return 0;return EX.per-Math.floor((Date.now()-EX.t0[EX.stage])/1000)}
+function exNext(auto){if(!EX||EX.stage>3)return;stopRec();if(TTS)try{speechSynthesis.cancel()}catch(e){}
+  const s=EX.stage;const active=chatOf(EX.caseId,s===1?"patient":"ober");if(active&&active.ctl)active.ctl.abort();
+  EX.dur[s]=Math.min(EX.per,Math.round((Date.now()-EX.t0[s])/1000));if(auto)EX.timeout[s]=true;
+  if(s===1){const ch=chatOf(EX.caseId,"patient");if(!ch.end)ch.end=Date.now()}
+  EX.stage=s+1;EX.t0[EX.stage]=Date.now();
+  if(EX.stage===4)examFinish();
+  if(R.v==="exam")render()}
+/* Heading names candidates actually use, so a document without our template is still read fairly. */
+const HEAD_ALIAS={"Persönliche Daten":/^(persönliche daten|personalien|patientendaten|daten)$/,"Aufnahmegrund":/^(aufnahmegrund|vorstellungsgrund|grund der (vorstellung|aufnahme)|leitsymptom|hauptbeschwerden?|anlass)$/,
+  "Aktuelle Anamnese":/^(aktuelle anamnese|jetzige anamnese|anamnese|eigenanamnese|krankengeschichte)$/,"Vegetative Anamnese":/^(vegetative anamnese|vegetativum|vegetative)$/,
+  "Vorerkrankungen":/^(vorerkrankungen?|vorgeschichte|chronische erkrankungen)$/,"Voroperationen":/^(voroperationen?|operationen|ops)$/,"Medikation":/^(medikation|medikamente|medikamentenanamnese|dauermedikation)$/,
+  "Allergien":/^(allergien?|unverträglichkeiten)$/,"Noxen":/^(noxen|genussmittel|suchtmittel)$/,"Gynäkologische Anamnese":/^(gynäkologische anamnese|gyn\.?|gynäkologie|zyklus)$/,"Impfstatus":/^(impfstatus|impfungen|impfanamnese)$/,
+  "Familienanamnese":/^(familienanamnese|familie)$/,"Sozialanamnese":/^(sozialanamnese|soziales|beruf)$/,"Verdachtsdiagnose":/^(verdachtsdiagnose|verdacht|diagnose|arbeitsdiagnose|vd)$/,
+  "Differenzialdiagnosen":/^(differ[ez]n[tz]ialdiagnosen?|dd)$/,"Procedere":/^(procedere|prozedere|weiteres vorgehen|vorgehen|plan)$/};
+function headOf(s,heads){const x=str(s).trim().toLowerCase();if(!x||x.length>40)return null;return heads.find(h=>h.toLowerCase()===x||(HEAD_ALIAS[h]&&HEAD_ALIAS[h].test(x)))||null}
+function examFinish(){const id=EX.caseId,c=byId(id);const ch=chatOf(id,"patient"),ob=chatOf(id,"ober");
+  const rec=recFromChat(id,ch,"exam");rec.dur=EX.dur[1]||rec.dur;
+  const heads=c.brief.map(b=>b[0]);const filled=new Set();let cur=null;
+  for(const l of EX.brief.split(/\n/)){const raw=l.trim().replace(/^[-–•*\d.)\s]+/,"");const ci=raw.indexOf(":");
+    const whole=headOf(raw.replace(/:$/,""),heads);if(whole){cur=whole;continue}
+    const inl=ci>0?headOf(raw.slice(0,ci),heads):null;if(inl){if(words(raw.slice(ci+1))>=1)filled.add(inl);cur=inl;continue}
+    if(cur&&words(l)>=1)filled.add(cur)}
+  const found=heads.filter(h=>filled.has(h));
+  const keys=KEYS[id]||[];const oberText=ob.turns.filter(t=>t.role==="user").map(t=>t.content).join(" ");
+  const docK=keys.filter(k=>k[1].test(EX.brief)),vorK=keys.filter(k=>k[1].test(EX.vor+" "+oberText));
+  const oberAns=ob.qs?ob.ans.filter(a=>a.length).length:ob.turns.filter(t=>t.role==="user").length;const oberTot=ob.qs?ob.qs.length:Math.max(oberAns,6);
+  EX.res={rec,heads:heads.length,found:found.length,missHeads:heads.filter(h=>!found.includes(h)),keys:keys.length,docK:docK.length,docMiss:keys.filter(k=>!docK.includes(k)).map(k=>k[0]),vorK:vorK.length,vorMiss:keys.filter(k=>!vorK.includes(k)).map(k=>k[0]),oberAns,oberTot};
+  rec.docPct=keys.length?Math.round(docK.length/keys.length*100):null;pushHist(rec)}
+function examIntroHTML(){return `<section class="hero"><span class="eyebrow">Prüfungsmodus</span><h1>Probeprüfung</h1><p class="lede">Ein zufälliger Fall, drei Teile hintereinander, ein Timer und keine Hilfen. Am Ende ein Gesamtergebnis.</p></section>
+  <section><div class="panel"><ol class="steps-ol"><li><b lang="de">Anamnese</b> — mündliches Gespräch mit dem Patienten</li><li><b lang="de">Dokumentation</b> — Arztbrief zum Gespräch</li><li><b lang="de">Vorstellung</b> — Vorstellung und Fragen des Oberarztes</li></ol>
+  <label class="lbl" for="ex-min">Zeit pro Teil</label><select id="ex-min">${[10,15,20,25,30].map(m=>`<option value="${m}"${+SET.examMin===m?" selected":""}>${m} Minuten</option>`).join("")}</select>
+  <p class="small muted">Die tatsächliche Zeit pro Teil bei der FaMed <span class="ph">[beim Veranstalter erfragen]</span>. Wenn die Zeit eines Teils abläuft, geht die Prüfung automatisch weiter.</p>
+  <p class="small">Gesprächspartner: ${freeMode()?"Modus ohne KI, kostenlos.":"KI."} ${KEY?"":"Mit einem Schlüssel in den Einstellungen sind KI-Gesprächspartner und ausführliche Bewertung verfügbar."}</p>
+  <div class="row"><button type="button" class="btn primary" data-action="ex-start">Prüfung starten</button></div></div></section>`}
+function examHTML(){if(!EX)return examIntroHTML();if(EX.stage>3)return examResultHTML();const c=byId(EX.caseId);const left=examLeft();
+  const head=`<section class="exhead"><div class="ex-top"><span class="eyebrow">Prüfung · Teil ${EX.stage} von 3 · <span lang="de">${EXAM_STAGES[EX.stage-1]}</span></span><span class="ex-clock mono${left<=60?" low":""}" id="ex-clock">${fmt(left)}</span></div><div class="meter"><i id="ex-bar" style="width:${Math.max(0,Math.min(100,100*left/EX.per))}%"></i></div></section>${etikett(c)}`;
+  let body="";
+  if(EX.stage===1)body=`<section><p class="lede-s">Erheben Sie die Anamnese mündlich. Keine Checkliste und keine Patientenantworten. Notizen sind erlaubt.</p>${freeNote()}${chatBox("patient",true)}
+    <label class="lbl" for="exnotes">Notizen</label><textarea id="exnotes" data-exam="notes" rows="4" lang="de">${esc(EX.notes)}</textarea>
+    <div class="row"><button type="button" class="btn primary" data-action="ex-next">Anamnese beenden →</button></div></section>`;
+  else if(EX.stage===2)body=`<section><p class="lede-s">Schreiben Sie die Dokumentation zum Gespräch. Kein Muster, keine vorgegebenen Überschriften, keine Hilfen.</p>${dictBox("exbrief","Sie können einen Satz diktieren, der Text wird am Ende angefügt.")}
+    <div class="row"><span class="mono muted" id="wc-exbrief">${words(EX.brief)} Wörter</span></div>
+    <label class="sr" for="exbrief">Dokumentation</label><textarea id="exbrief" data-exam="brief" rows="16" lang="de" placeholder="Persönliche Daten …">${esc(EX.brief)}</textarea>
+    ${EX.notes.trim()?`<details class="notes-ro"><summary>Ihre Notizen</summary><p class="pre" lang="de">${esc(EX.notes)}</p></details>`:""}
+    <div class="row"><button type="button" class="btn primary" data-action="ex-next">Dokumentation abgeben →</button></div></section>`;
+  else body=`<section><p class="lede-s">Stellen Sie den Patienten dem Oberarzt vor und beantworten Sie seine Fragen. Die Vorstellung können Sie zuerst unten diktieren.</p>${dictBox("exvor","Mikrofon drücken, Satz sprechen, erneut drücken.")}
+    <label class="sr" for="exvor">Vorstellung</label><textarea id="exvor" data-exam="vor" rows="7" lang="de" placeholder="Ich möchte Ihnen … vorstellen.">${esc(EX.vor)}</textarea>
+    ${freeNote()}${chatBox("ober",true)}
+    <div class="row"><button type="button" class="btn primary" data-action="ex-next">Prüfung beenden</button></div></section>`;
+  return head+body+`<div class="row"><button type="button" class="btn ghost" data-action="ex-abort">Prüfung abbrechen</button></div>`}
+function examResultHTML(){const r=EX.res,c=byId(EX.caseId),rc=r.rec;const pct=(a,b)=>b?Math.round(a/b*100):0;
+  const bars=[["Anamnese: Themenabdeckung",pct(rc.cov,rc.total),`${rc.cov} von ${rc.total}`],["Dokumentation: Gliederungsabschnitte",pct(r.found,r.heads),`${r.found} von ${r.heads}`],["Dokumentation: Kernfakten",pct(r.docK,r.keys),`${r.docK} von ${r.keys}`],["Vorstellung: Kernfakten",pct(r.vorK,r.keys),`${r.vorK} von ${r.keys}`],["Antworten an den Oberarzt",pct(r.oberAns,r.oberTot),`${r.oberAns} von ${r.oberTot}`]];
+  const tech=Math.round(bars.reduce((sum,x)=>sum+x[1],0)/bars.length);
+  const missT=c.items.filter(i=>rc.missed.includes(i.id));
+  let h=`<section class="hero"><span class="eyebrow">Prüfung · Ergebnis</span><h1>Fall ${c.nr} · ${esc(c.titleRu)}</h1><p class="lede">${EXAM_STAGES.map((s,i)=>`<span lang="de">${s}</span> ${fmt(EX.dur[i+1])}${EX.timeout[i+1]?" (Zeit abgelaufen)":""}`).join(" · ")}</p></section>
+  <section><div class="fb"><span class="eyebrow">Ohne KI · technische Bewertung</span><p class="fb-sum"><b>${tech}/100</b> — Abdeckung, Gliederung und Kernfakten.</p>${bars.map(([l,p,t])=>`<div class="fb-sec"><div class="bar-row"><span>${l}</span><span class="mono">${t}</span></div><div class="meter"><i style="width:${p}%"></i></div></div>`).join("")}
+  ${missT.length?`<div class="fb-sec"><h3>Nicht gefragt</h3><div class="chips">${missT.map(i=>`<span class="chip miss" lang="de">${esc(i.t)}</span>`).join("")}</div></div>`:""}
+  ${rc.partial.length?`<div class="fb-sec"><h3>Nur teilweise gefragt</h3><ul class="plain">${rc.partial.map(([id,ks])=>`<li><span lang="de">${esc(topicLabel(id))}</span>: ${ks.map(k=>PART_LABEL[k]||k).join(", ")}</li>`).join("")}</ul></div>`:""}
+  ${rc.fach.length?`<div class="fb-sec"><h3>Begriffe, die der Patient nicht verstanden hat</h3><p class="small" lang="de">${rc.fach.map(esc).join(", ")}</p></div>`:""}
+  ${r.docMiss.length?`<div class="fb-sec"><h3>Fehlt in der Dokumentation</h3><p class="small" lang="de">${r.docMiss.map(esc).join(", ")}</p></div>`:""}
+  ${r.missHeads.length?`<div class="fb-sec"><h3>Leere oder fehlende Abschnitte</h3><p class="small" lang="de">${r.missHeads.map(esc).join(", ")}</p></div>`:""}
+  ${r.vorMiss.length?`<div class="fb-sec"><h3>In der Vorstellung nicht erwähnt</h3><p class="small" lang="de">${r.vorMiss.map(esc).join(", ")}</p></div>`:""}
+  <p class="small muted">Diese Punktzahl ist kein offizielles FSP/FaMed-Ergebnis: Ohne KI werden nur Abdeckung, Gliederung und Kernfakten bewertet, nicht Grammatik, Stil, Aussprache und klinische Richtigkeit.</p>
+  ${KEY?`<div class="row"><button type="button" class="btn primary" data-action="ex-ai">Ausführliche KI-Bewertung</button></div>`:""}</div></section>
+  <div id="fb-exam">${EX.ai?examAiHTML(c,EX.ai):""}</div>
+  <section><details class="notes-ro"><summary>Muster zu diesem Fall</summary><div class="muster" style="margin-top:8px"><span class="eyebrow">Arztbrief · Entwurf, muss muttersprachlich geprüft werden</span><dl>${c.brief.map(([h2,b])=>`<div><dt lang="de">${esc(h2)}</dt><dd lang="de">${esc(b)}</dd></div>`).join("")}</dl><span class="eyebrow">Fallvorstellung</span><p class="pre" lang="de">${esc(c.vorstellung)}</p></div></details></section>
+  <div class="row"><button type="button" class="btn primary" data-action="ex-new">Neue Prüfung</button><a class="btn" href="#home">Zur Startseite</a></div>`;
+  return h}
+const CATS=[["fachsprache","Fachsprache"],["patientensprache","Patientensprache"],["struktur","Struktur"],["vollstaendigkeit","Vollständigkeit"],["dokumentation","Dokumentation"]];
+function examAiHTML(c,d){const sc=d.scores||{},bg=d.begruendung||{};
+  return `<section><div class="fb"><span class="eyebrow">KI-Bewertung</span>${d.fazit?`<p class="fb-sum">${esc(str(d.fazit))}</p>`:""}${CATS.map(([k,l])=>{const v=Math.max(0,Math.min(100,Math.round(+sc[k]||0)));return `<div class="fb-sec"><div class="bar-row"><span lang="de">${l}</span><span class="mono">${v}/100</span></div><div class="meter"><i style="width:${v}%"></i></div>${bg[k]?`<p class="small muted">${esc(str(bg[k]))}</p>`:""}</div>`}).join("")}</div></section>${fbHTML("exam",c,{corrections:d.corrections,tipps:d.tipps})}`}
+function examPrompt(c){const p=chatOf(c.id,"patient").turns.map(t=>(t.role==="user"?"ARZT: ":"PATIENT: ")+t.content).join("\n");const o=chatOf(c.id,"ober").turns.map(t=>(t.role==="user"?"ASSISTENZARZT: ":"OBERARZT: ")+t.content).join("\n");
+  return `Du bist erfahrene Prüferin in der Fachsprachprüfung Medizin (Niveau C1). Bewerte eine vollständige simulierte Prüfung eines ausländischen Arztes. Bewertet werden Sprache und Kommunikation, nicht das medizinische Fachwissen. ${ASR_NOTE}
+
+Fakten des Falls:
+${factsText(c)}
+
+Teil 1 – Anamnesegespräch:
+${p||"(kein Gespräch)"}
+
+Teil 2 – Dokumentation:
+<<<
+${EX.brief||"(leer)"}
+>>>
+
+Teil 3 – Fallvorstellung:
+<<<
+${EX.vor||"(nur mündlich, siehe Arzt-Arzt-Gespräch)"}
+>>>
+Arzt-Arzt-Gespräch:
+${o||"(kein Gespräch)"}
+
+Bewerte jede Kategorie von 0 bis 100 und begründe kurz auf Deutsch:
+- fachsprache: korrekte medizinische Fachsprache gegenüber Kollegen
+- patientensprache: verständliche Sprache gegenüber dem Patienten, keine unerklärten Fachbegriffe
+- struktur: logischer Aufbau von Anamnese, Dokumentation und Vorstellung
+- vollstaendigkeit: Vollständigkeit von Anamnese und Dokumentation
+- dokumentation: sprachliche Qualität der Dokumentation (Grammatik, Konjunktiv I, Stil)
+Außerdem: bis zu 8 wichtigste sprachliche Fehler (original wörtlich, korrektur, erklaerung auf Deutsch), 3 Tipps auf Deutsch, ein Fazit in 2 bis 3 Sätzen auf Deutsch.
+
+Antworte nur mit JSON in genau dieser Form:
+{"scores":{"fachsprache":0,"patientensprache":0,"struktur":0,"vollstaendigkeit":0,"dokumentation":0},"begruendung":{"fachsprache":"...","patientensprache":"...","struktur":"...","vollstaendigkeit":"...","dokumentation":"..."},"corrections":[{"original":"...","korrektur":"...","erklaerung":"..."}],"tipps":["..."],"fazit":"..."}`}
+async function examAI(){if(!EX||!EX.res||!KEY)return;const id=EX.caseId,c=byId(id);
+  if(FBRUN.exam)FBRUN.exam.ctl.abort();const ctl=new AbortController();FBRUN.exam={ctl,id};const slot=$("#fb-exam");if(slot)slot.innerHTML=thinkingHTML("exam");
+  try{const t=await callClaude({model:MODEL_REVIEW,system:"Du antwortest ausschließlich mit gültigem JSON, ohne weiteren Text.",messages:[{role:"user",content:examPrompt(c)}],max_tokens:3000,signal:ctl.signal});
+    const d=parseJSON(t);if(!d||typeof d!=="object"||Array.isArray(d))throw {code:"invalid_json"};EX.ai=d;
+    const last=arr(S.hist).slice(-1)[0];if(last&&last.kind==="exam"){last.ai=d.scores||null;save()}
+    const s=$("#fb-exam");if(s)s.innerHTML=examAiHTML(c,d)}
+  catch(e){const msg=errText(e);const s=$("#fb-exam");if(s)s.innerHTML=msg?`<p class="err">${esc(msg)}</p>`:""}
+  finally{if(FBRUN.exam&&FBRUN.exam.ctl===ctl)FBRUN.exam=null}}
+function afterExam(){if(!EX){return}const id=EX.caseId;if(EX.stage===1)paintChat(id,"patient");if(EX.stage===3)paintChat(id,"ober");paintRec()}
+setInterval(()=>{const p=$("#exam-pill");if(!EX||EX.stage>3){if(p)p.hidden=true;return}
+  const left=examLeft();if(p){p.hidden=R.v==="exam";p.textContent="Prüfung "+fmt(left)}
+  const el=$("#ex-clock");if(el){el.textContent=fmt(left);el.classList.toggle("low",left<=60)}
+  const bar=$("#ex-bar");if(bar)bar.style.width=Math.max(0,Math.min(100,100*left/EX.per))+"%";
+  if(left<=0)exNext(true)},1000);
+
+/* ---------- learning materials (German phrases: draft, to be checked by a native-speaking doctor) ---------- */
+const MATS=[
+ {id:"anamnese",title:"Anamnese: Reihenfolge und Fragen",de:"Anamnese",min:6,
+  intro:"In der Prüfung zählt nicht nur die Sprache, sondern auch, wie vollständig und logisch Sie die Anamnese erheben. Halten Sie immer dieselbe Reihenfolge ein, dann vergessen Sie nichts.",
+  practice:[["#galle-anamnese","Im Fall üben"],["#drill","Training der Schwachstellen"]],
+  secs:[
+   {h:"Gesprächsbeginn",p:"Begrüßen Sie den Patienten, stellen Sie sich vor und erklären Sie, was Sie tun werden. Siezen Sie den Patienten.",ph:[
+     ["Guten Tag, mein Name ist … Ich bin Assistenzarzt hier in der Notaufnahme.",""],
+     ["Ich möchte Ihnen jetzt einige Fragen stellen. Ist das in Ordnung?",""],
+     ["Wie ist Ihr vollständiger Name, und wann sind Sie geboren?",""],
+     ["Wie groß sind Sie, und wie viel wiegen Sie?",""]]},
+   {h:"Hauptbeschwerde und aktuelle Anamnese",p:"Beginnen Sie mit einer offenen Frage. Dann fragen Sie nach Schema nach: Beginn, Lokalisation, Charakter, Intensität, verstärkende und lindernde Faktoren, Begleitsymptome.",ph:[
+     ["Was führt Sie heute zu uns?",""],
+     ["Seit wann haben Sie die Beschwerden? Kam das plötzlich oder allmählich?",""],
+     ["Wo genau tut es weh? Strahlt der Schmerz irgendwohin aus?",""],
+     ["Wie würden Sie den Schmerz beschreiben: stechend, drückend, brennend oder krampfartig?",""],
+     ["Wie stark ist der Schmerz auf einer Skala von 0 bis 10?",""],
+     ["Gibt es etwas, das die Beschwerden verstärkt oder lindert?",""],
+     ["Haben Sie noch andere Beschwerden, zum Beispiel Fieber, Übelkeit oder Erbrechen?",""],
+     ["Hatten Sie solche Beschwerden schon einmal?",""]]},
+   {h:"Vegetative Anamnese",p:"Appetit, Gewicht, Schlaf, Stuhlgang und Wasserlassen, jeweils mit einer eigenen Frage. Hier fragen Kandidaten am häufigsten unvollständig.",ph:[
+     ["Wie ist Ihr Appetit?",""],
+     ["Haben Sie in letzter Zeit ab- oder zugenommen?",""],
+     ["Wie schlafen Sie?",""],
+     ["Haben Sie Probleme mit dem Stuhlgang?",""],
+     ["Haben Sie Beschwerden beim Wasserlassen?",""],
+     ["Hatten Sie Fieber, Schüttelfrost oder Nachtschweiß?",""]]},
+   {h:"Vorerkrankungen, Operationen, Medikamente, Allergien",p:"Ein Pflichtblock. Medikamente und Allergien werden am häufigsten vergessen, und der Oberarzt fragt fast immer danach.",ph:[
+     ["Sind bei Ihnen Vorerkrankungen bekannt?",""],
+     ["Wurden Sie schon einmal operiert?",""],
+     ["Nehmen Sie regelmäßig Medikamente ein? Wenn ja, welche und in welcher Dosis?",""],
+     ["Haben Sie Allergien, zum Beispiel gegen Medikamente?",""],
+     ["Rauchen Sie? Wenn ja, wie viel und seit wann?",""],
+     ["Trinken Sie Alkohol? Wenn ja, wie viel?",""],
+     ["Nehmen Sie Drogen?",""],
+     ["Wann war Ihre letzte Regelblutung? Könnten Sie schwanger sein?","Nur bei Patientinnen."]]},
+   {h:"Familien- und Sozialanamnese",p:"Kurz, aber nicht auslassen: Die Familienanamnese ist oft wichtig für die Diagnose.",ph:[
+     ["Gibt es in Ihrer Familie Erkrankungen, zum Beispiel Herzerkrankungen, Diabetes oder Krebs?",""],
+     ["Was machen Sie beruflich?",""],
+     ["Wie wohnen Sie? Leben Sie allein?",""]]},
+   {h:"Abschluss",p:"Fassen Sie kurz zusammen, fragen Sie nach offenen Fragen und erklären Sie in einfachen Worten, wie es weitergeht.",ph:[
+     ["Ich fasse kurz zusammen: …",""],
+     ["Habe ich Sie richtig verstanden, dass …?",""],
+     ["Haben Sie noch Fragen an mich?",""],
+     ["Wir nehmen Ihnen jetzt Blut ab und machen einen Ultraschall vom Bauch. Danach besprechen wir die Ergebnisse.",""]]}]},
+ {id:"patient",title:"Patientensprache",de:"Patientensprache",min:5,
+  intro:"Mit dem Patienten spricht man einfaches Deutsch. Ein Fachbegriff gegenüber dem Patienten ist ein typischer Prüfungsfehler. Im Trainer fragt der Patient dann nach.",
+  practice:[["#vocab","Begriffskarten"],["#drill","Training der Schwachstellen"]],
+  secs:[
+   {h:"Fünf Regeln",p:"",list:["Kurze Sätze und immer nur eine Frage.","Statt eines Fachbegriffs ein einfaches Wort oder eine Beschreibung.","Wenn ein Fachbegriff nötig ist, erklären Sie ihn sofort.","Prüfen Sie, ob der Patient Sie verstanden hat.","Immer siezen, ruhig und höflich."]},
+   {h:"Fachbegriff → Patientensprache",p:"Weitere Paare finden Sie im Bereich „Begriffe“.",terms:["Dyspnoe","Nausea","Emesis","Zephalgie","Palpitationen","Synkope","Pruritus","Ödem","Dysurie","Hämaturie","Analgetikum","Sonographie"]},
+   {h:"Eine Untersuchung erklären",p:"Sagen Sie, was passiert, warum und ob es wehtut.",ph:[
+     ["Wir machen eine Ultraschalluntersuchung. Das ist schmerzfrei und dauert etwa zehn Minuten.",""],
+     ["Wir nehmen Ihnen etwas Blut ab, um nach einer Entzündung zu suchen.",""],
+     ["Bei der Magenspiegelung schauen wir mit einem dünnen Schlauch mit Kamera in Ihren Magen.",""]]},
+   {h:"Empathie und Verständnissicherung",p:"",ph:[
+     ["Das tut mir leid zu hören.",""],
+     ["Ich verstehe, dass Sie sich Sorgen machen.",""],
+     ["Haben Sie das so weit verstanden?",""],
+     ["Wenn Sie etwas nicht verstehen, fragen Sie bitte jederzeit nach.",""],
+     ["Können Sie mir das bitte genauer beschreiben?",""]]}]},
+ {id:"brief",title:"Dokumentation: indirekte Rede",de:"Arztbrief",min:6,
+  intro:"In der Dokumentation geben Sie wieder, was der Patient gesagt hat. Dafür nutzt man im Deutschen die indirekte Rede, den Konjunktiv I. Hier machen Kandidaten die meisten Fehler.",
+  practice:[["#galle-arztbrief","Arztbrief im Fall schreiben"]],
+  secs:[
+   {h:"Die Grundregel",p:"Die Aussagen des Patienten schreibt man im Konjunktiv I. Wenn diese Form gleich dem Indikativ ist, nimmt man den Konjunktiv II. In der Praxis betrifft das fast immer den Plural.",table:[
+     ["sein","er/sie sei · sie seien"],["haben","er/sie habe · sie hätten (Konjunktiv II)"],["werden","er/sie werde · sie würden (Konjunktiv II)"],
+     ["können","er/sie könne · sie könnten (Konjunktiv II)"],["bestehen","es bestehe · sie bestünden (Konjunktiv II)"],["leiden, klagen, rauchen","er/sie leide, klage, rauche"]]},
+   {h:"Beispiele",p:"Vergangenheit in der indirekten Rede: sei oder habe plus Partizip.",ph:[
+     ["Der Patient berichtete, dass er seit drei Tagen Fieber habe.",""],
+     ["Die Schmerzen seien plötzlich aufgetreten.",""],
+     ["Die Beschwerden hätten sich seitdem verstärkt.",""],
+     ["Sie habe in der Nacht zweimal erbrochen.",""],
+     ["Er rauche seit 40 Jahren etwa 20 Zigaretten pro Tag.",""],
+     ["Fieber und Schüttelfrost wurden verneint.","Verneinungen schreibt man meist so, im normalen Passiv."]]},
+   {h:"Häufige Fehler",p:"",fix:[
+     ["Der Patient hat gesagt, dass er Fieber hat.","Der Patient berichtete, dass er Fieber habe."],
+     ["Die Schmerzen haben gestern angefangen.","Die Schmerzen hätten gestern begonnen."],
+     ["Die Patientin sagt, sie hat keine Allergien.","Allergien wurden verneint."]]},
+   {h:"Abschnitte der Dokumentation",p:"Reihenfolge wie in den Mustern des Trainers. Form der Dokumentation bei der FaMed [beim Veranstalter erfragen].",list:["Persönliche Daten","Aufnahmegrund","Aktuelle Anamnese","Vegetative Anamnese","Vorerkrankungen, Voroperationen","Medikation, Allergien","Noxen","Familien- und Sozialanamnese","Verdachtsdiagnose, Differenzialdiagnosen","Procedere"],de:true},
+   {h:"Abkürzungen",p:"",table:[["V. a.","Verdacht auf"],["Z. n.","Zustand nach"],["DD","Differenzialdiagnose"],["o. B.","ohne Befund — nichts Auffälliges"],["bds.","beidseits"],["1-0-0","morgens, mittags, abends: 1 Tablette morgens"],["b. B.","bei Bedarf"]]}]},
+ {id:"ober",title:"Fallvorstellung und Fragen des Oberarztes",de:"Arzt-Arzt-Gespräch",min:5,
+  intro:"Hier sprechen Sie mit einem Kollegen, Fachbegriffe sind also angebracht. Die Vorstellung kurz und nach Schema, im Indikativ, ohne indirekte Rede.",
+  practice:[["#galle-vorstellung","Vorstellung im Fall üben"],["#exam","Probeprüfung"]],
+  secs:[
+   {h:"Schema der Fallvorstellung",p:"Sieben Schritte, immer in derselben Reihenfolge.",ph:[
+     ["Ich möchte Ihnen Frau … vorstellen. Sie ist … Jahre alt.","1. Wer ist der Patient?"],
+     ["Sie hat sich heute mit … bei uns vorgestellt.","2. Womit kommt er?"],
+     ["Die Beschwerden bestehen seit … Begleitend klagt sie über …","3. Aktuelle Anamnese."],
+     ["An Vorerkrankungen sind … bekannt. Sie nimmt … ein. Es besteht eine Allergie gegen …","4. Wichtiges aus der Vorgeschichte."],
+     ["Wir gehen am ehesten von … aus.","5. Verdachtsdiagnose."],
+     ["Differenzialdiagnostisch kommen … infrage.","6. Differenzialdiagnosen."],
+     ["Wir würden gern … durchführen. Therapeutisch planen wir …","7. Plan für Diagnostik und Therapie."]]},
+   {h:"Häufige Fragen des Oberarztes",p:"Bereiten Sie für jeden Fall Antworten auf diese Fragen vor.",ph:[
+     ["Was ist Ihre Verdachtsdiagnose, und warum?",""],
+     ["Welche Differenzialdiagnosen kommen infrage?",""],
+     ["Welche Untersuchungen würden Sie veranlassen?",""],
+     ["Wie würden Sie den Patienten behandeln?",""],
+     ["Was bedeutet …? Wie erklären Sie das dem Patienten?",""],
+     ["Welche Risikofaktoren hat der Patient?",""]]},
+   {h:"Wenn Sie etwas nicht verstanden haben oder nicht wissen",p:"Nach den Beschreibungen der Ärztekammern wird in der Fachsprachprüfung die Sprache bewertet, nicht das medizinische Wissen. Ehrlich zu sagen, dass Sie unsicher sind, ist in Ordnung.",ph:[
+     ["Könnten Sie die Frage bitte wiederholen?",""],
+     ["Meinen Sie …?",""],
+     ["Das kann ich im Moment nicht sicher sagen. Ich würde es nachschlagen und mit Ihnen besprechen.",""],
+     ["Darf ich kurz in meine Notizen schauen?",""]]}]}
+];
+function sayBtn(t){return TTS?`<button type="button" class="say" data-action="say-text" data-t="${esc(t)}" aria-label="Anhören">anhören</button>`:""}
+function phRow([de,ru]){return `<li class="ph-row"><span class="ph-de" lang="de">${esc(de)}</span>${sayBtn(de)}${ru?`<span class="ph-ru">${esc(ru)}</span>`:""}</li>`}
+function matsListHTML(){return `<section class="hero"><span class="eyebrow">Materialien</span><h1>Lernmaterialien</h1><p class="lede">Kurze Leitfäden für jeden Prüfungsteil: Schema, Redemittel und typische Fehler. Mit Audio.</p></section>
+  <section class="mat-list">${MATS.map(m=>`<a class="part" href="#mat-${m.id}"><span class="n" lang="de">${esc(m.de)}</span><span class="de">${esc(m.title)}</span><span class="ru">${esc(m.intro)}</span><span class="go">${m.secs.length} Abschnitte · ${m.min} Min. →</span></a>`).join("")}</section>
+  <p class="note">Entwurf: Redemittel und Regeln muss eine muttersprachliche Person mit medizinischer Ausbildung prüfen.</p>`}
+function matHTML(id){const m=MATS.find(x=>x.id===id);if(!m)return matsListHTML();
+  const sec=s=>{let h=`<section class="mat-sec"><h2>${esc(s.h)}</h2>${s.p?`<p class="lede-s">${esc(s.p).replace(/\[([^\]]+)\]/g,'<span class="ph">[$1]</span>')}</p>`:""}`;
+    if(s.ph)h+=`<ul class="ph-list">${s.ph.map(phRow).join("")}</ul>`;
+    if(s.list)h+=`<ul class="plain"${s.de?' lang="de"':""}>${s.list.map(x=>`<li>${esc(x)}</li>`).join("")}</ul>`;
+    if(s.table)h+=`<div class="tbl-wrap"><table class="mat-tbl"><tbody>${s.table.map(([a,b])=>`<tr><th lang="de">${esc(a)}</th><td>${esc(b)}</td></tr>`).join("")}</tbody></table></div>`;
+    if(s.terms){const rows=s.terms.map(t=>VOCAB.find(v=>v[0]===t)).filter(Boolean);h+=`<ul class="ph-list">${rows.map(v=>`<li class="ph-row"><span class="ph-de" lang="de"><b>${esc(v[0])}</b> → ${esc(v[1])}</span>${sayBtn(v[1])}${v[2]!==v[1]?`<span class="ph-ru">${esc(v[2])}</span>`:""}</li>`).join("")}</ul>`}
+    if(s.fix)h+=`<ul class="corr">${s.fix.map(([bad,good])=>`<li><span lang="de"><del>${esc(bad)}</del></span><span lang="de"><ins>${esc(good)}</ins></span></li>`).join("")}</ul>`;
+    return h+"</section>"};
+  const i=MATS.indexOf(m),nx=MATS[i+1];
+  return `<a class="back" href="#mat">← Alle Materialien</a><section class="hero"><span class="eyebrow" lang="de">${esc(m.de)}</span><h1>${esc(m.title)}</h1><p class="lede">${esc(m.intro)}</p></section>
+  ${m.secs.map(sec).join("")}
+  <section><h2>Übung</h2><div class="row">${m.practice.map(([h,l],k)=>`<a class="btn${k?"":" primary"}" href="${h}">${esc(l)}</a>`).join("")}</div></section>
+  <p class="note">Entwurf: Redemittel und Regeln muss eine muttersprachliche Person mit medizinischer Ausbildung prüfen.</p>
+  ${nx?`<div class="row"><a class="btn ghost" href="#mat-${nx.id}">Weiter: ${esc(nx.title)} →</a></div>`:""}`}
+
+/* ---------- router ---------- */
+function route(){const h=HASH;if(!h||h==="home")return {v:"home"};if(["vocab","cases","settings","exam","drill","mat"].includes(h))return {v:h};
+  const mm=h.match(/^mat-([a-z]+)$/);if(mm)return {v:"mat",id:mm[1]};
+  const m=h.match(/^([a-z]+)-(anamnese|arztbrief|vorstellung)$/);if(m&&byId(m[1]))return {v:"case",id:m[1],tab:m[2]};return {v:"home"}}
+function render(){stopRec();if(TTS)try{speechSynthesis.cancel()}catch(e){}
+  R=route();const sect=R.v==="case"?"cases":R.v;
+  document.querySelectorAll("[data-lang]").forEach(a=>{a.href=a.dataset.f+(HASH?"#"+HASH:"");if(a.dataset.lang===document.documentElement.lang)a.setAttribute("aria-current","true");else a.removeAttribute("aria-current")});
+  document.querySelectorAll("[data-nav]").forEach(a=>{if(a.dataset.nav===sect)a.setAttribute("aria-current","page");else a.removeAttribute("aria-current")});
+  const m=$("#main");
+  if(R.v==="home")m.innerHTML=homeHTML();
+  else if(R.v==="vocab"){m.innerHTML=vocabHTML();paintVocab()}
+  else if(R.v==="cases")m.innerHTML=casesHTML();
+  else if(R.v==="settings"){m.innerHTML=settingsHTML();paintVoices()}
+  else if(R.v==="exam"){m.innerHTML=examHTML();afterExam()}
+  else if(R.v==="drill"){m.innerHTML=drillShellHTML();paintDrill()}
+  else if(R.v==="mat")m.innerHTML=R.id?matHTML(R.id):matsListHTML();
+  else{m.innerHTML=caseHTML(R.id,R.tab);afterCase(R.id,R.tab)}
+  window.scrollTo(0,0)}
+let HASH=(location.hash||"").replace(/^#/,"");
+function go(h){HASH=h;try{history.pushState(null,"","#"+h)}catch(e){}render()}
+window.addEventListener("hashchange",()=>{HASH=(location.hash||"").replace(/^#/,"");render()});
+document.addEventListener("click",e=>{const a=e.target.closest&&e.target.closest('a[href^="#"]');if(!a)return;e.preventDefault();go(a.getAttribute("href").slice(1))});
+
+/* ---------- events ---------- */
+const main=$("#main");
+main.addEventListener("click",async e=>{const b=e.target.closest("[data-action]");if(!b)return;const a=b.dataset.action;const kind=b.dataset.kind;
+  switch(a){
+  case "mic":{startRec(b.dataset.mic);break}
+  case "say":{unlockTTS();const t=chatOf(curId(),kind).turns[+b.dataset.i];if(t)speak(t.content,true);break}
+  case "kb":{const f=$(`.chat-form[data-kind="${kind}"]`);if(f){f.hidden=!f.hidden;if(!f.hidden){const ta=f.querySelector("textarea");if(ta)ta.focus()}}break}
+  case "reveal":{const p=b.nextElementSibling;if(!p)break;p.hidden=!p.hidden;b.setAttribute("aria-expanded",String(!p.hidden));b.textContent=p.hidden?"Antwort des Patienten":"Antwort ausblenden";break}
+  case "stop":{const ch=chatOf(curId(),kind);if(ch.ctl)ch.ctl.abort();break}
+  case "stop-fb":{if(FBRUN[kind])FBRUN[kind].ctl.abort();break}
+  case "reset-chat":{stopRec();if(TTS)try{speechSynthesis.cancel()}catch(x){}const ch=chatOf(R.id,kind);if(ch.ctl)ch.ctl.abort();delete CH[R.id+":"+kind];
+    if(kind==="patient"){delete FREE[R.id];const fa=$("#free-anam");if(fa)fa.innerHTML=""}else{const fo=$("#free-ober");if(fo)fo.innerHTML=""}
+    if(kind==="patient"){delete FB[R.id+":anam"];delete COV[R.id];const s=$("#fb-anam");if(s)s.innerHTML="";const cl=$("#cl");if(cl)cl.innerHTML=checklistHTML(byId(R.id))}
+    paintChat(R.id,kind);paintRec();break}
+  case "start-ober":{unlockTTS();const cid=curId();const ch=chatOf(cid,"ober");if(!ch.start)ch.start=Date.now();send(cid,"ober",null);break}
+  case "finish-anam":{stopRec();const id=R.id;const ch=chatOf(id,"patient");const slot=$("#fb-anam");
+    if(ch.turns.filter(t=>t.role==="user").length<3){if(slot)slot.innerHTML=`<p class="note">Für eine Analyse brauchen Sie mindestens drei Äußerungen. Führen Sie das Gespräch fort.</p>`;break}
+    if(ch.busy)break;if(!ch.end)ch.end=Date.now();
+    FREE[id]=true;COV[id]=new Set(ch.cov?[...ch.cov]:[]);markDone(id,"anam");if(!ch.recorded){pushHist(recFromChat(id,ch,"train"));ch.recorded=true}
+    {const fa=$("#free-anam");if(fa)fa.innerHTML=freeSumHTML(byId(id),ch);const cl=$("#cl");if(cl)cl.innerHTML=checklistHTML(byId(id));const w=$(".cl-wrap");if(w)w.open=true}
+    if(!freeMode())runJSON("anam",id,anamPrompt(byId(id),ch.turns),d=>{COV[id]=new Set(arr(d.covered).map(String));
+      if(viewIs(id)){const cl=$("#cl");if(cl)cl.innerHTML=checklistHTML(byId(id))}});break}
+  case "mode":{const m=b.dataset.m;const cid=curId();if(m==="ai"&&!KEY){const ch=chatOf(cid,kind);ch.err="Für den KI-Modus fügen Sie in den Einstellungen einen API-Schlüssel hinzu.";paintChat(cid,kind);break}
+    if((m==="free")===freeMode())break;SET.mode=m;saveSet();stopRec();setAIStatus();
+    Object.keys(CH).filter(k=>k.endsWith(":ober")).forEach(k=>{if(CH[k].ctl)CH[k].ctl.abort();delete CH[k]});const fo=$("#free-ober");if(fo)fo.innerHTML="";
+    if(cid){const p=chatOf(cid,"patient");p.err="";paintChat(cid,"patient");paintChat(cid,"ober");paintRec()}break}
+  case "ober-next":{stopRec();oberNext(curId());break}
+  case "ai-anam":{const id=R.id;const ch=chatOf(id,"patient");runJSON("anam",id,anamPrompt(byId(id),ch.turns),d=>{COV[id]=new Set(arr(d.covered).map(String));markDone(id,"anam");if(R.v==="case"&&R.id===id){const cl=$("#cl");if(cl)cl.innerHTML=checklistHTML(byId(id))}});break}
+  case "ex-start":{unlockTTS();examStart();break}
+  case "ex-next":{exNext(false);break}
+  case "ex-abort":{if(window.confirm("Prüfung abbrechen? Das Ergebnis wird nicht gespeichert.")){stopRec();EX=null;go("home")}break}
+  case "ex-new":{EX=null;render();break}
+  case "ex-ai":{examAI();break}
+  case "ex-tpl":{const ta=$("#exbrief");if(!ta||!EX)break;const tpl=byId(EX.caseId).brief.map(([h])=>h+"\n").join("\n");ta.value=ta.value.trim()?ta.value.replace(/\s*$/,"")+"\n\n"+tpl:tpl;ta.dispatchEvent(new Event("input",{bubbles:true}));ta.focus();break}
+  case "drill-next":{stopRec();if(DR){DR.i++;paintDrill()}break}
+  case "drill-new":{DR=null;paintDrill();break}
+  case "say-text":{unlockTTS();speak(b.dataset.t||"",true);break}
+  case "drill-say":{unlockTTS();const tk=DR&&DR.tasks[DR.i];if(tk)speak(tk.type==="topic"?topicQ(tk.id):tk.f.lay,true);break}
+  case "hist-clear":{if(window.confirm("Verlauf der Schwachstellen auf diesem Gerät löschen?")){S.hist=[];DR=null;save();m_render_settings("Fehlergedächtnis gelöscht.","ok-t")}break}
+  case "tpl-brief":{const ta=$("#brief");if(!ta)break;const tpl=byId(R.id).brief.map(([h])=>h+"\n").join("\n");ta.value=ta.value.trim()?ta.value.replace(/\s*$/,"")+"\n\n"+tpl:tpl;ta.dispatchEvent(new Event("input",{bubbles:true}));ta.focus();break}
+  case "check":{const id=R.id;const c=byId(id);const text=str(draft(id)[kind]).trim();const min=kind==="brief"?40:30;const slot=$("#fb-"+kind);
+    if(words(text)<min){if(slot)slot.innerHTML=`<p class="note">Der Text ist für eine Analyse noch zu kurz. Mindestens ${min} Wörter sind nötig.</p>`;break}
+    runJSON(kind,id,kind==="brief"?briefPrompt(c,text):vorPrompt(c,text),()=>markDone(id,kind));break}
+  case "muster":{const box=$("#muster-"+kind);if(!box)break;box.hidden=!box.hidden;b.setAttribute("aria-expanded",String(!box.hidden));b.textContent=box.hidden?"Muster anzeigen":"Muster ausblenden";
+    if(!box.hidden&&words(draft(R.id)[kind])>=30)markDone(R.id,kind);break}
+  case "phrase":{const ta=$("#vor");if(!ta)break;const p=PHRASES[+b.dataset.i]||"";const s=ta.selectionStart,en=ta.selectionEnd;const pre=ta.value.slice(0,s);const ins=(pre&&!/\s$/.test(pre)?" ":"")+p;ta.setRangeText(ins,s,en,"end");ta.dispatchEvent(new Event("input",{bubbles:true}));ta.focus();break}
+  case "key-save":{const inp=$("#key");const v=inp?inp.value.trim():"";const msg=$("#key-msg");if(!v){if(msg){msg.className="small err";msg.textContent="Fügen Sie den Schlüssel in das Feld ein."}break}
+    KEY=v;try{localStorage.setItem(KEY_LS,v)}catch(x){}SET.mode="ai";saveSet();setAIStatus();m_render_settings("Schlüssel gespeichert. Drücken Sie „Schlüssel prüfen“.","ok-t");break}
+  case "key-del":{KEY="";try{localStorage.removeItem(KEY_LS)}catch(x){}setAIStatus();m_render_settings("Schlüssel von diesem Gerät gelöscht.","small");break}
+  case "key-test":{const msg=$("#key-msg");if(msg){msg.className="small muted";msg.textContent="Wird geprüft…"}b.disabled=true;
+    try{await chatCall("",[{role:"user",content:"Antworte nur mit: OK"}],5);if(msg){msg.className="small ok-t";msg.textContent="Der Schlüssel funktioniert."}}
+    catch(x){if(msg){msg.className="small err";msg.textContent=errText(x)}}finally{b.disabled=false}break}
+  case "tts-test":{unlockTTS();speak("Guten Tag, Frau Doktor. Ich habe seit gestern starke Bauchschmerzen.",true);break}
+  case "v-say":{unlockTTS();const v=V.deck[V.i];if(v)speak(V.flipped?v[0]+". "+v[1]:v[0],true);break}
+  case "v-mode":{V.mode=b.dataset.m;if(V.mode==="quiz")V.quiz=null;document.querySelectorAll('[data-action="v-mode"]').forEach(x=>x.setAttribute("aria-pressed",String(x===b)));paintVocab();break}
+  case "v-flip":{V.flipped=true;paintVocab();break}
+  case "v-skip":{V.i++;V.flipped=false;paintVocab();break}
+  case "v-know":{const v=V.deck[V.i];if(v)setKnown(v[0],true);if(V.only)V.deck.splice(V.i,1);else V.i++;V.flipped=false;paintVocab();break}
+  case "v-learn":{const v=V.deck[V.i];if(v)setKnown(v[0],false);V.i++;V.flipped=false;paintVocab();break}
+  case "v-opt":{const q=V.quiz;if(!q||q.pick>=0)break;q.pick=+b.dataset.i;V.total++;if(q.opts[q.pick]===q.v)V.score++;paintVocab();break}
+  case "v-nextq":{newQ();paintVocab();break}
+  case "v-toggle":{const t=b.dataset.t;setKnown(t,!known.has(t));const r=$("#v-rows");if(r)r.innerHTML=rowsHTML();const cnt=$("#v-count");if(cnt)cnt.textContent=`Gelernt: ${VOCAB.filter(v=>known.has(v[0])).length} von ${VOCAB.length}`;break}
+  }});
+function m_render_settings(text,cls){const m=$("#main");m.innerHTML=settingsHTML();paintVoices();const msg=$("#key-msg");if(msg){msg.className="small "+(cls||"");msg.textContent=text}}
+main.addEventListener("submit",e=>{const df=e.target.closest(".drill-form");if(df){e.preventDefault();const i=df.querySelector("input");const v=i.value.trim();if(v){i.value="";drillCheck(v)}return}
+  const f=e.target.closest(".chat-form");if(!f)return;e.preventDefault();unlockTTS();const ta=f.querySelector("textarea");const v=ta.value.trim();if(!v)return;const cid=curId();if(!cid)return;const ch=chatOf(cid,f.dataset.kind);if(ch.busy)return;ta.value="";send(cid,f.dataset.kind,v)});
+main.addEventListener("keydown",e=>{if(e.key==="Enter"&&!e.shiftKey&&!e.isComposing&&e.target.matches(".chat-form textarea")){e.preventDefault();const f=e.target.form;if(f.requestSubmit)f.requestSubmit();else f.dispatchEvent(new Event("submit",{cancelable:true,bubbles:true}))}});
+main.addEventListener("input",e=>{const t=e.target;
+  if(t.dataset&&t.dataset.exam&&EX){EX[t.dataset.exam]=t.value;if(t.id==="exbrief"){const w=$("#wc-exbrief");if(w)w.textContent=words(t.value)+" Wörter"}return}
+  if(t.dataset&&t.dataset.draft&&R.v==="case"){draft(R.id)[t.dataset.draft]=t.value;saveSoon();if(t.id==="brief")wc();return}
+  if(t.id==="v-q"){V.q=t.value;const r=$("#v-rows");if(r)r.innerHTML=rowsHTML();return}
+  if(t.id==="s-rate"){SET.rate=+t.value;saveSet();const rv=$("#rate-v");if(rv)rv.textContent=(+t.value).toFixed(2)}});
+main.addEventListener("change",e=>{const t=e.target;
+  if(t.id==="v-cat"){V.cat=t.value;rebuild();paintVocab()}
+  else if(t.id==="v-only"){V.only=t.checked;rebuild();paintVocab()}
+  else if(t.id==="s-tts"){SET.tts=t.checked;saveSet()}
+  else if(t.id==="s-auto"){SET.autosend=t.checked;saveSet()}
+  else if(t.id==="s-voice"){SET.voice=t.value;saveSet()}
+  else if(t.id==="ex-min"){SET.examMin=+t.value;saveSet()}});
+window.addEventListener("pagehide",save);
+document.addEventListener("visibilitychange",()=>{if(document.hidden){stopRec();paintRec()}});
+
+setInterval(()=>{const cid=curId();if(!cid)return;document.querySelectorAll(".js-timer").forEach(el=>{const ch=chatOf(cid,el.dataset.kind);if(!ch.start){el.textContent="00:00";return}const s=Math.max(0,Math.floor(((ch.end||Date.now())-ch.start)/1000));el.textContent=String(Math.floor(s/60)).padStart(2,"0")+":"+String(s%60).padStart(2,"0")})},1000);
+
+render();
+})();
+</script>
+</body>
+</html>
