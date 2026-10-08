@@ -1407,7 +1407,7 @@ function matHTML(id){const m=MATS.find(x=>x.id===id);if(!m)return matsListHTML()
 /*NOI18N{*/
 /* ---------- voice generator (admin page #voices): ElevenLabs -> voice packs ---------- */
 const VOICE_LINK=`<a class="btn" href="#voices">Озвучка живым голосом (ElevenLabs)</a>`;
-const VG={key:"",voices:[],sel:{},model:"eleven_multilingual_v2",on:{},res:{},busy:false,stop:false,done:0,total:0,err:"",log:[],out:null};
+const VG={key:"",voices:[],sel:{},model:"eleven_v4",on:{},res:{},busy:false,stop:false,done:0,total:0,err:"",log:[],out:null};
 try{VG.key=localStorage.getItem("famed-11labs.key")||""}catch(e){}
 try{const s=JSON.parse(localStorage.getItem("famed-11labs.sel")||"{}");if(s&&typeof s==="object")VG.sel=s}catch(e){}
 function vgRoles(){return [...CASES.map(c=>["p_"+c.id,(c.sex==="w"?"Пациентка ":"Пациент ")+c.name+", "+c.alter,c.sex==="w"?"female":"male",c.alter>=60?"old":"middle"]),
@@ -1444,7 +1444,7 @@ function voicesHTML(){const C=voiceClips();const roles=vgRoles();let total=0;
     <label class="lbl" for="vg-key">API-ключ</label><input id="vg-key" type="password" autocomplete="off" spellcheck="false" value="${esc(VG.key)}" placeholder="sk_…">
     <div class="row"><button type="button" class="btn primary" data-vg="load">Загрузить мои голоса</button><span class="small muted" id="vg-vmsg">${VG.voices.length?`Голосов: ${VG.voices.length}`:""}</span></div></div></section>
   <section><h2>2. Голоса и объём</h2><div class="tbl-wrap"><table><thead><tr><th>Роль</th><th>Голос</th><th>Фраз</th><th>Символов</th><th>Готово</th></tr></thead><tbody>${rows}</tbody></table></div>
-    <div class="row"><label class="lbl" for="vg-model">Модель</label><select id="vg-model"><option value="eleven_multilingual_v2"${VG.model==="eleven_multilingual_v2"?" selected":""}>Multilingual v2 — лучшее качество</option><option value="eleven_flash_v2_5"${VG.model==="eleven_flash_v2_5"?" selected":""}>Flash v2.5 — быстрее и дешевле</option></select></div>
+    <div class="row"><label class="lbl" for="vg-model">Модель</label><select id="vg-model">${[["eleven_v4","Eleven v4 — самый живой голос (рекомендуется)"],["eleven_v4_turbo","Eleven v4 Turbo — дешевле"],["eleven_multilingual_v2","Multilingual v2 — прежняя модель"],["eleven_flash_v2_5","Flash v2.5 — самая дешёвая"]].map(([v,l])=>`<option value="${v}"${VG.model===v?" selected":""}>${l}</option>`).join("")}</select></div>
     <p class="small">Всего к озвучке: <b class="mono">${total}</b> символов. Проверьте, что на балансе ElevenLabs хватает кредитов. Уже готовые фразы повторно не озвучиваются.</p></section>
   <section><h2>3. Озвучить</h2><div class="panel">
     <div class="row"><button type="button" class="btn primary" data-vg="run"${VG.busy?" disabled":""}>Озвучить</button><button type="button" class="btn ghost" data-vg="stop"${VG.busy?"":" hidden"}>Остановить</button></div>
