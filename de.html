@@ -631,10 +631,32 @@ const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
 const TTS=("speechSynthesis" in window)&&typeof window.SpeechSynthesisUtterance==="function";
 const REC={r:null,target:"",text:"",state:"idle",err:""};
 let ttsUnlocked=false;
-function unlockTTS(){if(!TTS||ttsUnlocked)return;try{const u=new SpeechSynthesisUtterance(" ");u.volume=0;speechSynthesis.speak(u)}catch(e){}ttsUnlocked=true}
+function unlockTTS(){unlockAudio();if(!TTS||ttsUnlocked)return;try{const u=new SpeechSynthesisUtterance(" ");u.volume=0;speechSynthesis.speak(u)}catch(e){}ttsUnlocked=true}
 function deVoices(){if(!TTS)return [];try{return speechSynthesis.getVoices().filter(v=>/^de([-_]|$)/i.test(v.lang))}catch(e){return []}}
 function pickVoice(){const vs=deVoices();return vs.find(v=>v.voiceURI===SET.voice)||vs.find(v=>/^de[-_]DE/i.test(v.lang))||vs[0]||null}
 function speak(text,force){if(!TTS||(!SET.tts&&!force)||!text)return;try{speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(text);u.lang="de-DE";const v=pickVoice();if(v)u.voice=v;u.rate=+SET.rate||0.95;speechSynthesis.speak(u)}catch(e){}}
+/* ---------- recorded voice (ElevenLabs packs), falls back to the device voice ---------- */
+const AUD=typeof Audio==="function"?new Audio():null;
+const VO={idx:null,packs:{},tok:0};
+let audUnlocked=false;
+function silentWav(){const n=400,b=new ArrayBuffer(44+n),d=new DataView(b);const w=(o,s)=>{for(let i=0;i<s.length;i++)d.setUint8(o+i,s.charCodeAt(i))};
+  w(0,"RIFF");d.setUint32(4,36+n,true);w(8,"WAVE");w(12,"fmt ");d.setUint32(16,16,true);d.setUint16(20,1,true);d.setUint16(22,1,true);d.setUint32(24,8000,true);d.setUint32(28,8000,true);d.setUint16(32,1,true);d.setUint16(34,8,true);w(36,"data");d.setUint32(40,n,true);for(let i=0;i<n;i++)d.setUint8(44+i,128);
+  return URL.createObjectURL(new Blob([b],{type:"audio/wav"}))}
+function unlockAudio(){if(!AUD||audUnlocked)return;audUnlocked=true;try{AUD.src=silentWav();const p=AUD.play();if(p&&p.catch)p.catch(()=>{})}catch(e){}}
+function vClip(role,t){return VO.idx&&VO.idx.clips[role+"|"+str(t).trim()]||null}
+function vPack(p){if(!VO.packs[p])VO.packs[p]=fetch(VO.idx.packs[p]).then(r=>{if(!r.ok)throw new Error("pack");return r.arrayBuffer()}).catch(e=>{delete VO.packs[p];throw e});return VO.packs[p]}
+function voicePrefetch(role){if(VO.idx&&VO.idx.packs[role])vPack(role).catch(()=>{})}
+function stopVoice(){VO.tok++;if(AUD)try{AUD.pause()}catch(e){}if(TTS)try{speechSynthesis.cancel()}catch(e){}}
+async function speakSegs(segs,role,force){segs=arr(segs).map(str).filter(s=>s.trim());if(!segs.length||(!SET.tts&&!force))return;
+  stopVoice();const tok=VO.tok;const clips=segs.map(s=>vClip(role,s));
+  if(!AUD||clips.some(c=>!c)){speak(segs.join(" "),force);return}
+  try{for(const [p,st,len] of clips){const buf=await vPack(p);if(tok!==VO.tok)return;
+      const url=URL.createObjectURL(new Blob([buf.slice(st,st+len)],{type:"audio/mpeg"}));
+      AUD.src=url;
+      await new Promise((res,rej)=>{AUD.onended=res;AUD.onerror=rej;const pr=AUD.play();if(pr&&pr.catch)pr.catch(rej)});
+      URL.revokeObjectURL(url);if(tok!==VO.tok)return}}
+  catch(e){if(tok===VO.tok)speak(segs.join(" "),force)}}
+(async()=>{try{const r=await fetch("voice-index.json",{cache:"no-cache"});if(r.ok){const j=await r.json();if(j&&j.clips&&j.packs){VO.idx=j;if(R.v==="settings")render()}}}catch(e){}})();
 if(TTS){try{speechSynthesis.getVoices();speechSynthesis.onvoiceschanged=()=>{if(R.v==="settings")paintVoices()}}catch(e){}}
 function recErr(code){switch(code){
   case "not-allowed":case "service-not-allowed":return "Kein Zugriff auf das Mikrofon. Erlauben Sie das Mikrofon für diese Seite in den Browsereinstellungen.";
@@ -647,7 +669,7 @@ function recErr(code){switch(code){
 function startRec(target){
   if(!SR)return;
   if(REC.state==="listening"){if(REC.r)try{REC.r.stop()}catch(e){}return}
-  if(TTS)try{speechSynthesis.cancel()}catch(e){}
+  stopVoice();
   unlockTTS();
   const r=new SR();r.lang="de-DE";r.interimResults=true;r.continuous=false;r.maxAlternatives=1;
   REC.r=r;REC.target=target;REC.text="";REC.err="";REC.state="listening";paintRec();
@@ -802,32 +824,38 @@ const PART_RE={name:/heissen|name/,geb:/geboren|geburtsdatum|geburtstag/,alter:/
   appetit:/appetit/,gewichtv:/abgenommen|zugenommen|gewicht(s)?(verlust|abnahme|zunahme| verändert)|gewicht verändert|hat sich ihr gewicht/,schlaf:/schlaf/,stuhl:/stuhl|verdauung|durchfall|verstopfung|wasserlassen|urin|\bharn/,gelb:/gelb/};
 const PART_LABEL={name:"Name",geb:"Geburtsdatum",alter:"Alter",groesse:"Größe",gewicht:"Gewicht",rauchen:"Rauchen",alkohol:"Alkohol",drogen:"Drogen",appetit:"Appetit",gewichtv:"Gewichtsveränderung",schlaf:"Schlaf",stuhl:"Stuhlgang und Wasserlassen",gelb:"Gelbsucht, Gelbfärbung der Haut"};
 function findFach(n){for(const f of FACH)if(f.re.test(n))return f;return null}
+const FACH_REPLY="Entschuldigung, dieses Wort kenne ich nicht. Was bedeutet das?";
+const ALT_REPLIES=["Wie bitte? Das habe ich nicht ganz verstanden.","Entschuldigung, können Sie die Frage anders stellen?","Das verstehe ich leider nicht. Was meinen Sie genau?"];
+const GEN_REPLIES=[FACH_REPLY,...ALT_REPLIES,"Vielen Dank. Auf Wiedersehen.","Nein, im Moment nicht. Danke.","Ja, natürlich. Fragen Sie ruhig.","Guten Tag. Schön, dass Sie Zeit für mich haben.","Mhm."];
+const OBER_END="Vielen Dank, das war's. Gute Arbeit.";
+const TTS_TEST="Guten Tag, Frau Doktor. Ich habe seit gestern starke Bauchschmerzen.";
+const OBER_TERM={galle:"Ikterus",lunge:"Dyspnoe",bein:"Ödem"};
+const one=t=>({reply:t,segs:[t],ids:[]});
 function freeReply(c,text,ch){
   const n=norm(text);const has=id=>c.items.find(i=>i.id===id);
   const f=findFach(n);
-  if(f)return {reply:`Entschuldigung, was bedeutet „${f.term}“? Das Wort kenne ich nicht.`,ids:[],fach:f};
-  if(/wie bitte|wiederholen|noch ?mal/.test(n)&&ch.last)return {reply:ch.last,ids:[]};
-  if(/auf wiedersehen|tschüss|danke für das gespräch|alles gute|gute besserung/.test(n))return {reply:"Vielen Dank. Auf Wiedersehen.",ids:[]};
-  if(/haben sie (noch )?(eine )?frage|gibt es noch etwas|möchten sie noch etwas/.test(n)){const m=c.persona.match(/„([^“]+)“/);return {reply:m?m[1]:"Nein, im Moment nicht. Danke.",ids:[]}}
-  const out=[],ids=[],asked=[],negs=[];
+  if(f)return {...one(FACH_REPLY),fach:f};
+  if(/wie bitte|wiederholen|noch ?mal/.test(n)&&ch.last)return {reply:ch.last,segs:ch.lastSegs||[ch.last],ids:[]};
+  if(/auf wiedersehen|tschüss|danke für das gespräch|alles gute|gute besserung/.test(n))return one("Vielen Dank. Auf Wiedersehen.");
+  if(/haben sie (noch )?(eine )?frage|gibt es noch etwas|möchten sie noch etwas/.test(n)){const m=c.persona.match(/„([^“]+)“/);return one(m?m[1]:"Nein, im Moment nicht. Danke.")}
+  const out=[],ids=[],asked=[],negs=[],segs=[];
   let hits=INTENTS.filter(it=>it.re.test(n)&&!(it.not&&it.not.test(n)));
   if(hits.some(it=>it.hist))hits=hits.filter(it=>it.ids[0]!=="beginn");
   else if(/seit wann|wie lange/.test(n)&&has("beginn"))hits=hits.filter(it=>it.ids[0]==="beginn");
   for(const it of hits){if(out.length>=2)break;
     let item=null;for(const id of it.ids){const x=has(id);if(x&&((it.own&&it.own.includes(id))||!it.ans||it.ans.test(x.a.toLowerCase()))){item=x;break}}
     if(item){if(!ids.includes(item.id)){ids.push(item.id);let a=item.a;
-      if(item.parts){const ps=item.parts.filter(([k])=>PART_RE[k]&&PART_RE[k].test(n));const use=ps.length?ps:item.parts;a=use.map(p=>p[1]).join(" ");asked.push([item.id,use.map(p=>p[0])])}
+      if(item.parts){const ps=item.parts.filter(([k])=>PART_RE[k]&&PART_RE[k].test(n));const use=ps.length?ps:item.parts;a=use.map(p=>p[1]).join(" ");asked.push([item.id,use.map(p=>p[0])]);use.forEach(p=>segs.push(p[1]))}else segs.push(a);
       out.push(a)}}
     else if(it.neg&&!negs.includes(it.neg))negs.push(it.neg)}
-  if(out.length)return {reply:out.join(" "),ids,asked};
-  if(negs.length)return {reply:negs.slice(0,2).join(" "),ids:[]};
-  if(/(darf ich|möchte|würde)( ihnen)?( gern| gerne)?( ein paar| einige)? fragen/.test(n))return {reply:"Ja, natürlich. Fragen Sie ruhig.",ids:[]};
-  if(/guten (tag|morgen|abend)|hallo|grüss gott|mein name ist|ich bin (dr|doktor|ihr|ihre|die|der|assistenz)/.test(n))return {reply:"Guten Tag. Schön, dass Sie Zeit für mich haben.",ids:[]};
-  if(/^ (ja|gut|okay|ok|alles klar|verstehe|ich verstehe|danke|sehr gut|in ordnung|aha|mhm) /.test(n))return {reply:"Mhm.",ids:[]};
-  const alt=["Wie bitte? Das habe ich nicht ganz verstanden.","Entschuldigung, können Sie die Frage anders stellen?","Das verstehe ich leider nicht. Was meinen Sie genau?"];
-  return {reply:alt[(ch.miss||0)%alt.length],ids:[],unmatched:true}}
+  if(out.length)return {reply:out.join(" "),segs,ids,asked};
+  if(negs.length)return {reply:negs.slice(0,2).join(" "),segs:negs.slice(0,2),ids:[]};
+  if(/(darf ich|möchte|würde)( ihnen)?( gern| gerne)?( ein paar| einige)? fragen/.test(n))return one("Ja, natürlich. Fragen Sie ruhig.");
+  if(/guten (tag|morgen|abend)|hallo|grüss gott|mein name ist|ich bin (dr|doktor|ihr|ihre|die|der|assistenz)/.test(n))return one("Guten Tag. Schön, dass Sie Zeit für mich haben.");
+  if(/^ (ja|gut|okay|ok|alles klar|verstehe|ich verstehe|danke|sehr gut|in ordnung|aha|mhm) /.test(n))return one("Mhm.");
+  return {...one(ALT_REPLIES[(ch.miss||0)%ALT_REPLIES.length]),unmatched:true}}
 function oberQs(c){const sec=nm=>{const s=c.brief.find(b=>b[0]===nm);return s?s[1]:""};const w=c.sex==="w";
-  const pool=VOCAB.filter(v=>(v[3]==="sym"||v[3]==="dis")&&!PLAIN.has(v[0].toLowerCase()));const v=pool[Math.floor(Math.random()*pool.length)];
+  const pool=VOCAB.filter(v=>(v[3]==="sym"||v[3]==="dis")&&!PLAIN.has(v[0].toLowerCase()));const v=VOCAB.find(x=>x[0]===OBER_TERM[c.id])||pool[0];
   return [
     {q:`Bitte stellen Sie mir ${w?"die Patientin":"den Patienten"} kurz vor.`,a:c.vorstellung.split("\n\n")[0]},
     {q:"Was ist Ihre Verdachtsdiagnose?",a:sec("Verdachtsdiagnose")},
@@ -843,13 +871,13 @@ function trackQ(c,ch,text,countUnm){const r=freeReply(c,text,ch);ch.recorded=fal
 function sendFree(id,kind,text){const ch=chatOf(id,kind);const c=byId(id);
   if(kind==="patient"){if(!text)return;ch.turns.push({role:"user",content:text});if(!ch.start)ch.start=Date.now();ch.end=0;
     const r=trackQ(c,ch,text,true);
-    ch.turns.push({role:"assistant",content:r.reply});ch.last=r.reply;ch.err="";paintChat(id,kind);speak(r.reply);return}
+    ch.turns.push({role:"assistant",content:r.reply,segs:r.segs});ch.last=r.reply;ch.lastSegs=r.segs;ch.err="";paintChat(id,kind);speakSegs(r.segs,"p_"+id);return}
   if(!ch.qs){ch.qs=oberQs(c);ch.qi=0;ch.ans=ch.qs.map(()=>[]);ch.fin=false;if(!ch.start)ch.start=Date.now();
-    ch.turns.push({role:"assistant",content:ch.qs[0].q});ch.err="";paintChat(id,kind);speak(ch.qs[0].q);if(!text)return}
+    ch.turns.push({role:"assistant",content:ch.qs[0].q});ch.err="";paintChat(id,kind);speakSegs([ch.qs[0].q],"ober");if(!text)return}
   if(text&&!ch.fin){ch.turns.push({role:"user",content:text});ch.ans[ch.qi].push(text);paintChat(id,kind)}}
 function oberNext(id){const ch=chatOf(id,"ober");if(!ch.qs||ch.fin)return;
-  if(ch.qi<ch.qs.length-1){ch.qi++;const q=ch.qs[ch.qi].q;ch.turns.push({role:"assistant",content:q});paintChat(id,"ober");speak(q)}
-  else{ch.fin=true;ch.end=Date.now();const t="Vielen Dank, das war's. Gute Arbeit.";ch.turns.push({role:"assistant",content:t});paintChat(id,"ober");speak(t);
+  if(ch.qi<ch.qs.length-1){ch.qi++;const q=ch.qs[ch.qi].q;ch.turns.push({role:"assistant",content:q});paintChat(id,"ober");speakSegs([q],"ober")}
+  else{ch.fin=true;ch.end=Date.now();const t=OBER_END;ch.turns.push({role:"assistant",content:t});paintChat(id,"ober");speakSegs([t],"ober");
     const s=$("#free-ober");if(s)s.innerHTML=oberSumHTML(ch)}}
 function mmss(ch){const s=Math.max(0,Math.floor(((ch.end||Date.now())-(ch.start||Date.now()))/1000));return String(Math.floor(s/60)).padStart(2,"0")+":"+String(s%60).padStart(2,"0")}
 function freeSumHTML(c,ch){const got=ch.cov||new Set();const cov=c.items.filter(i=>got.has(i.id));const miss=c.items.filter(i=>!got.has(i.id));const pct=Math.round(cov.length/c.items.length*100);
@@ -871,7 +899,7 @@ function themLabel(c,kind){return kind==="patient"?(c.sex==="w"?"Patientin":"Pat
 function paintChat(id,kind){if(!viewIs(id))return;const log=$("#log-"+kind);if(!log)return;const ch=chatOf(id,kind);const c=byId(id);const isP=kind==="patient";
   let h="";
   if(!ch.turns.length&&!ch.busy){h=isP?`<p class="empty">Drücken Sie auf das Mikrofon und beginnen Sie: Begrüßen Sie den Patienten, stellen Sie sich vor und fragen Sie, was ihn zu Ihnen führt.${freeMode()?" Im Modus ohne KI erkennt der Patient typische Anamnesefragen.":""}</p>`:`<div class="empty"><p>Der Oberarzt stellt Fragen zu Ihrer Vorstellung: Begriffe, Diagnosen, nächste Schritte.</p><button type="button" class="btn primary" data-action="start-ober">Gespräch beginnen</button></div>`}
-  ch.turns.forEach((t,i)=>{const me=t.role==="user";h+=`<div class="msg ${me?"me":"them"}"><span class="who">${me?"Sie":themLabel(c,kind)}${!me&&TTS?`<button type="button" class="say" data-action="say" data-kind="${kind}" data-i="${i}">erneut anhören</button>`:""}</span><div class="txt" lang="de">${esc(t.content)}</div></div>`});
+  ch.turns.forEach((t,i)=>{const me=t.role==="user";h+=`<div class="msg ${me?"me":"them"}"><span class="who">${me?"Sie":themLabel(c,kind)}${!me&&(TTS||AUD)?`<button type="button" class="say" data-action="say" data-kind="${kind}" data-i="${i}">erneut anhören</button>`:""}</span><div class="txt" lang="de">${esc(t.content)}</div></div>`});
   if(ch.busy)h+=`<div class="msg them"><span class="who">${themLabel(c,kind)}</span><div class="txt"><span class="typing">denkt nach…</span></div></div>`;
   log.innerHTML=h;log.scrollTop=log.scrollHeight;
   const err=$("#err-"+kind);if(err){err.textContent=ch.err;err.hidden=!ch.err}
@@ -895,7 +923,7 @@ async function send(id,kind,text){if(freeMode())return sendFree(id,kind,text);co
   try{reply=await chatCall(system,msgs,400,ctl.signal);ch.turns.push({role:"assistant",content:reply})}
   catch(e){ch.err=errText(e)}
   finally{ch.busy=false;ch.ctl=null;paintChat(id,kind)}
-  if(reply&&viewIs(id))speak(reply)}
+  if(reply&&viewIs(id))speakSegs([reply],kind==="patient"?"p_"+id:"ober")}
 
 /* ---------- feedback ---------- */
 function thinkingHTML(kind){return `<div class="fb thinking"><span>Claude prüft… Das dauert meist bis zu einer Minute.</span><button type="button" class="btn ghost" data-action="stop-fb" data-kind="${kind}">Stopp</button></div>`}
@@ -990,7 +1018,7 @@ function caseHTML(id,tab){const c=byId(id);const d=doneOf(id);
   return `<a class="back" href="#cases">← Alle Fälle</a>${etikett(c)}
   <nav class="steps" aria-label="Schritte des Falls">${TABS.map((t,i)=>`<a href="#${id}-${t[0]}" class="${d[t[3]]?"done":""}"${t[0]===tab?' aria-current="page"':""}><span class="k">Schritt ${i+1}</span><span class="l" lang="de">${t[1]}</span><span class="s">${t[2]}</span></a>`).join("")}</nav>
   <div class="tabbody">${tab==="anamnese"?anamHTML(c):tab==="arztbrief"?briefHTML(c):vorHTML(c)}</div>`}
-function afterCase(id,tab){const c=byId(id);
+function afterCase(id,tab){const c=byId(id);voicePrefetch("p_"+id);if(tab==="vorstellung")voicePrefetch("ober");
   const fill=k=>{const s=$("#fb-"+k);if(!s)return;if(FBRUN[k]&&FBRUN[k].id===id)s.innerHTML=thinkingHTML(k);else if(FB[id+":"+k])s.innerHTML=fbHTML(k,c,FB[id+":"+k])};
   if(tab==="anamnese"){paintChat(id,"patient");fill("anam");const s=$("#free-anam");if(s&&FREE[id])s.innerHTML=freeSumHTML(c,chatOf(id,"patient"))}
   if(tab==="arztbrief"){wc();fill("brief")}
@@ -1016,6 +1044,7 @@ function settingsHTML(){const nv=deVoices().length;return `<section class="hero"
       <li>Spracherkennung: ${SR?'<span class="y">funktioniert in diesem Browser</span>':'<span class="n">funktioniert nicht, in Chrome öffnen</span>'}</li>
       <li>Vorlesen: ${TTS?'<span class="y">funktioniert</span>':'<span class="n">nicht unterstützt</span>'}</li>
       <li>Deutsche Stimmen auf dem Gerät: <span class="mono" id="nv">${nv}</span></li>
+      <li>Aufgenommene Stimme: ${VO.idx?'<span class="y">geladen</span>':'<span class="n">nicht gefunden, die Stimme des Telefons wird verwendet</span>'}</li>
     </ul>
     <label class="chk"><input type="checkbox" id="s-tts"${SET.tts?" checked":""}> Antworten von Patient und Oberarzt vorlesen</label>
     <label class="chk"><input type="checkbox" id="s-auto"${SET.autosend?" checked":""}> Direkt nach dem Sprechen senden</label>
@@ -1024,7 +1053,7 @@ function settingsHTML(){const nv=deVoices().length;return `<section class="hero"
     <select id="s-voice"></select>
     <label class="lbl" for="s-rate">Sprechtempo: <span class="mono" id="rate-v">${(+SET.rate).toFixed(2)}</span></label>
     <input type="range" id="s-rate" min="0.7" max="1.2" step="0.05" value="${+SET.rate}">
-    <div class="row"><button type="button" class="btn" data-action="tts-test"${TTS?"":" disabled"}>Anhören</button></div>
+    <div class="row">${VOICE_LINK}<button type="button" class="btn" data-action="tts-test"${(TTS||AUD)?"":" disabled"}>Anhören</button></div>
   </div></section>
   <section><h2>Fehlergedächtnis</h2><div class="panel"><p class="small">Gespeicherte abgeschlossene Versuche in diesem Browser: ${arr(S.hist).length}. Sie werden für den Block „Ihre Schwachstellen“ und kurze persönliche Übungen verwendet.</p><div class="row"><button type="button" class="btn ghost" data-action="hist-clear"${arr(S.hist).length?"":" disabled"}>Fehlergedächtnis löschen</button></div></div></section>
   <section><h2>Kosten</h2><p class="small">Jede Patientenantwort und jede Analyse ist eine kostenpflichtige Anfrage an Claude von Ihrem Anthropic-Guthaben. Was ein vollständiges Gespräch kostet — <span class="ph">[im Test berechnen]</span>. Die Ausgaben sehen Sie in der Anthropic-Konsole.</p></section>`}
@@ -1047,7 +1076,7 @@ function paintVocab(){const b=$("#v-body");if(!b)return;const cnt=$("#v-count");
   b.innerHTML=V.mode==="cards"?cardsHTML():V.mode==="quiz"?quizHTML():listHTML()}
 const emptyV=()=>`<p class="note info">In dieser Auswahl ist alles gelernt. Schalten Sie den Filter „Nur nicht gelernte“ aus oder wählen Sie eine andere Kategorie.</p>`;
 function cardsHTML(){if(!V.deck.length)return emptyV();if(V.i>=V.deck.length)V.i=0;const v=V.deck[V.i];
-  return `<div class="card"><span class="eyebrow">${CAT[v[3]]} · ${V.i+1} / ${V.deck.length}${known.has(v[0])?" · gelernt":""}</span><span class="term" lang="de">${esc(v[0])}</span>${V.flipped?`<span class="lay" lang="de">${esc(v[1])}</span>${v[2]!==v[1]?`<span class="ru">${esc(v[2])}</span>`:""}`:`<span class="hint">Wie sagen Sie es dem Patienten?</span>`}${TTS?`<button type="button" class="say" data-action="v-say" style="align-self:flex-start;font-size:13px">Aussprache</button>`:""}</div>
+  return `<div class="card"><span class="eyebrow">${CAT[v[3]]} · ${V.i+1} / ${V.deck.length}${known.has(v[0])?" · gelernt":""}</span><span class="term" lang="de">${esc(v[0])}</span>${V.flipped?`<span class="lay" lang="de">${esc(v[1])}</span>${v[2]!==v[1]?`<span class="ru">${esc(v[2])}</span>`:""}`:`<span class="hint">Wie sagen Sie es dem Patienten?</span>`}${(TTS||AUD)?`<button type="button" class="say" data-action="v-say" style="align-self:flex-start;font-size:13px">Aussprache</button>`:""}</div>
   <div class="row">${V.flipped?`<button type="button" class="btn" data-action="v-learn">Lerne ich noch</button><button type="button" class="btn primary" data-action="v-know">Kann ich</button>`:`<button type="button" class="btn primary" data-action="v-flip">Antwort zeigen</button><button type="button" class="btn ghost" data-action="v-skip">Überspringen</button>`}</div>`}
 function newQ(){const p=V.deck&&V.deck.length?V.deck:pool();if(!p.length){V.quiz=null;return}const v=p[Math.floor(Math.random()*p.length)];const same=VOCAB.filter(x=>x!==v&&x[3]===v[3]);const others=shuffle(same.length>=3?same:VOCAB.filter(x=>x!==v)).slice(0,3);V.quiz={v,opts:shuffle([v,...others]),pick:-1}}
 function quizHTML(){if(!V.quiz)newQ();const q=V.quiz;if(!q)return emptyV();
@@ -1121,7 +1150,7 @@ function paintDrill(){const b=$("#drill-body");if(!b)return;if(!DR)buildDrill();
     ${t.type==="topic"?`<span class="hint">Fragen Sie den Patienten nach diesem Thema:</span><span class="term" lang="de">${esc(topicLabel(t.id))}</span>`:`<span class="hint">Erklären Sie dem Patienten in einfachen Worten:</span><span class="term" lang="de">${esc(t.f.term)}</span>`}</div>
     ${SR?`<div class="dict">${micBtn("drill:answer")}${liveBox("drill:answer","Drücken Sie auf das Mikrofon und sprechen Sie einen Satz auf Deutsch.")}</div>`:""}
     <form class="drill-form row" data-drill="1"><label class="sr" for="drill-in">Ihre Antwort</label><input id="drill-in" type="text" lang="de" placeholder="Oder Antwort eintippen" style="flex:1;min-width:0"><button type="submit" class="btn">Prüfen</button></form>
-    ${r?`<div class="fb"><p class="${r.ok?"ok-t":"err"}">${r.ok?"Bestanden. ":"Nicht bestanden. "}${esc(r.msg)}</p><p class="small"><span class="muted">Sie sagten:</span> <span lang="de">${esc(r.text)}</span></p><p class="small"><span class="muted">${t.type==="topic"?"Beispielfrage":"In einfachen Worten"}:</span> <span lang="de">${esc(ex)}</span></p>${TTS?`<button type="button" class="say" data-action="drill-say">Beispiel anhören</button>`:""}</div>`:""}
+    ${r?`<div class="fb"><p class="${r.ok?"ok-t":"err"}">${r.ok?"Bestanden. ":"Nicht bestanden. "}${esc(r.msg)}</p><p class="small"><span class="muted">Sie sagten:</span> <span lang="de">${esc(r.text)}</span></p><p class="small"><span class="muted">${t.type==="topic"?"Beispielfrage":"In einfachen Worten"}:</span> <span lang="de">${esc(ex)}</span></p>${(TTS||AUD)?`<button type="button" class="say" data-action="drill-say">Beispiel anhören</button>`:""}</div>`:""}
     <div class="row"><button type="button" class="btn ${r?"primary":"ghost"}" data-action="drill-next">${r?"Weiter":"Überspringen"}</button></div>`;
   paintRec()}
 
@@ -1132,7 +1161,7 @@ function examStart(caseId){stopRec();const last=arr(S.hist).filter(h=>h.kind==="
   ["patient","ober"].forEach(k=>{const ch=CH[id+":"+k];if(ch&&ch.ctl)ch.ctl.abort();delete CH[id+":"+k]});delete FREE[id];delete COV[id];
   EX={caseId:id,stage:1,per:(+SET.examMin||20)*60,t0:{1:Date.now()},dur:{},timeout:{},notes:"",brief:"",vor:"",res:null,ai:null};render()}
 function examLeft(){if(!EX||EX.stage>3)return 0;return EX.per-Math.floor((Date.now()-EX.t0[EX.stage])/1000)}
-function exNext(auto){if(!EX||EX.stage>3)return;stopRec();if(TTS)try{speechSynthesis.cancel()}catch(e){}
+function exNext(auto){if(!EX||EX.stage>3)return;stopRec();stopVoice();
   const s=EX.stage;const active=chatOf(EX.caseId,s===1?"patient":"ober");if(active&&active.ctl)active.ctl.abort();
   EX.dur[s]=Math.min(EX.per,Math.round((Date.now()-EX.t0[s])/1000));if(auto)EX.timeout[s]=true;
   if(s===1){const ch=chatOf(EX.caseId,"patient");if(!ch.end)ch.end=Date.now()}
@@ -1355,7 +1384,7 @@ const MATS=[
      ["Das kann ich im Moment nicht sicher sagen. Ich würde es nachschlagen und mit Ihnen besprechen.",""],
      ["Darf ich kurz in meine Notizen schauen?",""]]}]}
 ];
-function sayBtn(t){return TTS?`<button type="button" class="say" data-action="say-text" data-t="${esc(t)}" aria-label="Anhören">anhören</button>`:""}
+function sayBtn(t){return (TTS||AUD)?`<button type="button" class="say" data-action="say-text" data-t="${esc(t)}" aria-label="Anhören">anhören</button>`:""}
 function phRow([de,ru]){return `<li class="ph-row"><span class="ph-de" lang="de">${esc(de)}</span>${sayBtn(de)}${ru?`<span class="ph-ru">${esc(ru)}</span>`:""}</li>`}
 function matsListHTML(){return `<section class="hero"><span class="eyebrow">Materialien</span><h1>Lernmaterialien</h1><p class="lede">Kurze Leitfäden für jeden Prüfungsteil: Schema, Redemittel und typische Fehler. Mit Audio.</p></section>
   <section class="mat-list">${MATS.map(m=>`<a class="part" href="#mat-${m.id}"><span class="n" lang="de">${esc(m.de)}</span><span class="de">${esc(m.title)}</span><span class="ru">${esc(m.intro)}</span><span class="go">${m.secs.length} Abschnitte · ${m.min} Min. →</span></a>`).join("")}</section>
@@ -1375,11 +1404,127 @@ function matHTML(id){const m=MATS.find(x=>x.id===id);if(!m)return matsListHTML()
   <p class="note">Entwurf: Redemittel und Regeln muss eine muttersprachliche Person mit medizinischer Ausbildung prüfen.</p>
   ${nx?`<div class="row"><a class="btn ghost" href="#mat-${nx.id}">Weiter: ${esc(nx.title)} →</a></div>`:""}`}
 
+/*NOI18N{*/
+/* ---------- voice generator (admin page #voices): ElevenLabs -> voice packs ---------- */
+const VOICE_LINK=`<a class="btn" href="#voices">Озвучка живым голосом (ElevenLabs)</a>`;
+const VG={key:"",voices:[],sel:{},model:"eleven_multilingual_v2",on:{},res:{},busy:false,stop:false,done:0,total:0,err:"",log:[],out:null};
+try{VG.key=localStorage.getItem("famed-11labs.key")||""}catch(e){}
+try{const s=JSON.parse(localStorage.getItem("famed-11labs.sel")||"{}");if(s&&typeof s==="object")VG.sel=s}catch(e){}
+function vgRoles(){return [...CASES.map(c=>["p_"+c.id,(c.sex==="w"?"Пациентка ":"Пациент ")+c.name+", "+c.alter,c.sex==="w"?"female":"male",c.alter>=60?"old":"middle"]),
+  ["ober","Oberarzt","male","middle"],["narr","Диктор: материалы, словарь, тренировка","female","young"]]}
+function voiceClips(){const M={};const add=(r,t)=>{t=str(t).trim();if(t)(M[r]||(M[r]=new Set())).add(t)};
+  const NEG=[...new Set(INTENTS.map(i=>i.neg).filter(Boolean))];
+  for(const c of CASES){const r="p_"+c.id;
+    c.items.forEach(i=>{add(r,i.a);(i.parts||[]).forEach(p=>add(r,p[1]))});
+    NEG.forEach(t=>add(r,t));GEN_REPLIES.forEach(t=>add(r,t));
+    const m=c.persona.match(/„([^“]+)“/);if(m)add(r,m[1]);
+    oberQs(c).forEach(q=>add("ober",q.q))}
+  add("ober",OBER_END);
+  MATS.forEach(m=>m.secs.forEach(s=>(s.ph||[]).forEach(p=>add("narr",p[0]))));
+  VOCAB.forEach(v=>{add("narr",v[0]);add("narr",v[1])});
+  FACH.forEach(f=>add("narr",f.lay));
+  CASES.forEach(c=>c.items.forEach(i=>add("narr",i.q)));
+  add("narr",TTS_TEST);
+  const out={};for(const [r,s] of Object.entries(M))out[r]=[...s];return out}
+function vgChars(list){return list.reduce((n,t)=>n+t.length,0)}
+function vgSave(){try{localStorage.setItem("famed-11labs.key",VG.key);localStorage.setItem("famed-11labs.sel",JSON.stringify(VG.sel))}catch(e){}}
+function vgDefaults(){const used=new Set();const score=(v,g,age)=>{const L=v.labels||{};let s=0;
+    if((L.gender||"").toLowerCase()===g)s+=10;const acc=((L.accent||"")+" "+(L.language||"")+" "+(v.name||"")).toLowerCase();if(/german|deutsch|\bde\b/.test(acc))s+=5;
+    if((L.age||"").toLowerCase().includes(age))s+=2;return s};
+  for(const [r,,g,age] of vgRoles()){if(VG.sel[r]&&VG.voices.some(v=>v.voice_id===VG.sel[r])){used.add(VG.sel[r]);continue}
+    const best=VG.voices.slice().sort((a,b)=>(score(b,g,age)-(used.has(b.voice_id)?20:0))-(score(a,g,age)-(used.has(a.voice_id)?20:0)))[0];
+    if(best){VG.sel[r]=best.voice_id;used.add(best.voice_id)}}}
+function vgVoiceLabel(v){const L=v.labels||{};return [v.name,L.gender,L.age,L.accent].filter(Boolean).join(" · ")}
+function voicesHTML(){const C=voiceClips();const roles=vgRoles();let total=0;
+  const rows=roles.map(([r,l])=>{const list=C[r]||[];const on=VG.on[r]!==false;const ch=vgChars(list);if(on)total+=ch;const got=list.filter(t=>VG.res[r+"|"+t]).length;
+    return `<tr><td><label class="chk"><input type="checkbox" data-vgon="${r}"${on?" checked":""}> ${esc(l)}</label></td><td>${VG.voices.length?`<select data-vgsel="${r}">${VG.voices.map(v=>`<option value="${esc(v.voice_id)}"${VG.sel[r]===v.voice_id?" selected":""}>${esc(vgVoiceLabel(v))}</option>`).join("")}</select> <button type="button" class="say" data-vg="test" data-r="${r}">проба</button>`:`<span class="muted small">сначала загрузите голоса</span>`}</td><td class="mono">${list.length}</td><td class="mono">${ch}</td><td class="mono">${got}/${list.length}</td></tr>`}).join("");
+  return `<section class="hero"><span class="eyebrow">Для владельца</span><h1>Озвучка живым голосом</h1><p class="lede">Один раз озвучиваем все заранее известные реплики через ElevenLabs и получаем аудиофайлы. Потом все пользователи слышат этот голос, без настройки телефона.</p></section>
+  <section><h2>1. Ключ ElevenLabs</h2><div class="panel">
+    <p class="small">Создайте ключ на elevenlabs.io: значок профиля → API Keys. Ключ хранится только в этом браузере и отправляется только в ElevenLabs. Совет: перед загрузкой добавьте в «My Voices» пару немецких голосов из Voice Library (фильтр Language: German), так акцент будет естественнее.</p>
+    <label class="lbl" for="vg-key">API-ключ</label><input id="vg-key" type="password" autocomplete="off" spellcheck="false" value="${esc(VG.key)}" placeholder="sk_…">
+    <div class="row"><button type="button" class="btn primary" data-vg="load">Загрузить мои голоса</button><span class="small muted" id="vg-vmsg">${VG.voices.length?`Голосов: ${VG.voices.length}`:""}</span></div></div></section>
+  <section><h2>2. Голоса и объём</h2><div class="tbl-wrap"><table><thead><tr><th>Роль</th><th>Голос</th><th>Фраз</th><th>Символов</th><th>Готово</th></tr></thead><tbody>${rows}</tbody></table></div>
+    <div class="row"><label class="lbl" for="vg-model">Модель</label><select id="vg-model"><option value="eleven_multilingual_v2"${VG.model==="eleven_multilingual_v2"?" selected":""}>Multilingual v2 — лучшее качество</option><option value="eleven_flash_v2_5"${VG.model==="eleven_flash_v2_5"?" selected":""}>Flash v2.5 — быстрее и дешевле</option></select></div>
+    <p class="small">Всего к озвучке: <b class="mono">${total}</b> символов. Проверьте, что на балансе ElevenLabs хватает кредитов. Уже готовые фразы повторно не озвучиваются.</p></section>
+  <section><h2>3. Озвучить</h2><div class="panel">
+    <div class="row"><button type="button" class="btn primary" data-vg="run"${VG.busy?" disabled":""}>Озвучить</button><button type="button" class="btn ghost" data-vg="stop"${VG.busy?"":" hidden"}>Остановить</button></div>
+    <div class="meter"><i id="vg-bar" style="width:${VG.total?Math.round(VG.done/VG.total*100):0}%"></i></div>
+    <p class="small" id="vg-status">${VG.busy?`Озвучено ${VG.done} из ${VG.total}…`:VG.total?`Озвучено ${VG.done} из ${VG.total}.`:""}</p>
+    ${VG.err?`<p class="err">${esc(VG.err)}</p>`:""}
+    <p class="small muted">Не закрывайте страницу, пока идёт озвучка. На 500 фраз уходит несколько минут.</p></div></section>
+  <section><h2>4. Скачать и загрузить на GitHub</h2><div class="panel">
+    ${VG.out?`<p class="small ok-t">Файлы готовы. Голос уже работает в этом браузере, можно проверить в любом кейсе.</p>
+      <div class="row"><button type="button" class="btn primary" data-vg="zip">Скачать всё одним ZIP</button></div>
+      <div class="row">${VG.out.files.map((f,i)=>`<button type="button" class="btn" data-vg="file" data-i="${i}">${esc(f.name)}</button>`).join("")}</div>
+      <p class="small">Загрузите эти файлы на GitHub в то же место, где лежат <span class="mono">index.html</span>, <span class="mono">az.html</span>, <span class="mono">en.html</span>, <span class="mono">de.html</span>. После этого все пользователи будут слышать записанный голос.</p>`
+    :`<p class="small muted">Файлы появятся здесь после озвучки.</p>`}</div></section>`}
+function vgPaint(){if(R.v==="voices"){const m=$("#main");const y=window.scrollY;m.innerHTML=voicesHTML();window.scrollTo(0,y)}}
+async function vgFetchVoices(){const msg=$("#vg-vmsg");if(msg)msg.textContent="Загружаю…";
+  try{let r=await fetch("https://api.elevenlabs.io/v1/voices",{headers:{"xi-api-key":VG.key}});
+    if(r.status===401)throw new Error("Ключ не подходит.");if(!r.ok)throw new Error("Ошибка "+r.status);
+    const j=await r.json();VG.voices=arr(j.voices).filter(v=>v&&v.voice_id);if(!VG.voices.length)throw new Error("В аккаунте нет голосов.");
+    vgDefaults();vgSave();VG.err="";vgPaint()}
+  catch(e){const t=e instanceof TypeError?"Нет связи с ElevenLabs из браузера (сеть или запрет браузера).":e.message;if(msg)msg.textContent=t}}
+async function vgTTS(text,voice){for(let a=0;a<5;a++){
+    const r=await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${encodeURIComponent(voice)}?output_format=mp3_44100_64`,{method:"POST",headers:{"xi-api-key":VG.key,"content-type":"application/json","accept":"audio/mpeg"},
+      body:JSON.stringify({text,model_id:VG.model,voice_settings:{stability:0.5,similarity_boost:0.75}})});
+    if(r.ok)return await r.arrayBuffer();
+    let d="";try{d=JSON.stringify(await r.json())}catch(e){}
+    if(r.status===429&&!/quota/.test(d)){await new Promise(s=>setTimeout(s,1500*(a+1)));continue}
+    if(r.status===401)throw {stop:true,msg:"Ключ не подходит или у него нет права на озвучку (Text to Speech)."};
+    if(/quota|credits|limit/i.test(d))throw {stop:true,msg:"Закончились кредиты ElevenLabs. Пополните тариф и нажмите «Озвучить» ещё раз: готовые фразы сохранятся."};
+    throw {stop:false,msg:"Ошибка "+r.status+" "+d.slice(0,160)}}
+  throw {stop:false,msg:"Слишком много запросов, попробуйте позже."}}
+async function vgRun(){if(VG.busy)return;if(!VG.key){VG.err="Вставьте ключ ElevenLabs.";vgPaint();return}
+  const C=voiceClips();const jobs=[];
+  for(const [r] of vgRoles()){if(VG.on[r]===false)continue;if(!VG.sel[r]){VG.err="Выберите голос для каждой роли.";vgPaint();return}
+    for(const t of C[r]||[])if(!VG.res[r+"|"+t])jobs.push([r,t])}
+  VG.busy=true;VG.stop=false;VG.err="";VG.done=0;VG.total=jobs.length;vgPaint();
+  let i=0;const worker=async()=>{while(i<jobs.length&&!VG.stop){const [r,t]=jobs[i++];
+      try{VG.res[r+"|"+t]=await vgTTS(t,VG.sel[r])}
+      catch(e){if(e instanceof TypeError){VG.err="Нет связи с ElevenLabs из браузера.";VG.stop=true}else{VG.err=e.msg||String(e);if(e.stop)VG.stop=true}}
+      VG.done++;const b=$("#vg-bar");if(b)b.style.width=Math.round(VG.done/VG.total*100)+"%";const s=$("#vg-status");if(s)s.textContent=`Озвучено ${VG.done} из ${VG.total}…`}};
+  await Promise.all([worker(),worker()]);
+  VG.busy=false;vgBuild();vgPaint()}
+function vgBuild(){const C=voiceClips();const idx={v:1,model:VG.model,created:new Date().toISOString(),voices:{},packs:{},clips:{}};const files=[];const live={};
+  for(const [r] of vgRoles()){const list=(C[r]||[]).filter(t=>VG.res[r+"|"+t]);if(!list.length)continue;
+    const name="voice-"+r.replace(/^p_/,"")+".mp3";let off=0;const parts=[];
+    for(const t of list){const b=new Uint8Array(VG.res[r+"|"+t]);idx.clips[r+"|"+t]=[r,off,b.length];parts.push(b);off+=b.length}
+    const all=new Uint8Array(off);let o=0;for(const p of parts){all.set(p,o);o+=p.length}
+    idx.packs[r]=name;const v=VG.voices.find(x=>x.voice_id===VG.sel[r]);idx.voices[r]=v?v.name:VG.sel[r];files.push({name,data:all});live[r]=all.buffer}
+  if(!files.length){VG.out=null;return}
+  files.push({name:"voice-index.json",data:new TextEncoder().encode(JSON.stringify(idx))});
+  VG.out={files};VO.idx=idx;VO.packs={};for(const [r,b] of Object.entries(live))VO.packs[r]=Promise.resolve(b)}
+const CRC=(()=>{const t=new Uint32Array(256);for(let n=0;n<256;n++){let c=n;for(let k=0;k<8;k++)c=c&1?0xEDB88320^(c>>>1):c>>>1;t[n]=c>>>0}return t})();
+function crc32(u){let c=0xFFFFFFFF;for(let i=0;i<u.length;i++)c=CRC[(c^u[i])&255]^(c>>>8);return (c^0xFFFFFFFF)>>>0}
+function makeZip(files){const enc=new TextEncoder();const parts=[],cd=[];let off=0;
+  for(const f of files){const nm=enc.encode(f.name),crc=crc32(f.data),n=f.data.length;
+    const lh=new DataView(new ArrayBuffer(30));lh.setUint32(0,0x04034b50,true);lh.setUint16(4,20,true);lh.setUint16(12,0x21,true);lh.setUint32(14,crc,true);lh.setUint32(18,n,true);lh.setUint32(22,n,true);lh.setUint16(26,nm.length,true);
+    parts.push(new Uint8Array(lh.buffer),nm,f.data);
+    const ch=new DataView(new ArrayBuffer(46));ch.setUint32(0,0x02014b50,true);ch.setUint16(4,20,true);ch.setUint16(6,20,true);ch.setUint16(14,0x21,true);ch.setUint32(16,crc,true);ch.setUint32(20,n,true);ch.setUint32(24,n,true);ch.setUint16(28,nm.length,true);ch.setUint32(42,off,true);
+    cd.push(new Uint8Array(ch.buffer),nm);off+=30+nm.length+n}
+  const size=cd.reduce((s,a)=>s+a.length,0);const end=new DataView(new ArrayBuffer(22));end.setUint32(0,0x06054b50,true);end.setUint16(8,files.length,true);end.setUint16(10,files.length,true);end.setUint32(12,size,true);end.setUint32(16,off,true);
+  return new Blob([...parts,...cd,new Uint8Array(end.buffer)],{type:"application/zip"})}
+function vgDownload(blob,name){const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=name;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},2000)}
+document.addEventListener("click",async e=>{const b=e.target.closest&&e.target.closest("[data-vg]");if(!b||R.v!=="voices")return;const a=b.dataset.vg;
+  if(a==="load"){const k=$("#vg-key");VG.key=k?k.value.trim():VG.key;vgSave();vgFetchVoices()}
+  else if(a==="run"){const k=$("#vg-key");VG.key=k?k.value.trim():VG.key;vgSave();vgRun()}
+  else if(a==="stop"){VG.stop=true}
+  else if(a==="test"){const r=b.dataset.r;const t=(voiceClips()[r]||[])[0];if(!t||!VG.sel[r])return;b.textContent="…";
+    try{const buf=await vgTTS(t,VG.sel[r]);if(AUD){unlockAudio();AUD.src=URL.createObjectURL(new Blob([buf],{type:"audio/mpeg"}));AUD.play().catch(()=>{})}}catch(x){VG.err=x.msg||"Нет связи с ElevenLabs.";vgPaint();return}b.textContent="проба"}
+  else if(a==="zip"&&VG.out)vgDownload(makeZip(VG.out.files),"famed-voice.zip")
+  else if(a==="file"&&VG.out){const f=VG.out.files[+b.dataset.i];if(f)vgDownload(new Blob([f.data],{type:f.name.endsWith(".json")?"application/json":"audio/mpeg"}),f.name)}});
+document.addEventListener("change",e=>{if(R.v!=="voices")return;const t=e.target;
+  if(t.dataset&&t.dataset.vgsel){VG.sel[t.dataset.vgsel]=t.value;vgSave()}
+  else if(t.dataset&&t.dataset.vgon){VG.on[t.dataset.vgon]=t.checked;vgPaint()}
+  else if(t.id==="vg-model"){VG.model=t.value;VG.res={};VG.out=null;vgPaint()}});
+/*}NOI18N*/
+
 /* ---------- router ---------- */
-function route(){const h=HASH;if(!h||h==="home")return {v:"home"};if(["vocab","cases","settings","exam","drill","mat"].includes(h))return {v:h};
+function route(){const h=HASH;if(!h||h==="home")return {v:"home"};if(["vocab","cases","settings","exam","drill","mat","voices"].includes(h))return {v:h};
   const mm=h.match(/^mat-([a-z]+)$/);if(mm)return {v:"mat",id:mm[1]};
   const m=h.match(/^([a-z]+)-(anamnese|arztbrief|vorstellung)$/);if(m&&byId(m[1]))return {v:"case",id:m[1],tab:m[2]};return {v:"home"}}
-function render(){stopRec();if(TTS)try{speechSynthesis.cancel()}catch(e){}
+function render(){stopRec();stopVoice();
   R=route();const sect=R.v==="case"?"cases":R.v;
   document.querySelectorAll("[data-lang]").forEach(a=>{a.href=a.dataset.f+(HASH?"#"+HASH:"");if(a.dataset.lang===document.documentElement.lang)a.setAttribute("aria-current","true");else a.removeAttribute("aria-current")});
   document.querySelectorAll("[data-nav]").forEach(a=>{if(a.dataset.nav===sect)a.setAttribute("aria-current","page");else a.removeAttribute("aria-current")});
@@ -1391,6 +1536,7 @@ function render(){stopRec();if(TTS)try{speechSynthesis.cancel()}catch(e){}
   else if(R.v==="exam"){m.innerHTML=examHTML();afterExam()}
   else if(R.v==="drill"){m.innerHTML=drillShellHTML();paintDrill()}
   else if(R.v==="mat")m.innerHTML=R.id?matHTML(R.id):matsListHTML();
+  else if(R.v==="voices")m.innerHTML=voicesHTML();
   else{m.innerHTML=caseHTML(R.id,R.tab);afterCase(R.id,R.tab)}
   window.scrollTo(0,0)}
 let HASH=(location.hash||"").replace(/^#/,"");
@@ -1403,12 +1549,12 @@ const main=$("#main");
 main.addEventListener("click",async e=>{const b=e.target.closest("[data-action]");if(!b)return;const a=b.dataset.action;const kind=b.dataset.kind;
   switch(a){
   case "mic":{startRec(b.dataset.mic);break}
-  case "say":{unlockTTS();const t=chatOf(curId(),kind).turns[+b.dataset.i];if(t)speak(t.content,true);break}
+  case "say":{unlockTTS();const cid=curId();const t=chatOf(cid,kind).turns[+b.dataset.i];if(t)speakSegs(t.segs||[t.content],kind==="patient"?"p_"+cid:"ober",true);break}
   case "kb":{const f=$(`.chat-form[data-kind="${kind}"]`);if(f){f.hidden=!f.hidden;if(!f.hidden){const ta=f.querySelector("textarea");if(ta)ta.focus()}}break}
   case "reveal":{const p=b.nextElementSibling;if(!p)break;p.hidden=!p.hidden;b.setAttribute("aria-expanded",String(!p.hidden));b.textContent=p.hidden?"Antwort des Patienten":"Antwort ausblenden";break}
   case "stop":{const ch=chatOf(curId(),kind);if(ch.ctl)ch.ctl.abort();break}
   case "stop-fb":{if(FBRUN[kind])FBRUN[kind].ctl.abort();break}
-  case "reset-chat":{stopRec();if(TTS)try{speechSynthesis.cancel()}catch(x){}const ch=chatOf(R.id,kind);if(ch.ctl)ch.ctl.abort();delete CH[R.id+":"+kind];
+  case "reset-chat":{stopRec();stopVoice();const ch=chatOf(R.id,kind);if(ch.ctl)ch.ctl.abort();delete CH[R.id+":"+kind];
     if(kind==="patient"){delete FREE[R.id];const fa=$("#free-anam");if(fa)fa.innerHTML=""}else{const fo=$("#free-ober");if(fo)fo.innerHTML=""}
     if(kind==="patient"){delete FB[R.id+":anam"];delete COV[R.id];const s=$("#fb-anam");if(s)s.innerHTML="";const cl=$("#cl");if(cl)cl.innerHTML=checklistHTML(byId(R.id))}
     paintChat(R.id,kind);paintRec();break}
@@ -1434,8 +1580,8 @@ main.addEventListener("click",async e=>{const b=e.target.closest("[data-action]"
   case "ex-tpl":{const ta=$("#exbrief");if(!ta||!EX)break;const tpl=byId(EX.caseId).brief.map(([h])=>h+"\n").join("\n");ta.value=ta.value.trim()?ta.value.replace(/\s*$/,"")+"\n\n"+tpl:tpl;ta.dispatchEvent(new Event("input",{bubbles:true}));ta.focus();break}
   case "drill-next":{stopRec();if(DR){DR.i++;paintDrill()}break}
   case "drill-new":{DR=null;paintDrill();break}
-  case "say-text":{unlockTTS();speak(b.dataset.t||"",true);break}
-  case "drill-say":{unlockTTS();const tk=DR&&DR.tasks[DR.i];if(tk)speak(tk.type==="topic"?topicQ(tk.id):tk.f.lay,true);break}
+  case "say-text":{unlockTTS();speakSegs([b.dataset.t||""],"narr",true);break}
+  case "drill-say":{unlockTTS();const tk=DR&&DR.tasks[DR.i];if(tk)speakSegs([tk.type==="topic"?topicQ(tk.id):tk.f.lay],"narr",true);break}
   case "hist-clear":{if(window.confirm("Verlauf der Schwachstellen auf diesem Gerät löschen?")){S.hist=[];DR=null;save();m_render_settings("Fehlergedächtnis gelöscht.","ok-t")}break}
   case "tpl-brief":{const ta=$("#brief");if(!ta)break;const tpl=byId(R.id).brief.map(([h])=>h+"\n").join("\n");ta.value=ta.value.trim()?ta.value.replace(/\s*$/,"")+"\n\n"+tpl:tpl;ta.dispatchEvent(new Event("input",{bubbles:true}));ta.focus();break}
   case "check":{const id=R.id;const c=byId(id);const text=str(draft(id)[kind]).trim();const min=kind==="brief"?40:30;const slot=$("#fb-"+kind);
@@ -1450,8 +1596,8 @@ main.addEventListener("click",async e=>{const b=e.target.closest("[data-action]"
   case "key-test":{const msg=$("#key-msg");if(msg){msg.className="small muted";msg.textContent="Wird geprüft…"}b.disabled=true;
     try{await chatCall("",[{role:"user",content:"Antworte nur mit: OK"}],5);if(msg){msg.className="small ok-t";msg.textContent="Der Schlüssel funktioniert."}}
     catch(x){if(msg){msg.className="small err";msg.textContent=errText(x)}}finally{b.disabled=false}break}
-  case "tts-test":{unlockTTS();speak("Guten Tag, Frau Doktor. Ich habe seit gestern starke Bauchschmerzen.",true);break}
-  case "v-say":{unlockTTS();const v=V.deck[V.i];if(v)speak(V.flipped?v[0]+". "+v[1]:v[0],true);break}
+  case "tts-test":{unlockTTS();speakSegs([TTS_TEST],"narr",true);break}
+  case "v-say":{unlockTTS();const v=V.deck[V.i];if(v)speakSegs(V.flipped?[v[0],v[1]]:[v[0]],"narr",true);break}
   case "v-mode":{V.mode=b.dataset.m;if(V.mode==="quiz")V.quiz=null;document.querySelectorAll('[data-action="v-mode"]').forEach(x=>x.setAttribute("aria-pressed",String(x===b)));paintVocab();break}
   case "v-flip":{V.flipped=true;paintVocab();break}
   case "v-skip":{V.i++;V.flipped=false;paintVocab();break}
