@@ -1,7 +1,7 @@
 {
   "name": "MedFSP Trainer",
   "short_name": "MedFSP",
-  "description": "Trainer für die Fachsprachprüfung Medizin (FSP und FaMed): Anamnese, Dokumentation, Patientenvorstellung.",
+  "description": "Trainer für FSP, FaMed und Kenntnisprüfung: Anamnese, Dokumentation, Patientenvorstellung, Untersuchung und Prüfungsgespräch.",
   "lang": "ru",
   "start_url": "./",
   "scope": "./",

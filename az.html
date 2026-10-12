@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#1C6A57">
-<title>MedFSP · Fachsprachprüfung Trainer</title>
+<title>MedFSP · FSP, FaMed, Kenntnisprüfung</title>
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
@@ -1767,6 +1767,8 @@ function kpbResHTML(r){const miss=r.rep.filter(x=>!x[1]);return `<div class="fb"
   <div class="fb-sec"><h3>Hesabatın bölmələri</h3><div class="chips">${r.sec.map(([l,o])=>`<span class="chip ${o?"ok":"miss"}" lang="de">${esc(l)}</span>`).join("")}</div></div>
   ${miss.length?`<div class="fb-sec"><h3>Mətndə tapılmadı</h3><ul class="plain">${miss.map(x=>`<li lang="de">${esc(x[0])}</li>`).join("")}</ul></div>`:`<p class="small">Bütün əsas bəndlər mətndə var.</p>`}
   <p class="small muted">Yoxlama açar sözləri axtarır, amma tibbi məntiqi və qrammatikanı yoxlamır. Təhlil üçün «Sİ ilə yoxla» düyməsini basın.</p></div>`}
+function kpbRecord(id,r){const miss=[...r.sec.filter(x=>!x[1]).map(x=>x[0]),...r.rep.filter(x=>!x[1]).map(x=>x[0])];const last=arr(S.hist).slice().reverse().find(h=>h.kind==="kpb"&&h.case===id);
+  if(last&&Date.now()-(last.ts||0)<30*60*1000){last.miss=miss;last.score=r.pct;last.ts=Date.now();save()}else pushHist({ts:Date.now(),kind:"kpb",case:id,miss,score:r.pct})}
 function kpWc(){const el=$("#wc-kpb");if(el&&R.v==="kp"&&R.id)el.textContent=words(draft("kp_"+R.id).brief)+" söz"}
 function kpbPrompt(c,text){const K=KP[c.id];return `Du bist erfahrene Prüferin in der Kenntnisprüfung für Ärztinnen und Ärzte mit Ausbildung aus einem Drittstaat (Niveau des Dritten Abschnitts der Ärztlichen Prüfung). Ein Prüfling hat nach Anamnese und Untersuchung eines simulierten Patienten einen schriftlichen Bericht verfasst (Anamnese, Befunde, Diagnose, Prognose, Behandlungsplan, Epikrise). Bewerte vor allem die medizinische Richtigkeit und Vollständigkeit, außerdem Struktur und Fachsprache. ${ASR_NOTE}
 
@@ -1847,13 +1849,13 @@ Antworte nur mit JSON in genau dieser Form:
 ${JSON_SHAPE}`}
 
 /* --- scores and views --- */
-function kpPartSc(id){return [["u","Körperliche Untersuchung"],["d","Diagnostik"],["b","Bericht"],["g","Prüfungsgespräch"]].map(([k,l])=>[l,fmScore("kp_"+k+"_"+id)])}
+function kpPartSc(id){return [["a","Anamnese"],["u","Körperliche Untersuchung"],["d","Diagnostik"],["b","Bericht"],["g","Prüfungsgespräch"]].map(([k,l])=>[l,fmScore("kp_"+k+"_"+id)])}
 function kpTotal(id){const v=kpPartSc(id).map(x=>x[1]).filter(x=>x!=null);return v.length?{pct:Math.round(v.reduce((a,b)=>a+b,0)/v.length),n:v.length}:null}
 function kpTotalHTML(id){return `<div class="panel">${kpPartSc(id).map(([l,v])=>`<div class="fb-sec"><div class="bar-row"><span lang="de">${l}</span><span class="mono">${v==null?"—":v+"%"}</span></div><div class="meter" aria-hidden="true"><i style="width:${v||0}%"></i></div></div>`).join("")}<p class="small muted">Faizlər yalnız trenajorun istiqamətidir. İmtahanda komissiya hər şeyi birlikdə qiymətləndirir və imtahandan keçib-keçmədiyinizə qərar verir.</p></div>`}
 function kpTotPaint(id){const t=$("#kp-total");if(t&&viewIs(id))t.innerHTML=kpTotalHTML(id)}
 function kpHubHTML(){return `<section class="hero"><span class="eyebrow">Kenntnisprüfung · beta</span><h1>Kenntnisprüfung</h1><p class="lede">Üç hal üzrə pilot. İmtahandakı kimi keçin: anamnez, səslə müayinə, analizlər və vizuallaşdırma, hesabat və komissiya ilə söhbət.</p></section>
   <p class="note">Modulun tibbi məzmunu qaralamadır: onu hələ daxili xəstəliklər və cərrahiyyə üzrə klinisist yoxlamayıb. Moduldan məşq üçün istifadə edin, yeganə mənbə kimi yox.</p>
-  <section><h2>Hallar</h2><ul class="prog">${CASES.filter(c=>KP[c.id]).map(c=>{const t=kpTotal(c.id);return `<li><a href="#kp-${c.id}-anamnese">Fall ${c.nr} · ${esc(c.titleRu)}</a><span class="mono">${t?t.pct+"% · "+t.n+"/4":"—"}</span></li>`}).join("")}</ul></section>
+  <section><h2>Hallar</h2><ul class="prog">${CASES.filter(c=>KP[c.id]).map(c=>{const t=kpTotal(c.id);return `<li><a href="#kp-${c.id}-anamnese">Fall ${c.nr} · ${esc(c.titleRu)}</a><span class="mono">${t?t.pct+"% · "+t.n+"/5":"—"}</span></li>`}).join("")}</ul></section>
   <section><h2>KP necə qurulub</h2><ul class="plain small">
     <li>Alman dilində şifahi və praktiki imtahan, ayrıca yazılı test olmadan.</li>
     <li>1-ci hissə: simulyasiya xəstəsində anamnez və müayinə, sonra yazılı hesabat: anamnez, diaqnoz, proqnoz, müalicə planı, epikriz.</li>
@@ -1862,7 +1864,7 @@ function kpHubHTML(){return `<section class="hero"><span class="eyebrow">Kenntni
     <li>1 noyabr 2026-dan KP Aİ-dən kənar ölkələrin diplomları üçün adi yol olur. Müddəti, halların sayı və mövzuları 2027-ci ilə qədər vahidləşdirmək planlaşdırılır.</li></ul>
     <p class="small muted">NiZzA Niedersachsen məlumat vərəqəsinə əsasən (01.01.2026 vəziyyətinə), 11.10.2026 tarixində yoxlanılıb. Öz federal torpağınızdakı qaydanı öz idarənizdən dəqiqləşdirin.</p></section>
   <section><h2>Müayinə üçün ifadələr</h2><ul class="ph-list">${KP_PHR.map(p=>phRow([p])).join("")}</ul></section>`}
-function kpStepDone(id,k){return k==="anamnese"?doneOf(id).anam:k==="untersuchung"?fmScore("kp_u_"+id)!=null:k==="bericht"?fmScore("kp_b_"+id)!=null:fmScore("kp_g_"+id)!=null}
+function kpStepDone(id,k){return k==="anamnese"?fmScore("kp_a_"+id)!=null:k==="untersuchung"?fmScore("kp_u_"+id)!=null:k==="bericht"?fmScore("kp_b_"+id)!=null:fmScore("kp_g_"+id)!=null}
 function kpAnamHTML(c){return `<section><p class="lede-s">KP-nin 1-ci hissəsi simulyasiya xəstəsindən anamnez toplamaqla başlayır. Söhbət FSP-dəki kimidir, amma burada tibbi məntiq daha vacibdir: diaqnoz qoymağa və riskləri qiymətləndirməyə kömək edən suallar.</p>
   ${freeNote()}${chatBox("patient")}<div id="free-anam"></div><div id="fb-anam"></div>
   <div class="row"><a class="btn" href="#kp-${c.id}-untersuchung">Növbəti: Untersuchung →</a></div></section>`}
@@ -1979,17 +1981,19 @@ function weak(){const H=arr(S.hist).filter(h=>!/^kp/.test(h.kind||"")).slice(-10
   const sort=o=>Object.entries(o).sort((a,b)=>b[1]-a[1]);
   return {n,exams,trains,avgDur:Math.round(durSum/n),unm:unmSum,topics:sort(miss).map(([id,k])=>[id,k,seen[id]||k]),fach:sort(fach),parts:sort(part),cov:Math.round(covSum/n*100)}}
 function weakKP(){const H=arr(S.hist).filter(h=>/^kp/.test(h.kind||"")).slice(-12);if(!H.length)return null;
-  const top={},topN={},miss={},n={kpu:0,kpp:0};
+  const top={},topN={},miss={},bmiss={},n={kpu:0,kpp:0,kpb:0};
   for(const h of H){if(!KP[h.case])continue;n[h.kind]=(n[h.kind]||0)+1;
     if(h.kind==="kpp")Object.entries(h.topics||{}).forEach(([t,p])=>{topN[t]=(topN[t]||0)+1;if(p<60)top[t]=(top[t]||0)+1});
-    if(h.kind==="kpu")[...arr(h.eMiss),...arr(h.tMiss)].forEach(l=>{miss[l]=(miss[l]||0)+1})}
+    if(h.kind==="kpu")[...arr(h.eMiss),...arr(h.tMiss)].forEach(l=>{miss[l]=(miss[l]||0)+1});
+    if(h.kind==="kpb")arr(h.miss).forEach(l=>{bmiss[l]=(bmiss[l]||0)+1})}
   const sort=o=>Object.entries(o).sort((a,b)=>b[1]-a[1]);
-  return {n,topics:sort(top).map(([t,k])=>[t,k,topN[t]]),miss:sort(miss)}}
-function weakKPHTML(k){const tp=k.topics.slice(0,4),ms=k.miss.slice(0,5);
-  return `<div class="fb-sec"><h3>Kenntnisprüfung</h3><p class="small muted">KP cəhdləri: müayinə ${k.n.kpu||0}, komissiya ilə söhbət ${k.n.kpp||0}.</p>
+  return {n,topics:sort(top).map(([t,k])=>[t,k,topN[t]]),miss:sort(miss),bmiss:sort(bmiss)}}
+function weakKPHTML(k){const tp=k.topics.slice(0,4),ms=k.miss.slice(0,5),bm=k.bmiss.slice(0,5);
+  return `<div class="fb-sec"><h3>Kenntnisprüfung</h3><p class="small muted">KP cəhdləri: müayinə ${k.n.kpu||0}, hesabat ${k.n.kpb||0}, komissiya ilə söhbət ${k.n.kpp||0}.</p>
   ${tp.length?`<p class="small">Zəif mövzular (60%-dən aşağı):</p><ul class="plain">${tp.map(([t,c,s])=>`<li><span lang="de">${esc(t)}</span> <span class="muted">— zəif: ${c} / ${s} cəhddə</span></li>`).join("")}</ul>`:""}
   ${ms.length?`<p class="small">Müayinə və diaqnostikada ən çox buraxdıqlarınız:</p><ul class="plain">${ms.map(([l,c])=>`<li><span lang="de">${esc(l)}</span> <span class="muted">— ${c} dəfə</span></li>`).join("")}</ul>`:""}
-  ${!tp.length&&!ms.length?`<p class="small">Hələ təkrarlanan boşluqlar yoxdur.</p>`:""}
+  ${bm.length?`<p class="small">Hesabatda ən çox çatışmayanlar:</p><ul class="plain">${bm.map(([l,c])=>`<li><span lang="de">${esc(l)}</span> <span class="muted">— ${c} dəfə</span></li>`).join("")}</ul>`:""}
+  ${!tp.length&&!ms.length&&!bm.length?`<p class="small">Hələ təkrarlanan boşluqlar yoxdur.</p>`:""}
   <div class="row"><a class="btn" href="#kp">KP üzrə məşq et</a></div></div>`}
 function weakHTML(){const w=weak(),k=weakKP();
   if(!w&&!k)return `<section><h2>Zəif yerləriniz</h2><p class="small muted">Pasiyentlə söhbəti nəticəyə qədər tamamlayın və ya sınaq imtahanı verin. Burada ən çox unutduğunuz mövzular və pasiyentin başa düşmədiyi terminlər görünəcək.</p></section>`;
@@ -2004,10 +2008,10 @@ function weakHTML(){const w=weak(),k=weakKP();
     <div class="row"><a class="btn primary" href="#drill">Zəif yerlər üzrə məşq · 5 dəqiqə</a></div>${k?weakKPHTML(k):""}</div></section>`}
 function histHTML(){const H=arr(S.hist).slice(-6).reverse();if(!H.length)return "";
   const d=ts=>{const x=new Date(ts||0);return String(x.getDate()).padStart(2,"0")+"."+String(x.getMonth()+1).padStart(2,"0")};
-  const typ=h=>h.kind==="kpu"?"KP · Untersuchung":h.kind==="kpp"?"KP · Prüfungsgespräch":h.kind==="exam"?(h.fmt==="famed"?"Prüfung · FaMed":h.fmt==="fsp"?"Prüfung · FSP":"Prüfung"):"Anamnese";
+  const typ=h=>h.kind==="kpb"?"KP · Bericht":h.kind==="kpu"?"KP · Untersuchung":h.kind==="kpp"?"KP · Prüfungsgespräch":h.kind==="exam"?(h.fmt==="famed"?"Prüfung · FaMed":h.fmt==="fsp"?"Prüfung · FSP":"Prüfung"):"Anamnese";
   const sc=h=>h.score!=null?h.score:(h.total?Math.round(h.cov/h.total*100):null);
   const ex=arr(S.hist).filter(h=>h.kind==="exam"&&h.score!=null).slice(-6).map(h=>h.score);
-  return `<p class="sub-h">Son cəhdlər</p><ul class="prog">${H.map(h=>{const c=byId(h.case);const v=sc(h);return `<li><span><span class="mono">${d(h.ts)}</span> · <span lang="de">${typ(h)}</span>${c?` · Fall ${c.nr}`:""}</span><span class="mono">${v==null?"—":v+"%"} · ${fmt(h.dur||0)}</span></li>`}).join("")}</ul>
+  return `<p class="sub-h">Son cəhdlər</p><ul class="prog">${H.map(h=>{const c=byId(h.case);const v=sc(h);return `<li><span><span class="mono">${d(h.ts)}</span> · <span lang="de">${typ(h)}</span>${c?` · Fall ${c.nr}`:""}</span><span class="mono">${v==null?"—":v+"%"}${h.dur?" · "+fmt(h.dur):""}</span></li>`}).join("")}</ul>
   ${ex.length>=2?`<p class="small">Sınaq imtahanları, trenajor balı: <span class="mono">${ex.join(" → ")}</span></p>`:""}`}
 function weakHint(){const w=weak();if(!w)return "";const t=w.topics.filter(([,k])=>k>=2).slice(0,3);if(!t.length)return "";
   return `<p class="note">Tez-tez unudursunuz: <span lang="de">${t.map(([id])=>esc(topicLabel(id))).join(", ")}</span>. Bu gün onları buraxmayın.</p>`}
@@ -2590,7 +2594,7 @@ const IOS=/iphone|ipad|ipod/i.test(navigator.userAgent)||(navigator.platform==="
 window.addEventListener("beforeinstallprompt",e=>{e.preventDefault();DEFER=e;if(R.v==="install")render()});
 window.addEventListener("appinstalled",()=>{DEFER=null;if(R.v==="install")render()});
 if("serviceWorker" in navigator&&(location.protocol==="https:"||location.hostname==="localhost")){try{navigator.serviceWorker.register("sw.js").catch(()=>{})}catch(e){}}
-try{if(standalone()){const f=localStorage.getItem("medfsp.lang");const here=location.pathname.split("/").pop()||"index.html";if(f&&f!==here&&/^(index|az|en|de)\.html$/.test(f))location.replace(f+location.hash)}}catch(e){}
+try{const here=location.pathname.split("/").pop()||"index.html";if(standalone()){const f=localStorage.getItem("medfsp.lang");if(f&&f!==here&&/^(index|az|en|de)\.html$/.test(f))location.replace(f+location.hash)}else if(/^(index|az|en|de)\.html$/.test(here))localStorage.setItem("medfsp.lang",here)}catch(e){}
 document.addEventListener("click",e=>{const a=e.target.closest&&e.target.closest("[data-lang]");if(a)try{localStorage.setItem("medfsp.lang",a.dataset.f)}catch(x){}});
 function installHTML(){const how=standalone()?`<p class="ok-t">Tətbiq artıq quraşdırılıb: siz onu əsas ekrandan açmısınız.</p>`
   :DEFER?`<p>Düyməni basın və quraşdırmanı təsdiqləyin.</p><div class="row"><button type="button" class="btn primary" data-action="install">MedFSP-ni quraşdır</button></div>`
@@ -2681,7 +2685,7 @@ main.addEventListener("click",async e=>{const b=e.target.closest("[data-action]"
   case "finish-anam":{stopRec();const id=R.id;const ch=chatOf(id,"patient");const slot=$("#fb-anam");
     if(ch.turns.filter(t=>t.role==="user").length<3){if(slot)slot.innerHTML=`<p class="note">Təhlil üçün ən azı üç replikanız lazımdır. Söhbəti davam etdirin.</p>`;break}
     if(ch.busy)break;if(!ch.end)ch.end=Date.now();
-    FREE[id]=true;COV[id]=new Set(ch.cov?[...ch.cov]:[]);markDone(id,"anam");if(!ch.recorded){pushHist(recFromChat(id,ch,"train"));ch.recorded=true}
+    FREE[id]=true;COV[id]=new Set(ch.cov?[...ch.cov]:[]);markDone(id,"anam");if(R.v==="kp"){fmSet("kp_a_"+id,Math.round(((ch.cov&&ch.cov.size)||0)/byId(id).items.length*100));kpTotPaint(id)}if(!ch.recorded){pushHist(recFromChat(id,ch,"train"));ch.recorded=true}
     {const fa=$("#free-anam");if(fa)fa.innerHTML=freeSumHTML(byId(id),ch);const cl=$("#cl");if(cl)cl.innerHTML=checklistHTML(byId(id));const w=$(".cl-wrap");if(w)w.open=true}
     if(!freeMode())runJSON("anam",id,anamPrompt(byId(id),ch.turns),d=>{COV[id]=new Set(arr(d.covered).map(String));
       if(viewIs(id)){const cl=$("#cl");if(cl)cl.innerHTML=checklistHTML(byId(id))}});break}
@@ -2699,7 +2703,7 @@ main.addEventListener("click",async e=>{const b=e.target.closest("[data-action]"
   case "kp-tpl":{const ta=$("#kpb");if(!ta)break;ta.value=ta.value.trim()?ta.value.replace(/\s*$/,"")+"\n\n"+KP_TPL:KP_TPL;ta.dispatchEvent(new Event("input",{bubbles:true}));ta.focus();break}
   case "kp-check":{const id=R.id;const text=str(draft("kp_"+id).brief).trim();const slot=$("#kpb-res");
     if(words(text)<40){if(slot)slot.innerHTML=`<p class="note">Mətn yoxlama üçün hələ çox qısadır. Ən azı 40 söz lazımdır.</p>`;break}
-    const r=kpbRes(id,text);KPB[id]=r;if(slot)slot.innerHTML=kpbResHTML(r);fmSet("kp_b_"+id,r.pct);kpTotPaint(id);break}
+    const r=kpbRes(id,text);KPB[id]=r;if(slot)slot.innerHTML=kpbResHTML(r);fmSet("kp_b_"+id,r.pct);kpbRecord(id,r);kpTotPaint(id);break}
   case "kp-ai":{const id=R.id;const text=str(draft("kp_"+id).brief).trim();const slot=$("#fb-kpb");
     if(words(text)<40){if(slot)slot.innerHTML=`<p class="note">Mətn təhlil üçün hələ çox qısadır. Ən azı 40 söz lazımdır.</p>`;break}
     runJSON("kpb",id,kpbPrompt(byId(id),text),()=>{});break}
