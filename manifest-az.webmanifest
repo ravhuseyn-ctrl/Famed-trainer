@@ -1,0 +1,31 @@
+{
+  "name": "MedFSP Trainer",
+  "short_name": "MedFSP",
+  "description": "FSP, FaMed və Kenntnisprüfung üçün trenajor: anamnez, sənədləşdirmə, xəstənin təqdimatı, müayinə və imtahan söhbəti.",
+  "lang": "az",
+  "start_url": "./az.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#F1F4F2",
+  "theme_color": "#1C6A57",
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}

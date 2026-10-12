@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#1C6A57">
 <title>MedFSP · FSP, FaMed, Kenntnisprüfung</title>
-<link rel="manifest" href="manifest.webmanifest">
+<link rel="manifest" href="manifest-en.webmanifest">
 <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -277,6 +277,18 @@ ul.ph-list{list-style:none;margin:0;padding:0;background:var(--sheet);border:1px
 .beta{font-family:var(--f-mono);font-size:11px;font-weight:500;letter-spacing:.08em;text-transform:uppercase;padding:2px 8px;border-radius:999px;background:var(--amber-soft);color:var(--amber);vertical-align:middle;white-space:nowrap}
 .crit{color:var(--pen)}
 .sub-h{font-weight:600;font-size:15px;margin-top:4px}
+.tiles{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+@media (min-width:560px){.tiles{grid-template-columns:repeat(3,minmax(0,1fr))}}
+.tile{background:var(--sheet);border:1px solid var(--line);border-radius:var(--r);padding:10px 12px;display:flex;flex-direction:column;gap:2px;min-width:0}
+.tile b{font-size:22px;font-weight:500;color:var(--ink)}
+.tile span{font-size:13px;color:var(--muted)}
+.conv{margin-top:8px;background:var(--sheet);border:1px solid var(--line);border-radius:8px;padding:10px 12px;display:flex;flex-direction:column;gap:6px}
+@media print{.top,.foot,.no-print,.back,.exam-pill,.say,.seg{display:none!important}body{background:#fff;color:#000}.wrap{padding:0;max-width:none}.fb,.panel,.muster,.conv{border-color:#bbb;break-inside:avoid-page}a{color:#000;text-decoration:none}}
+.verdict{background:var(--sheet);border:1px solid var(--line);border-left:6px solid var(--amber);border-radius:var(--r);padding:12px 14px;display:flex;flex-direction:column;gap:4px}
+.verdict.ok{border-left-color:var(--op)}
+.verdict.nicht{border-left-color:var(--pen)}
+.verdict b{font-family:var(--f-display);font-weight:500;font-size:19px}
+.resume{display:flex;flex-direction:column;gap:8px}
 </style>
 </head>
 <body>
@@ -840,6 +852,7 @@ const KP_GEN=[
   [/rachen|tonsill|mundhöhle/,"Rachen reizlos."]];
 const KP={
   galle:{
+    safe:[["Penicillinallergie bei der Antibiose beachtet",{q:"abx",k:[0]}],["EKG zum Ausschluss eines Hinterwandinfarkts",{t:"ekg"}],["Nachblutung erkannt, Operateur informiert",{q:"blutung",k:[0,3]}]],
     dx:"Akute Cholezystitis bei Cholezystolithiasis",
     vor:{t:"Fallvorstellung",q:"Bitte stellen Sie uns Ihre Patientin kurz vor.",k:[["Name und Alter",/keller|\s52|jahre alt|jährig/],["Leitsymptom: Schmerzen im rechten Oberbauch",/oberbauch|bauchschmerz|rippenbogen/],["Fieber, Übelkeit, Erbrechen",/fieber|übelkeit|erbroch|erbrechen|nausea|emesis/],["Befunde: Murphy-Zeichen, Sonographie, Labor",/murphy|abwehrspannung|druckschmerz|sono|ultraschall|leukozyt|\scrp/],["Verdachtsdiagnose",/cholezystitis|gallenblasenentzündung/],["weiteres Vorgehen",/antibio|operation|cholezystektomie|stationär|therapie|behandl/]],
       a:"Frau Sabine Keller ist 52 Jahre alt und kam mit seit gestern Abend bestehenden Schmerzen im rechten Oberbauch, die nach einer fettreichen Mahlzeit begonnen haben und in die rechte Schulter ausstrahlen. Begleitend hatte sie Übelkeit, Erbrechen und Fieber bis 38,6 Grad. Bekannt sind eine arterielle Hypertonie, eine Hashimoto-Thyreoiditis und eine Penicillinallergie. In der Untersuchung fanden sich Fieber, eine Tachykardie, ein Druckschmerz im rechten Oberbauch mit Abwehrspannung und ein positives Murphy-Zeichen. Im Labor zeigen sich eine Leukozytose und ein erhöhtes CRP, sonographisch eine verdickte Gallenblasenwand mit Steinen. Wir gehen von einer akuten Cholezystitis bei Cholezystolithiasis aus und planen unter Antibiose die frühzeitige laparoskopische Cholezystektomie."},
@@ -874,16 +887,17 @@ const KP={
         a:"Die Charcot-Trias besteht aus Fieber mit Schüttelfrost, Ikterus und Schmerzen im rechten Oberbauch. Sie spricht für eine akute Cholangitis, meist bei einem Stein im Gallengang. Bei Frau Keller fehlt der Ikterus, und der Gallengang ist nicht erweitert."},
       {t:"Therapie",q:"Wie behandeln Sie die Patientin?",k:[["stationär, Nahrungskarenz, Infusion",/stationär|nahrungskarenz|nüchtern|infusion|flüssigkeit/],["Analgesie, z. B. Metamizol",/analge|schmerzmittel|metamizol|novamin|novalgin|opioid|piritramid/],["Antibiose",/antibio/],["laparoskopische Cholezystektomie",/cholezystektomie|operation|operativ|operier/],["früh, möglichst innerhalb von 24 Stunden",/früh|\s24|\s72|innerhalb/]],
         a:"Ich nehme die Patientin stationär auf: Nahrungskarenz und Infusionen, Analgesie zum Beispiel mit Metamizol, bei Koliken zusätzlich Butylscopolamin, und eine kalkulierte Antibiose. Therapie der Wahl ist die laparoskopische Cholezystektomie, und zwar früh: nach der deutschen S3-Leitlinie möglichst innerhalb von 24 Stunden nach der stationären Aufnahme, nach den Tokyo Guidelines spätestens innerhalb von 72 Stunden."},
-      {t:"Pharmakologie",q:"Welche Antibiose wählen Sie bei der Penicillinallergie?",k:[["kein Penicillin wegen der Allergie",/allergi|kein[a-z]* (amino)?penicillin/],["Cephalosporin oder Chinolon",/cephalosporin|ceftriaxon|cefuroxim|cefotaxim|chinolon|cipro|levoflox|moxiflox/],["plus Metronidazol",/metronidazol/]],
+      {t:"Pharmakologie",id:"abx",q:"Welche Antibiose wählen Sie bei der Penicillinallergie?",k:[["kein Penicillin wegen der Allergie",/allergi|kein[a-z]* (amino)?penicillin/],["Cephalosporin oder Chinolon",/cephalosporin|ceftriaxon|cefuroxim|cefotaxim|chinolon|cipro|levoflox|moxiflox/],["plus Metronidazol",/metronidazol/]],
         a:"Wegen der Penicillinallergie verzichte ich auf alle Penicilline, auch auf Ampicillin/Sulbactam und Piperacillin/Tazobactam. Bei einer leichten Reaktion wie einem Exanthem in der Kindheit ist ein Cephalosporin der dritten Generation, zum Beispiel Ceftriaxon, zusammen mit Metronidazol vertretbar, weil Kreuzallergien selten sind. Alternativ gebe ich Ciprofloxacin plus Metronidazol, wegen Resistenzlage und Nebenwirkungen aber nur als Reserve."},
       {t:"Komplikationen",q:"Welche Komplikationen einer akuten Cholezystitis kennen Sie?",k:[["Gallenblasenempyem",/empyem/],["Gangrän",/gangrän/],["Perforation, Peritonitis",/perforation|durchbruch|peritonitis/],["Abszess",/abszess/],["Sepsis",/sepsis|septisch/]],
         a:"Zu den Komplikationen gehören das Gallenblasenempyem, die Gangrän, die Perforation mit galliger Peritonitis, ein Abszess um die Gallenblase und eine Sepsis. Seltener entstehen eine Fistel zum Darm mit Gallensteinileus oder ein Mirizzi-Syndrom."},
       {t:"Recht",q:"Was gehört zu einer wirksamen Aufklärung vor der Operation?",k:[["mündlich, durch eine Ärztin oder einen Arzt",/mündlich|gespräch|ärztin|\sarzt/],["rechtzeitig vor dem Eingriff",/rechtzeitig|vorher|vortag|bedenkzeit|\s24/],["Ablauf, Risiken und Alternativen",/risik|komplikation|alternativ|ablauf/],["Einwilligung dokumentieren, Kopie aushändigen",/einwillig|unterschr|dokument|kopie|abschrift/]],
         a:"Die Aufklärung erfolgt mündlich durch die behandelnde Ärztin oder eine Person mit der für den Eingriff notwendigen Ausbildung, in verständlicher Form und so rechtzeitig, dass die Patientin wohlüberlegt entscheiden kann. Sie umfasst Art, Ablauf, Notwendigkeit und Dringlichkeit des Eingriffs, die typischen Risiken und die Alternativen. Die Einwilligung wird dokumentiert, und die Patientin erhält eine Kopie der unterschriebenen Unterlagen. Rechtsgrundlage ist Paragraf 630e BGB."},
-      {t:"Notfall",q:"Nach der Operation wird die Patientin plötzlich hypoton und tachykard. Woran denken Sie, und was tun Sie?",k:[["Nachblutung, hämorrhagischer Schock",/blutung|schock|hypovol/],["ABCDE-Schema, Volumengabe",/abcde|volumen|infusion|flüssigkeit|zugang/],["Hämoglobin kontrollieren, Sonographie",/\shb|hämoglobin|blutbild|sono|ultraschall/],["Operateur informieren, Revision",/chirurg|operateur|revision|oberarzt|relaparoskop|operation/]],
+      {t:"Notfall",id:"blutung",q:"Nach der Operation wird die Patientin plötzlich hypoton und tachykard. Woran denken Sie, und was tun Sie?",k:[["Nachblutung, hämorrhagischer Schock",/blutung|schock|hypovol/],["ABCDE-Schema, Volumengabe",/abcde|volumen|infusion|flüssigkeit|zugang/],["Hämoglobin kontrollieren, Sonographie",/\shb|hämoglobin|blutbild|sono|ultraschall/],["Operateur informieren, Revision",/chirurg|operateur|revision|oberarzt|relaparoskop|operation/]],
         a:"Ich denke zuerst an eine Nachblutung mit hämorrhagischem Schock. Ich gehe nach dem ABCDE-Schema vor, lege großlumige Zugänge, gebe Volumen, kontrolliere Hämoglobin und Gerinnung, mache eine Sonographie des Abdomens auf freie Flüssigkeit und informiere sofort den Operateur. Bestätigt sich die Blutung, ist eine operative Revision nötig."}]
   },
   lunge:{
+    safe:[["Sauerstoffsättigung gemessen",{e:"vital"}],["Hypoxämie erkannt, stationäre Aufnahme",{q:"schwere",k:[2,3]}],["Metformin pausiert",{q:"metformin",k:[0]}]],
     dx:"Ambulant erworbene Pneumonie im rechten Unterlappen mit Hypoxämie",
     vor:{t:"Fallvorstellung",q:"Bitte stellen Sie uns Ihren Patienten kurz vor.",k:[["Name und Alter",/wagner|\s67|jahre alt|jährig/],["Leitsymptome: Husten, Fieber, Atemnot",/husten|fieber|atemnot|luftnot|dyspnoe/],["Risikofaktoren: Diabetes, Rauchen",/diabetes|zucker|rauch|nikotin|pack/],["Befunde: Rasselgeräusche, Infiltrat, Hypoxämie",/rasselgeräusch|dämpfung|gedämpft|bronchialatm|infiltrat|röntgen|sättigung|hypox/],["Diagnose",/pneumonie|lungenentzündung/],["weiteres Vorgehen",/stationär|antibio|sauerstoff|therapie|behandl/]],
       a:"Herr Dieter Wagner ist 67 Jahre alt und kam mit seit vier Tagen bestehendem Husten mit gelblich-grünem Auswurf, Fieber bis 39,2 Grad, Belastungsdyspnoe und atemabhängigen Schmerzen rechts im Thorax. Er hat einen Diabetes mellitus Typ 2 und raucht seit 40 Jahren. Klinisch fanden sich eine Tachypnoe mit einer Sauerstoffsättigung von 89 Prozent sowie rechts basal Rasselgeräusche, Bronchialatmen und ein gedämpfter Klopfschall. Die Entzündungswerte sind deutlich erhöht, die Blutgasanalyse zeigt eine Hypoxämie, und im Röntgenbild sieht man ein Infiltrat im rechten Unterlappen. Wir gehen von einer ambulant erworbenen Pneumonie aus und haben ihn stationär aufgenommen, mit Sauerstoff und einer kalkulierten Antibiose."},
@@ -911,14 +925,16 @@ const KP={
     bericht:"Anamnese: Herr Dieter Wagner, 67 Jahre, stellte sich mit seit vier Tagen bestehendem, seit zwei Tagen produktivem Husten mit gelblich-grünem Auswurf vor. Begleitend bestehen Fieber bis 39,2 °C mit Schüttelfrost, Nachtschweiß, Belastungsdyspnoe und atemabhängige Schmerzen im rechten Thorax. Vorerkrankungen: Diabetes mellitus Typ 2, arterielle Hypertonie, Hypercholesterinämie. Medikation: Metformin, Amlodipin, Simvastatin. Nikotinabusus mit ca. 40 pack years. Keine Influenza-Impfung in dieser Saison.\n\nBefunde: RR 135/80 mmHg, HF 108/min, AF 26/min, SpO₂ 89 % unter Raumluft, Temperatur 39,0 °C, wach und orientiert. Rechts basal klingende Rasselgeräusche, Bronchialatmen und gedämpfter Klopfschall. Labor: Leukozytose 17,2/nl, CRP 186 mg/l, PCT 1,8 ng/ml, Blutzucker 248 mg/dl. BGA unter Raumluft: pO₂ 56 mmHg, pCO₂ 32 mmHg. Röntgen-Thorax: Infiltrat im rechten Unterlappen, kein Erguss.\n\nDiagnose: Ambulant erworbene Pneumonie im rechten Unterlappen mit Hypoxämie. CRB-65: 1 Punkt (Alter).\n\nPrognose: Unter adäquater Therapie meist gut. Alter, Diabetes und Hypoxämie erhöhen das Risiko, deshalb ist eine stationäre Behandlung nötig.\n\nBehandlungsplan: Stationäre Aufnahme, Sauerstoffgabe mit einer Zielsättigung von 92 bis 96 %, kalkulierte Antibiose mit Ampicillin/Sulbactam i. v., gegebenenfalls für drei Tage plus Azithromycin (kein Clarithromycin wegen Simvastatin), Therapiedauer in der Regel fünf Tage bei klinischer Stabilität seit mindestens zwei Tagen. Antipyrese, Flüssigkeit, Thromboseprophylaxe. Metformin pausieren, Blutzucker engmaschig kontrollieren, bei Bedarf Insulin. Wegen des regelmäßigen Alkoholkonsums Monitoring auf ein Alkoholentzugssyndrom, Thiamingabe erwägen. Klinische Kontrolle nach 48 bis 72 Stunden. Röntgen-Thorax-Kontrolle frühestens zwei Wochen nach Therapieende zum Ausschluss eines Bronchialkarzinoms. Beratung zum Rauchstopp, Impfungen nach der Genesung.\n\nEpikrise: Der 67-jährige Patient wurde mit einer ambulant erworbenen Pneumonie im rechten Unterlappen und Hypoxämie stationär aufgenommen. Wir haben eine Sauerstofftherapie und eine kalkulierte Antibiose begonnen.",
     qs:[
       {t:"Diagnose",q:"Was ist Ihre Diagnose, und wie begründen Sie sie?",k:[["ambulant erworbene Pneumonie",/pneumonie|lungenentzündung/],["Fieber, produktiver Husten",/fieber|husten|auswurf|sputum/],["Rasselgeräusche, Bronchialatmen, Dämpfung",/rasselgeräusch|bronchialatm|dämpfung|gedämpft/],["Infiltrat im Röntgen",/röntgen|infiltrat|verschattung/],["Entzündungswerte erhöht",/leukozyt|\scrp|procalcitonin|\spct|entzündungswert/]],
-        a:"Ich gehe von einer ambulant erworbenen Pneumonie im rechten Unterlappen aus. Dafür sprechen Fieber, produktiver Husten und Dyspnoe, rechts basal klingende Rasselgeräusche mit Bronchialatmen und Dämpfung, das Infiltrat im Röntgenbild sowie die erhöhten Entzündungswerte."},
-      {t:"Diagnose",q:"Wie schätzen Sie den Schweregrad ein, und wo behandeln Sie den Patienten?",k:[["CRB-65",/\scrb|\scurb/],["1 Punkt für das Alter",/ein punkt|1 punkt|einen punkt|alter|\s65/],["Hypoxämie: SpO₂ 89 %, pO₂ 56 mmHg",/hypox|sättigung|\s89|\s56|sauerstoff/],["stationäre Aufnahme",/stationär|aufnehm|aufnahme|krankenhaus/]],
+        a:"Ich gehe von einer ambulant erworbenen Pneumonie im rechten Unterlappen aus. Dafür sprechen Fieber, produktiver Husten und Dyspnoe, rechts basal klingende Rasselgeräusche mit Bronchialatmen und Dämpfung, das Infiltrat im Röntgenbild sowie die erhöhten Entzündungswerte."},      {t:"Differenzialdiagnosen",q:"Welche Differenzialdiagnosen ziehen Sie in Betracht?",k:[["akute Bronchitis",/bronchitis/],["Exazerbation einer COPD",/copd|exazerbation/],["Lungenembolie",/embolie/],["Bronchialkarzinom mit poststenotischer Pneumonie",/karzinom|tumor|krebs|poststenot/],["virale Infektion, z. B. Influenza oder COVID-19",/influenza|grippe|covid|corona|viral/]],
+        a:"Differenzialdiagnostisch kommen eine akute Bronchitis, eine Exazerbation einer bisher nicht bekannten COPD, eine Lungenembolie und eine virale Infektion wie Influenza oder COVID-19 infrage. Bei 40 pack years muss ich außerdem an ein Bronchialkarzinom mit poststenotischer Pneumonie denken."},
+
+      {t:"Diagnose",id:"schwere",q:"Wie schätzen Sie den Schweregrad ein, und wo behandeln Sie den Patienten?",k:[["CRB-65",/\scrb|\scurb/],["1 Punkt für das Alter",/ein punkt|1 punkt|einen punkt|alter|\s65/],["Hypoxämie: SpO₂ 89 %, pO₂ 56 mmHg",/hypox|sättigung|\s89|\s56|sauerstoff/],["stationäre Aufnahme",/stationär|aufnehm|aufnahme|krankenhaus/]],
         a:"Nach CRB-65 hat der Patient einen Punkt für das Alter. Entscheidend ist aber die Hypoxämie mit einer Sättigung von 89 Prozent und einem pO₂ von 56 mmHg. Dazu kommen der Diabetes und der reduzierte Allgemeinzustand. Ambulant behandeln kann man in der Regel nur Patienten mit einem CRB-65 von null, ausreichender Oxygenierung und ohne instabile Begleiterkrankungen. Deshalb nehme ich ihn stationär auf."},
       {t:"Diagnose",q:"Wofür stehen die Buchstaben im CRB-65-Score?",k:[["Confusion: Verwirrtheit",/confusion|verwirr|bewusst/],["Atemfrequenz ab 30 pro Minute",/atemfrequenz|respirat|\s30|dreißig|dreissig/],["Blutdruck: systolisch unter 90 oder diastolisch höchstens 60",/blutdruck|blood|\s90|\s60/],["Alter ab 65 Jahren",/alter|\s65|fünfundsechzig/]],
         a:"C steht für Confusion, also neu aufgetretene Verwirrtheit. R steht für eine Atemfrequenz von 30 pro Minute oder mehr. B steht für einen systolischen Blutdruck unter 90 mmHg oder einen diastolischen Blutdruck von 60 mmHg oder weniger. 65 steht für ein Alter ab 65 Jahren. Jedes Kriterium zählt einen Punkt."},
-      {t:"Pharmakologie",q:"Welche Antibiotikatherapie beginnen Sie?",k:[["Aminopenicillin mit Betalaktamase-Inhibitor oder Cephalosporin",/ampicillin|sulbactam|amoxicillin|clavulan|unacid|augmentan|cephalosporin|ceftriaxon|cefuroxim|cefotaxim/],["intravenös",/intravenös|\si v\s|\siv\s|infusion/],["gegebenenfalls plus Makrolid: Azithromycin wegen Simvastatin",/makrolid|clarithromycin|azithromycin/],["Dauer in der Regel fünf Tage",/fünf|\s5|tage/]],
+      {t:"Therapie",q:"Welche Antibiotikatherapie beginnen Sie?",k:[["Aminopenicillin mit Betalaktamase-Inhibitor oder Cephalosporin",/ampicillin|sulbactam|amoxicillin|clavulan|unacid|augmentan|cephalosporin|ceftriaxon|cefuroxim|cefotaxim/],["intravenös",/intravenös|\si v\s|\siv\s|infusion/],["gegebenenfalls plus Makrolid: Azithromycin wegen Simvastatin",/makrolid|clarithromycin|azithromycin/],["Dauer in der Regel fünf Tage",/fünf|\s5|tage/]],
         a:"Ich beginne kalkuliert mit Ampicillin/Sulbactam intravenös, alternativ mit einem Cephalosporin wie Ceftriaxon. Bei mittelschwerer Pneumonie kann ich ein Makrolid dazugeben. Ich wähle Azithromycin, weil Clarithromycin mit Simvastatin kontraindiziert ist. Ohne Nachweis atypischer Erreger beende ich das Makrolid nach drei Tagen. Die Therapie dauert in der Regel fünf Tage, wenn der Patient seit mindestens zwei Tagen klinisch stabil ist. Bei klinischer Besserung stelle ich früh auf eine orale Therapie um."},
-      {t:"Pharmakologie",q:"Was machen Sie mit dem Metformin?",k:[["pausieren",/pausier|absetz|abgesetzt|stopp|nicht weiter|aussetz/],["Risiko einer Laktatazidose",/laktat|azidose/],["Blutzucker kontrollieren, bei Bedarf Insulin",/blutzucker|insulin/]],
+      {t:"Pharmakologie",id:"metformin",q:"Was machen Sie mit dem Metformin?",k:[["pausieren",/pausier|absetz|abgesetzt|stopp|nicht weiter|aussetz/],["Risiko einer Laktatazidose",/laktat|azidose/],["Blutzucker kontrollieren, bei Bedarf Insulin",/blutzucker|insulin/]],
         a:"Ich pausiere Metformin, weil bei schwerer Infektion, Hypoxämie und eventueller Kontrastmittelgabe das Risiko einer Laktatazidose steigt. Den Blutzucker kontrolliere ich engmaschig und behandle bei Bedarf mit Insulin."},
       {t:"Komplikationen",q:"Welche Komplikationen einer Pneumonie kennen Sie?",k:[["Pleuraerguss, Pleuraempyem",/pleura|erguss|empyem/],["Sepsis, septischer Schock",/sepsis|septisch|schock/],["Lungenabszess",/abszess/],["respiratorische Insuffizienz, ARDS",/respiratorisch|\sards|insuffizienz|beatmung/],["kardiale Dekompensation, Delir",/kardial|dekompens|delir|herzinsuffizienz/]],
         a:"Typische Komplikationen sind ein parapneumonischer Pleuraerguss oder ein Pleuraempyem, eine Sepsis bis zum septischen Schock, ein Lungenabszess und eine respiratorische Insuffizienz bis zum ARDS. Bei älteren Patienten kommen eine kardiale Dekompensation und ein Delir dazu."},
@@ -928,6 +944,7 @@ const KP={
         a:"Nach den Empfehlungen der STIKO rate ich zur Pneumokokken-Impfung, die ab 60 Jahren als Standardimpfung gilt, zur jährlichen Influenza-Impfung und zur COVID-19-Auffrischimpfung. Außerdem berate ich ihn zum Rauchstopp."}]
   },
   bein:{
+    safe:[["Schwangerschaftstest vor der Antikoagulation",{t:"hcg"}],["Herz und Lunge untersucht: an Lungenembolie gedacht",{e:"herz"}],["Lungenembolie als Gefahr benannt, Notruf 112 erklärt",{q:"warn",k:[0,4]}]],
     dx:"Tiefe Beinvenenthrombose der V. poplitea und der Vv. fibulares links",
     vor:{t:"Fallvorstellung",q:"Bitte stellen Sie uns Ihre Patientin kurz vor.",k:[["Name und Alter",/schmid|\s34|jahre alt|jährig/],["Leitsymptom: Schwellung des linken Unterschenkels",/schwellung|geschwollen|unterschenkel|wade/],["Risikofaktoren: Pille, Rauchen, Flug",/pille|kontrazept|östrogen|rauch|\sflug|geflogen/],["Befunde: Umfangsdifferenz, Kompressionssonographie",/umfang|ödem|überwärm|kompression|sono|ultraschall/],["Diagnose",/thrombose|\stvt/],["Therapie: Antikoagulation",/antikoag|rivaroxaban|apixaban|heparin|blutverdünn|doak|noak/]],
       a:"Frau Anna Schmid ist 34 Jahre alt und kam mit einer seit drei Tagen zunehmenden, schmerzhaften Schwellung des linken Unterschenkels. Vor einer Woche hatte sie einen elfstündigen Flug. Sie nimmt seit zehn Jahren die Pille, das Präparat ist nicht bekannt, am ehesten ein östrogenhaltiges Kombinationspräparat. Außerdem raucht sie, und ihre Mutter hatte ebenfalls eine Thrombose. Hinweise auf eine Lungenembolie gibt es nicht. Der linke Unterschenkel ist geschwollen, überwärmt und livide, mit einer Umfangsdifferenz von vier Zentimetern. Die Kompressionssonographie zeigt eine Thrombose der Vena poplitea und der Venae fibulares links. Wir haben eine Antikoagulation mit Rivaroxaban begonnen, die Behandlung ist ambulant möglich."},
@@ -955,7 +972,9 @@ const KP={
     bericht:"Anamnese: Frau Anna Schmid, 34 Jahre, stellte sich mit einer seit drei Tagen zunehmenden, schmerzhaften Schwellung des linken Unterschenkels vor. Vor einer Woche hatte sie einen elfstündigen Langstreckenflug. Dyspnoe, Thoraxschmerzen, Hämoptysen und Fieber wurden verneint. Medikation: orales Kontrazeptivum seit zehn Jahren, Ibuprofen bei Bedarf. Nikotinabusus mit ca. 10 Zigaretten pro Tag. Familienanamnese: Beinvenenthrombose der Mutter mit 45 Jahren.\n\nBefunde: RR 125/80 mmHg, HF 88/min, SpO₂ 98 %, Temperatur 37,4 °C. Linker Unterschenkel geschwollen, überwärmt und livide, Umfangsdifferenz 4 cm, eindrückbares Ödem, Druckschmerz entlang der tiefen Venen. Fußpulse tastbar. Herz und Lunge unauffällig. Wells-Score 3 Punkte: Thrombose wahrscheinlich. Kompressionssonographie: Thrombose der V. poplitea und der Vv. fibulares links. Labor einschließlich Gerinnung und Nierenwerten unauffällig, Schwangerschaftstest negativ.\n\nDiagnose: Tiefe Beinvenenthrombose der V. poplitea und der Vv. fibulares links. Risikofaktoren: orales Kontrazeptivum, Nikotinabusus, Langstreckenflug, positive Familienanamnese.\n\nPrognose: Unter Antikoagulation gut. Mögliche Komplikationen sind eine Lungenembolie, ein Rezidiv und langfristig ein postthrombotisches Syndrom.\n\nBehandlungsplan: Therapeutische Antikoagulation, zum Beispiel Rivaroxaban 15 mg zweimal täglich für drei Wochen, danach 20 mg einmal täglich, jeweils zu einer Mahlzeit, für mindestens drei Monate. Wegen der Schwellung frühzeitige Kompressionstherapie, zunächst mit einem Kompressionsverband, nach Abschwellung mit einem Wadenkompressionsstrumpf der Klasse 2. Frühe Mobilisation. Unter Antikoagulation kein Ibuprofen oder andere NSAR; bei Migräne Paracetamol oder ein Triptan. Präparat der Pille klären, ein östrogenhaltiges Kontrazeptivum absetzen, Verhütung mit der Gynäkologin besprechen. Beratung zum Rauchstopp. Aufklärung über das Blutungsrisiko und die Warnzeichen einer Lungenembolie.\n\nEpikrise: Die 34-jährige Patientin stellte sich mit einer tiefen Beinvenenthrombose links vor. Wir haben eine orale Antikoagulation mit Rivaroxaban begonnen. Ohne Hinweis auf eine Lungenembolie ist eine ambulante Behandlung möglich.",
     qs:[
       {t:"Diagnose",q:"Was ist Ihre Diagnose, und wie haben Sie sie gesichert?",k:[["tiefe Beinvenenthrombose",/thrombose|\stvt/],["Kompressionssonographie",/kompression|sono|ultraschall/],["V. poplitea und Vv. fibulares links",/poplitea|fibular|knie/]],
-        a:"Es handelt sich um eine tiefe Beinvenenthrombose links mit Beteiligung der Vena poplitea und der Venae fibulares. Gesichert ist sie durch die Kompressionssonographie: Die Venen sind nicht komprimierbar und aufgeweitet, im Lumen liegt echoarmes Thrombusmaterial."},
+        a:"Es handelt sich um eine tiefe Beinvenenthrombose links mit Beteiligung der Vena poplitea und der Venae fibulares. Gesichert ist sie durch die Kompressionssonographie: Die Venen sind nicht komprimierbar und aufgeweitet, im Lumen liegt echoarmes Thrombusmaterial."},      {t:"Differenzialdiagnosen",q:"Welche Differenzialdiagnosen haben Sie erwogen?",k:[["rupturierte Baker-Zyste",/baker/],["Muskelfaserriss oder Hämatom",/muskel|faserriss|hämatom|zerrung/],["Erysipel",/erysipel|wundrose/],["oberflächliche Thrombophlebitis",/thrombophlebitis|oberflächlich/],["Lymphödem",/lymph/]],
+        a:"Erwogen habe ich eine rupturierte Baker-Zyste, einen Muskelfaserriss oder ein Hämatom, ein Erysipel, eine oberflächliche Thrombophlebitis und ein Lymphödem. Gegen ein Erysipel sprechen das fehlende Fieber und die nicht scharf begrenzte Rötung, gegen eine Baker-Zyste die unauffällige Kniekehle."},
+
       {t:"Diagnostik",q:"Berechnen Sie bitte den Wells-Score für die Patientin.",k:[["Umfangsdifferenz mindestens 3 cm",/umfang|\s3 cm|\s4 cm|drei zentimeter|vier zentimeter|schwellung/],["eindrückbares Ödem",/ödem/],["Druckschmerz entlang der tiefen Venen",/druckschmerz|verhärt|schmerz/],["3 Punkte: Thrombose wahrscheinlich",/3 punkte|drei punkte|wahrscheinlich|\shoch/]],
         a:"Die Patientin bekommt je einen Punkt für die Umfangsdifferenz des Unterschenkels von mindestens drei Zentimetern, für das eindrückbare Ödem und für den Druckschmerz entlang der tiefen Venen. Das sind drei Punkte, eine Thrombose ist also wahrscheinlich. Der Langstreckenflug ist im Wells-Score kein eigenes Kriterium."},
       {t:"Diagnostik",q:"Wann sind D-Dimere sinnvoll, und wann nicht?",k:[["bei niedriger Wahrscheinlichkeit zum Ausschluss",/niedrig|gering|ausschl|ausschluss/],["negativer Wert schließt weitgehend aus",/negativ|vorhersage/],["bei hoher Wahrscheinlichkeit direkt Sonographie",/\shoch|direkt|sofort|sono|ultraschall/],["unspezifisch: Entzündung, Tumor, Operation, Schwangerschaft",/unspezifisch|entzündung|schwanger|tumor|operation|\salter/]],
@@ -964,7 +983,7 @@ const KP={
         a:"Die Patientin nimmt seit zehn Jahren die Pille, am ehesten ein östrogenhaltiges Kombinationspräparat. Sie raucht und ist vor einer Woche elf Stunden geflogen. Ihre Mutter hatte ebenfalls eine Thrombose, was auf eine familiäre Belastung hinweisen kann. Außerdem ist sie mit einem BMI von etwa 27 leicht übergewichtig."},
       {t:"Therapie",q:"Wie behandeln Sie die Patientin, und wie lange?",k:[["Antikoagulation, z. B. Rivaroxaban oder Apixaban",/antikoag|rivaroxaban|apixaban|edoxaban|dabigatran|heparin|doak|noak|blutverdünn/],["mindestens drei Monate",/monat/],["Kompressionstherapie wegen der Schwellung",/kompressionsstr|kompressionsther|kompressionsverb|strümpf|strumpf/],["frühe Mobilisation, keine Bettruhe",/mobilis|bewegung|bettruhe/],["ambulante Behandlung möglich",/ambulant|zu hause|nach hause/]],
         a:"Ich beginne eine therapeutische Antikoagulation, zum Beispiel mit Rivaroxaban: drei Wochen lang 15 mg zweimal täglich, danach 20 mg einmal täglich, jeweils zu einer Mahlzeit. Die Therapie dauert mindestens drei Monate. Wegen der Schwellung beginne ich frühzeitig eine Kompressionstherapie, zunächst mit einem Kompressionsverband, nach Abschwellung mit einem Wadenkompressionsstrumpf der Klasse 2. Bettruhe ist nicht nötig, die Patientin soll sich früh bewegen. Gegen die Migräne soll sie kein Ibuprofen mehr nehmen, sondern zum Beispiel Paracetamol. Ohne Zeichen einer Lungenembolie ist eine ambulante Behandlung möglich."},
-      {t:"Komplikationen",q:"Was ist die gefährlichste Komplikation, und welche Warnzeichen erklären Sie der Patientin?",k:[["Lungenembolie",/embolie/],["Atemnot",/atemnot|luftnot|dyspnoe/],["Brustschmerz",/brust|thorax/],["Herzrasen, Bluthusten, Kollaps",/herzrasen|tachykard|bluthusten|blut husten|hämoptys|kollaps|ohnmacht|synkope/],["sofort Notruf 112",/112|notruf|notarzt|sofort/]],
+      {t:"Notfall",id:"warn",q:"Was ist die gefährlichste Komplikation, und welche Warnzeichen erklären Sie der Patientin?",k:[["Lungenembolie",/embolie/],["Atemnot",/atemnot|luftnot|dyspnoe/],["Brustschmerz",/brust|thorax/],["Herzrasen, Bluthusten, Kollaps",/herzrasen|tachykard|bluthusten|blut husten|hämoptys|kollaps|ohnmacht|synkope/],["sofort Notruf 112",/112|notruf|notarzt|sofort/]],
         a:"Die gefährlichste Komplikation ist die Lungenembolie. Warnzeichen sind plötzliche Atemnot, Schmerzen in der Brust, Herzrasen, Bluthusten oder ein Kollaps. Dann soll die Patientin sofort die 112 rufen. Langfristig kann ein postthrombotisches Syndrom entstehen."},
       {t:"Pharmakologie",q:"Was raten Sie der Patientin zur Verhütung?",k:[["keine östrogenhaltige Pille mehr",/pille|östrogen|kombiniert/],["Alternativen: Hormon- oder Kupferspirale, reine Gestagenpräparate",/spirale|gestagen|kondom|kupfer|minipille|implantat|nicht hormonell/],["sichere Verhütung unter DOAK",/schwanger|sicher|kontraindiz/],["Rücksprache mit der Gynäkologin",/gynäkolog|frauenärzt|frauenarzt/]],
         a:"Eine östrogenhaltige Pille soll sie nicht mehr nehmen. Geeignet sind eine Hormonspirale mit Levonorgestrel, eine reine Gestagenpille, ein Gestagenimplantat oder eine Kupferspirale. Da die Regelblutung unter Rivaroxaban stärker werden kann, ist die Hormonspirale besonders geeignet. Unter einem DOAK ist eine sichere Verhütung wichtig, weil diese Medikamente in der Schwangerschaft kontraindiziert sind. Das Vorgehen bespricht sie mit ihrer Gynäkologin."},
@@ -988,7 +1007,7 @@ const words=s=>str(s).trim().split(/\s+/).filter(Boolean).length;
 const byId=id=>CASES.find(c=>c.id===id);
 let R={v:"home"};
 let EX=null;
-function curId(){return R.v==="case"||R.v==="kp"?R.id:(R.v==="famed"&&R.id?(R.mod==="hoer"?"h_"+R.id:R.id):(R.v==="exam"&&fxStep()&&fxStep().cid?fxStep().cid:(R.v==="exam"&&EX&&EX.stage<=3?EX.caseId:null)))}
+function curId(){return R.v==="case"||R.v==="kp"?R.id:R.v==="kpexam"&&kxOn()?KX.cid:(R.v==="famed"&&R.id?(R.mod==="hoer"?"h_"+R.id:R.id):(R.v==="exam"&&fxStep()&&fxStep().cid?fxStep().cid:(R.v==="exam"&&EX&&EX.stage<=3?EX.caseId:null)))}
 function viewIs(id){return !!id&&curId()===id}
 
 /* ---------- storage ---------- */
@@ -1382,7 +1401,7 @@ async function runJSON(kind,id,prompt,onOk){const slot=$("#fb-"+kind);
   const ctl=new AbortController();FBRUN[kind]={ctl,id};
   if(slot)slot.innerHTML=thinkingHTML(kind);
   try{const t=await callClaude({model:MODEL_REVIEW,system:"Du antwortest ausschließlich mit gültigem JSON, ohne weiteren Text.",messages:[{role:"user",content:prompt}],max_tokens:2500,signal:ctl.signal});
-    const d=parseJSON(t);if(!d||typeof d!=="object"||Array.isArray(d))throw {code:"invalid_json"};FB[id+":"+kind]=d;onOk(d);
+    const d=parseJSON(t);if(!d||typeof d!=="object"||Array.isArray(d))throw {code:"invalid_json"};FB[id+":"+kind]=d;onOk(d);histAI(kind,id,d);
     const s=viewIs(id)?$("#fb-"+kind):null;if(s)s.innerHTML=fbHTML(kind,byId(id),d)}
   catch(e){const msg=errText(e);const s=viewIs(id)?$("#fb-"+kind):null;if(s)s.innerHTML=msg?`<p class="err">${esc(msg)}</p>`:""}
   finally{if(FBRUN[kind]&&FBRUN[kind].ctl===ctl)FBRUN[kind]=null}}
@@ -1757,7 +1776,7 @@ function kpuSumHTML(c,ch){const s=kpuSc(c.id);
   if(ch.unm&&ch.unm.length)h+=`<div class="fb-sec"><h3>Phrases the trainer did not understand</h3><ul class="plain">${ch.unm.slice(-8).map(t=>`<li lang="de">${esc(t)}</li>`).join("")}</ul><p class="small muted">Name the method and the region, for example «Ich palpiere das Abdomen», or check whether your speech was recognised correctly.</p></div>`;
   return h+`<p class="small muted">The percentages are only the trainer’s guide. In the exam the commission judges everything together.</p></div>`}
 function kpuFinish(id){const ch=chatOf(id,"kpu");if(!ch.end)ch.end=Date.now();ch.sum=true;const s=kpuSc(id);fmSet("kp_u_"+id,s.pu);fmSet("kp_d_"+id,s.pd);
-  if(!ch.recorded){ch.recorded=true;pushHist({ts:Date.now(),kind:"kpu",case:id,eMiss:s.eMiss.map(x=>x[1]),tMiss:s.tMiss.map(x=>x[1]),pu:s.pu,pd:s.pd,score:Math.round((s.pu+s.pd)/2),dur:Math.round((ch.end-(ch.start||ch.end))/1000)})}
+  if(!ch.recorded){ch.recorded=true;pushHist({ts:Date.now(),kind:"kpu",case:id,eMiss:s.eMiss.map(x=>x[1]),tMiss:s.tMiss.map(x=>x[1]),pu:s.pu,pd:s.pd,score:Math.round((s.pu+s.pd)/2),dur:Math.round((ch.end-(ch.start||ch.end))/1000),det:{t:hTurns(ch)}})}
   const slot=$("#free-kpu");if(slot&&viewIs(id))slot.innerHTML=kpuSumHTML(byId(id),ch);kpTotPaint(id)}
 
 /* --- Schritt 3: report --- */
@@ -1767,8 +1786,8 @@ function kpbResHTML(r){const miss=r.rep.filter(x=>!x[1]);return `<div class="fb"
   <div class="fb-sec"><h3>Report sections</h3><div class="chips">${r.sec.map(([l,o])=>`<span class="chip ${o?"ok":"miss"}" lang="de">${esc(l)}</span>`).join("")}</div></div>
   ${miss.length?`<div class="fb-sec"><h3>Not found in your text</h3><ul class="plain">${miss.map(x=>`<li lang="de">${esc(x[0])}</li>`).join("")}</ul></div>`:`<p class="small">All key points are in your text.</p>`}
   <p class="small muted">The check looks for key words but does not check medical reasoning or grammar. For a review, press «Check with AI».</p></div>`}
-function kpbRecord(id,r){const miss=[...r.sec.filter(x=>!x[1]).map(x=>x[0]),...r.rep.filter(x=>!x[1]).map(x=>x[0])];const last=arr(S.hist).slice().reverse().find(h=>h.kind==="kpb"&&h.case===id);
-  if(last&&Date.now()-(last.ts||0)<30*60*1000){last.miss=miss;last.score=r.pct;last.ts=Date.now();save()}else pushHist({ts:Date.now(),kind:"kpb",case:id,miss,score:r.pct})}
+function kpbRecord(id,r,text){const miss=[...r.sec.filter(x=>!x[1]).map(x=>x[0]),...r.rep.filter(x=>!x[1]).map(x=>x[0])];const last=arr(S.hist).slice().reverse().find(h=>h.kind==="kpb"&&h.case===id);const det={text:str(text).slice(0,8000)};
+  if(last&&Date.now()-(last.ts||0)<30*60*1000){last.miss=miss;last.score=r.pct;last.ts=Date.now();last.det=det;save()}else pushHist({ts:Date.now(),kind:"kpb",case:id,miss,score:r.pct,det})}
 function kpWc(){const el=$("#wc-kpb");if(el&&R.v==="kp"&&R.id)el.textContent=words(draft("kp_"+R.id).brief)+" words"}
 function kpbPrompt(c,text){const K=KP[c.id];return `Du bist erfahrene Prüferin in der Kenntnisprüfung für Ärztinnen und Ärzte mit Ausbildung aus einem Drittstaat (Niveau des Dritten Abschnitts der Ärztlichen Prüfung). Ein Prüfling hat nach Anamnese und Untersuchung eines simulierten Patienten einen schriftlichen Bericht verfasst (Anamnese, Befunde, Diagnose, Prognose, Behandlungsplan, Epikrise). Bewerte vor allem die medizinische Richtigkeit und Vollständigkeit, außerdem Struktur und Fachsprache. ${ASR_NOTE}
 
@@ -1828,8 +1847,9 @@ function kppSumHTML(c,ch){const s=kppSc(ch);const reached=ch.fin&&ch.qi===ch.qs.
   h+=`<p class="small muted">Without AI, answers are checked by key words: a correct answer in other words may not count, and grammar is not checked.</p>`;
   if(KEY)h+=`<div class="row"><button type="button" class="btn primary" data-action="ai-kpp">Review with AI</button></div>`;
   return h+"</div>"}
-function kppFinish(id){const ch=chatOf(id,"kpp");if(!ch.qs)return;if(!ch.end)ch.end=Date.now();ch.sum=true;const sc=kppSc(ch);fmSet("kp_g_"+id,sc.pct);
-  if(!ch.recorded){ch.recorded=true;pushHist({ts:Date.now(),kind:"kpp",case:id,topics:Object.fromEntries(kppTopics(ch)),score:sc.pct,dur:Math.round((ch.end-(ch.start||ch.end))/1000)})}
+function kppFinish(id){const ch=chatOf(id,"kpp");if(!ch.qs)return;if(!ch.end)ch.end=Date.now();ch.sum=true;
+  if(kxOn(id)){setTimeout(()=>{if(kxOn(id)&&KX.stage===3)kxNext(false)},1800);return}const sc=kppSc(ch);fmSet("kp_g_"+id,sc.pct);
+  if(!ch.recorded){ch.recorded=true;pushHist({ts:Date.now(),kind:"kpp",case:id,topics:Object.fromEntries(kppTopics(ch)),score:sc.pct,dur:Math.round((ch.end-(ch.start||ch.end))/1000),det:{qa:ch.qs.map((q,i)=>[q.q,ch.ans[i].join(" "),ch.hits[i].size,q.k.length])}})}
   const slot=$("#free-kpp");if(slot&&viewIs(id))slot.innerHTML=kppSumHTML(byId(id),ch);kpTotPaint(id)}
 function kppPrompt(c,ch){const tr=ch.qs.map((q,i)=>`Frage ${i+1}: ${q.q}\nAntwort des Prüflings: ${ch.ans[i].join(" ")||"(keine Antwort)"}\nMusterantwort: ${q.a}`).join("\n\n");
   return `Du bist erfahrene Prüferin in der Kenntnisprüfung für Ärztinnen und Ärzte mit Ausbildung aus einem Drittstaat (Niveau des Dritten Abschnitts der Ärztlichen Prüfung). Ein Prüfling hat im Prüfungsgespräch mündlich Fragen zu einem simulierten Fall beantwortet. Bewerte vor allem die medizinische Richtigkeit und Vollständigkeit der Antworten, außerdem die Fachsprache. Die Musterantworten sind nur eine Referenz: Andere richtige Antworten sind ebenfalls korrekt. ${ASR_NOTE}
@@ -1851,9 +1871,10 @@ ${JSON_SHAPE}`}
 /* --- scores and views --- */
 function kpPartSc(id){return [["a","Anamnese"],["u","Körperliche Untersuchung"],["d","Diagnostik"],["b","Bericht"],["g","Prüfungsgespräch"]].map(([k,l])=>[l,fmScore("kp_"+k+"_"+id)])}
 function kpTotal(id){const v=kpPartSc(id).map(x=>x[1]).filter(x=>x!=null);return v.length?{pct:Math.round(v.reduce((a,b)=>a+b,0)/v.length),n:v.length}:null}
-function kpTotalHTML(id){return `<div class="panel">${kpPartSc(id).map(([l,v])=>`<div class="fb-sec"><div class="bar-row"><span lang="de">${l}</span><span class="mono">${v==null?"—":v+"%"}</span></div><div class="meter" aria-hidden="true"><i style="width:${v||0}%"></i></div></div>`).join("")}<p class="small muted">The percentages are only the trainer’s guide. In the exam the commission judges everything together and decides whether you pass.</p></div>`}
+function kpTotalHTML(id){const ps=kpPartSc(id);const ev=ps.every(x=>x[1]!=null)?kpVerdict(ps,false,[]):null;return `<div class="panel">${ev?kpVerdictHTML(ev):""}${ps.map(([l,v])=>`<div class="fb-sec"><div class="bar-row"><span lang="de">${l}</span><span class="mono">${v==null?"—":v+"%"}</span></div><div class="meter" aria-hidden="true"><i style="width:${v||0}%"></i></div></div>`).join("")}<p class="small muted">The percentages are only the trainer’s guide. In the exam the commission judges everything together and decides whether you pass.</p></div>`}
 function kpTotPaint(id){const t=$("#kp-total");if(t&&viewIs(id))t.innerHTML=kpTotalHTML(id)}
-function kpHubHTML(){return `<section class="hero"><span class="eyebrow">Kenntnisprüfung · beta</span><h1>Kenntnisprüfung</h1><p class="lede">Pilot with three cases. Go through it as in the exam: history, examination by voice, lab tests and imaging, report and the talk with the commission.</p></section>
+function kpHubHTML(){return `<section class="hero"><span class="eyebrow">Kenntnisprüfung · beta</span><h1>Kenntnisprüfung</h1><p class="lede">Pilot with three cases. Go through it as in the exam: history, examination by voice, lab tests and imaging, report and the talk with the commission.</p>
+  <div class="row"><a class="btn primary" href="#kp-exam">Kenntnisprüfung simulieren</a><a class="btn" href="#kp-drill"><span lang="de">Meine KP-Schwächen trainieren</span></a></div></section>
   <p class="note">The medical content of this module is a draft: a clinician in internal medicine and surgery has not checked it yet. Use the module for practice, not as your only source.</p>
   <section><h2>Cases</h2><ul class="prog">${CASES.filter(c=>KP[c.id]).map(c=>{const t=kpTotal(c.id);return `<li><a href="#kp-${c.id}-anamnese">Fall ${c.nr} · ${esc(c.titleRu)}</a><span class="mono">${t?t.pct+"% · "+t.n+"/5":"—"}</span></li>`}).join("")}</ul></section>
   <section><h2>How the KP works</h2><ul class="plain small">
@@ -1898,6 +1919,178 @@ function afterKP(id,tab){const c=byId(id);voicePrefetch("ober");
   if(tab==="gespraech"){voicePrefetch("narr");paintChat(id,"kpp");fill("kpp");const ch=chatOf(id,"kpp");if(ch.sum&&ch.qs){const s=$("#free-kpp");if(s)s.innerHTML=kppSumHTML(c,ch)}}
   paintRec()}
 
+/* ---------- KP evaluation: 10 areas and a training verdict (not an official result) ---------- */
+const KP_V={ok:"Anforderungen erfüllt",teil:"Anforderungen teilweise erfüllt",nicht:"Nicht ausreichend"};
+const KP_SCORE_NOTE="Keine offizielle Prüfungsnote. Dient nur zur Verlaufskontrolle.";
+const KP_RULE="Trainer rule: “Anforderungen erfüllt” means history, examination, diagnostics, report and the talk with the commission at 60% or more, and patient safety at 60% or more. “Nicht ausreichend” means at least one of these parts below 40% or a critical error. Everything in between is “teilweise erfüllt”. This is the trainer’s assessment, not a decision of the commission.";
+const pc100=x=>Math.max(0,Math.min(100,Math.round(+x||0)));
+function kpEval(id,src){const K=KP[id];const qs=kppQs(byId(id));const H=arr(src.hits).length?src.hits:qs.map(()=>new Set());const hs=i=>H[i]instanceof Set?H[i]:new Set();
+  const qPct=pred=>{let g=0,n=0;qs.forEach((q,i)=>{if(pred(q)){g+=hs(i).size;n+=q.k.length}});return n?Math.round(g/n*100):null};
+  const done=src.done instanceof Set?src.done:new Set(),ord=src.ord instanceof Set?src.ord:new Set();const ke=K.exam.filter(e=>e[4]),kt=K.tests.filter(t=>t[4]);
+  const pu=Math.round(ke.filter(e=>done.has(e[0])).length/ke.length*100),pt=Math.round(kt.filter(t=>ord.has(t[0])).length/kt.length*100);
+  const pq=qPct(q=>q.t==="Diagnostik");const pd=pq==null?pt:Math.round((pt+pq)/2);
+  const okS=sp=>sp.e?done.has(sp.e):sp.t?ord.has(sp.t):(()=>{const i=qs.findIndex(q=>q.id===sp.q);return i>=0&&sp.k.every(k=>hs(i).has(k))})();
+  const sf=arr(K.safe);const ps=sf.length?Math.round(sf.filter(x=>okS(x[1])).length/sf.length*100):null;
+  const tot=qs.reduce((a,q)=>a+q.k.length,0);const g=Math.round(qs.reduce((a,q,i)=>a+hs(i).size,0)/tot*100);
+  const dims=[["Anamnese",src.anam==null?null:src.anam],["Körperliche Untersuchung",pu],["Diagnostik",pd],["Differentialdiagnostik",qPct(q=>q.t==="Differenzialdiagnosen")],["Therapie",qPct(q=>q.t==="Therapie")],["Pharmakologie",qPct(q=>q.t==="Pharmakologie")],["Notfallmanagement",qPct(q=>q.t==="Notfall")],["Patientensicherheit",ps],["Bericht",src.bericht==null?null:src.bericht],["Prüfungsgespräch",g]];
+  return kpVerdict(dims,!!src.crit,sf.filter(x=>!okS(x[1])).map(x=>x[0]))}
+function kpVerdict(dims,crit,safeMiss){const v=n=>{const d=dims.find(x=>x[0]===n);return d?d[1]:null};
+  const core=["Anamnese","Körperliche Untersuchung","Diagnostik","Bericht","Prüfungsgespräch"].map(v);const ps=v("Patientensicherheit");
+  const known=core.filter(x=>x!=null);const score=known.length?Math.round(known.reduce((x,y)=>x+y,0)/known.length):0;
+  const verdict=crit||core.some(x=>x==null||x<40)?"nicht":core.every(x=>x>=60)&&(ps==null||ps>=60)?"ok":"teil";
+  return {dims,score,verdict,crit:!!crit,safeMiss:arr(safeMiss)}}
+function kpVerdictHTML(ev){const vd=KP_V[ev.verdict]?ev.verdict:"teil";
+  return `<div class="verdict ${vd}"><span class="eyebrow">Trainingseinschätzung</span><b lang="de">${KP_V[vd]}</b>${ev.crit?`<span class="crit" lang="de"><b>Kritischer Fehler</b></span>`:""}<span class="small" lang="de">Interner Trainingsscore: ${pc100(ev.score)}/100</span><span class="small muted" lang="de">${KP_SCORE_NOTE}</span></div>`}
+function kpDimsHTML(dims){return arr(dims).map(([l,p])=>`<div class="fb-sec"><div class="bar-row"><span lang="de">${esc(l)}</span><span class="mono">${p==null?"nicht geprüft":pc100(p)+"%"}</span></div><div class="meter" aria-hidden="true"><i style="width:${p==null?0:pc100(p)}%"></i></div></div>`).join("")}
+
+/* ---------- KP simulation (exam mode): 4 parts in a row, timer, no hints, saved to progress ---------- */
+let KX=null;
+const KX_PARTS=[["anam","Anamnese",15],["unters","Untersuchung und Diagnostik",15],["bericht","Bericht",20],["gespraech","Prüfungsgespräch",30]];
+function kxOn(id){return !!(KX&&!KX.done&&(!id||KX.cid===id))}
+function kxLen(){return (KX.lim[KX.stage]||15)*60}
+function kxLeft(){if(!kxOn())return 0;return kxLen()-Math.floor((Date.now()-KX.t0)/1000)}
+function kxStart(){stopRec();stopVoice();
+  const last=arr(S.hist).filter(h=>h.kind==="kpx").map(h=>h.case).slice(-2);const ids=CASES.filter(c=>KP[c.id]).map(c=>c.id);const pool=ids.filter(x=>!last.includes(x));const cid=shuffle(pool.length?pool:ids)[0];
+  ["patient","kpu","kpp"].forEach(k=>{const ch=CH[cid+":"+k];if(ch&&ch.ctl)ch.ctl.abort();delete CH[cid+":"+k]});delete FREE[cid];delete COV[cid];
+  EX=null;FX=null;KX={cid,stage:0,lim:KX_PARTS.map(p=>p[2]),t0:Date.now(),dur:{},timeout:{},notes:"",bericht:"",done:false,res:null,ai:null,recId:null};sessDrop();sessSave();render()}
+function kxNext(auto){if(!kxOn())return;stopRec();stopVoice();const c=KX.cid,s=KX.stage;
+  const kind=s===0?"patient":s===1?"kpu":s===3?"kpp":null;if(kind){const ch=chatOf(c,kind);if(ch.ctl)ch.ctl.abort();if(!ch.end)ch.end=Date.now()}
+  KX.dur[s]=Math.min(kxLen(),Math.max(0,Math.round((Date.now()-KX.t0)/1000)));if(auto)KX.timeout[s]=true;
+  if(s<3){KX.stage=s+1;KX.t0=Date.now()}else kxFinish();
+  sessSave();if(R.v==="kpexam")render()}
+function kxFinish(){const id=KX.cid,c=byId(id);const pa=chatOf(id,"patient"),pu=chatOf(id,"kpu"),pp=chatOf(id,"kpp");const qs=kppQs(c);
+  const hits=pp.qs&&pp.hits?pp.hits:qs.map(()=>new Set());const cov=pa.cov||new Set();
+  const anam=Math.round(cov.size/c.items.length*100);const br=words(KX.bericht)>=1?kpbRes(id,KX.bericht):null;
+  const ev=kpEval(id,{anam,done:pu.done,ord:pu.ord,hits,bericht:br?br.pct:0,crit:false});const us=kpuSc(id);
+  const topics=pp.qs?Object.fromEntries(kppTopics(pp)):{};
+  const res={ev,anMiss:c.items.filter(i=>!cov.has(i.id)).map(i=>i.t),eMiss:us.eMiss.map(x=>x[1]),tMiss:us.tMiss.map(x=>x[1]),bMiss:br?[...br.sec.filter(x=>!x[1]).map(x=>x[0]),...br.rep.filter(x=>!x[1]).map(x=>x[0])]:["Bericht"]};
+  const rec={ts:Date.now(),kind:"kpx",case:id,score:ev.score,verdict:ev.verdict,crit:false,dims:ev.dims,safeMiss:ev.safeMiss,topics,eMiss:res.eMiss,tMiss:res.tMiss,miss:res.bMiss,
+    missed:c.items.filter(i=>!cov.has(i.id)).map(i=>i.id),dur:Object.values(KX.dur).reduce((a,b)=>a+(+b||0),0),
+    det:{t:hTurns(pa),notes:str(KX.notes).slice(0,4000),u:hTurns(pu),bericht:str(KX.bericht).slice(0,8000),qa:qs.map((q,i)=>[q.q,arr(pp.ans&&pp.ans[i]).join(" "),hits[i]instanceof Set?hits[i].size:0,q.k.length]),durs:KX.dur}};
+  pushHist(rec);KX.recId=rec.id;KX.res=res;KX.done=true}
+function kxIntroHTML(){return `${KP_BACK}<section class="hero"><span class="eyebrow">Prüfungsmodus · beta</span><h1>Kenntnisprüfung simulieren</h1><p class="lede">One random case from start to finish: history, examination and diagnostics, report and the talk with the commission. In a row, with a timer, without hints or samples. At the end you get the trainer’s assessment.</p></section>
+  <section><div class="panel"><ol class="steps-ol">${KX_PARTS.map(p=>`<li><b lang="de">${p[1]}</b> — ${p[2]} minutes</li>`).join("")}</ol>
+  <p class="small muted">The stage times are for training. In the exam the first part (history, examination, report) takes about 60 minutes and the talk with the commission 60–90 minutes per person (according to the NiZzA Niedersachsen leaflet). When the time for a stage runs out, the simulation moves on by itself. You cannot go back to an earlier stage.</p>
+  <p class="small">The medical content is a draft and has not yet been reviewed by a clinician.</p>
+  ${freeNote()}<div class="row"><button type="button" class="btn primary" data-action="kx-start">Start the simulation</button></div></div></section>`}
+function kxHTML(){if(!KX)return kxIntroHTML();if(KX.done)return kxResultHTML();const c=byId(KX.cid);const s=KX.stage;const left=kxLeft();const P=KX_PARTS[s];
+  const head=`<section class="exhead"><div class="ex-top"><span class="eyebrow">Kenntnisprüfung · Teil ${s+1} von 4 · <span lang="de">${P[1]}</span></span><span class="ex-clock mono${left<=60?" low":""}" id="ex-clock">${fmt(left)}</span></div><div class="meter"><i id="ex-bar" style="width:${Math.max(0,Math.min(100,100*left/kxLen()))}%"></i></div></section>${etikett(c)}`;
+  const nx=t=>`<div class="row"><button type="button" class="btn primary" data-action="kx-next">${t}</button></div>`;
+  let body="";
+  if(s===0)body=`<section><p class="lede-s">Take the history by voice. There are no hints and no checklist. You can take notes.</p>${freeNote()}${chatBox("patient",true)}<label class="lbl" for="kxnotes">Notes</label><textarea id="kxnotes" data-kx="notes" rows="4" lang="de">${esc(KX.notes)}</textarea>${nx("Finish history →")}</section>`;
+  else if(s===1)body=`<section><p class="lede-s">Examine the patient and order diagnostics by voice. There are no hints.</p>${chatBox("kpu",true,"Scripted findings · no AI")}<div id="kpu-bef"></div>${nx("Finish the examination →")}</section>`;
+  else if(s===2){const bef=kpBefHTML(KX.cid);body=`<section><p class="lede-s">Write the report: history, findings, diagnosis, prognosis, treatment plan, epicrisis. There is no sample and no template.</p>${bef?`<details class="notes-ro"><summary>Your findings from the examination</summary><div style="margin-top:8px">${bef}</div></details>`:""}${KX.notes.trim()?`<details class="notes-ro"><summary>Your notes</summary><p class="pre" lang="de">${esc(KX.notes)}</p></details>`:""}
+    ${dictBox("kxber","You can dictate: press the microphone, say a sentence, the text is added at the end.")}<label class="sr" for="kxber">Report text</label><textarea id="kxber" data-kx="bericht" rows="16" lang="de" placeholder="Anamnese: …">${esc(KX.bericht)}</textarea><div class="row"><span class="mono muted" id="wc-kxber">${words(KX.bericht)} words</span></div>${nx("Hand in the report →")}</section>`}
+  else body=`<section><p class="lede-s">Talk with the commission: first present the patient, then answer the questions. There are no sample answers.</p>${chatBox("kpp",true,"Scripted questions · no AI")}${nx("Finish exam")}</section>`;
+  return head+body+`<div class="row"><button type="button" class="btn ghost" data-action="kx-abort">Stop exam</button></div>`}
+function kxChips(t,a){return arr(a).length?`<div class="fb-sec"><h3>${t}</h3><div class="chips">${arr(a).map(x=>`<span class="chip miss" lang="de">${esc(x)}</span>`).join("")}</div></div>`:""}
+function kxResultHTML(){const c=byId(KX.cid);const K=KP[KX.cid];const r=KX.res;const ev=r.ev;
+  const durs=KX_PARTS.map((p,i)=>`<span lang="de">${p[1]}</span> ${fmt(KX.dur[i]||0)}${KX.timeout[i]?" (time ran out)":""}`).join(" · ");
+  return `<section class="hero"><span class="eyebrow">Kenntnisprüfung · result</span><h1>Fall ${c.nr} · ${esc(c.titleRu)}</h1><p class="lede">${durs}</p></section>
+  <section>${kpVerdictHTML(ev)}</section>
+  <section><div class="fb"><span class="eyebrow" lang="de">Bereiche</span>${kpDimsHTML(ev.dims)}
+   ${kxChips("Patient safety: not done",ev.safeMiss)}${kxChips("History: not asked",r.anMiss)}${kxChips("Examination: missed",r.eMiss)}${kxChips("Diagnostics: missed",r.tMiss)}${kxChips("Report: not found",r.bMiss)}
+   <details class="notes-ro"><summary>How the trainer reaches its assessment</summary><p class="small" style="margin-top:8px">${KP_RULE}</p></details>
+   <p class="small muted">Without AI, answers are checked by keywords and dangerous decisions are not recognised. Only the AI review marks critical errors.</p>
+   ${KEY?`<div class="row"><button type="button" class="btn primary" data-action="kx-ai">AI review: medical errors</button></div>`:""}</div></section>
+  <div id="fb-kx">${KX.ai?fbHTML("kpb",c,KX.ai):""}</div>
+  <section><details class="notes-ro"><summary>Samples after the exam</summary><div class="muster" style="margin-top:8px"><span class="eyebrow" lang="de">Bericht</span><p class="pre" lang="de">${esc(K.bericht)}</p>${kppQs(c).map(q=>`<span class="eyebrow" lang="de">${esc(q.q)}</span><p class="pre small" lang="de">${esc(q.a)}</p>`).join("")}</div></details></section>
+  <section><h2>What to practise next</h2><div class="row"><a class="btn primary" href="#kp-drill"><span lang="de">Meine KP-Schwächen trainieren</span></a>${KX.recId?`<a class="btn" href="#attempt-${KX.recId}">Report and PDF</a>`:""}<button type="button" class="btn" data-action="kx-new">New simulation</button><a class="btn ghost" href="#kp">Kenntnisprüfung</a></div></section>`}
+function kxPrompt(){const id=KX.cid,c=byId(id),K=KP[id];const pp=chatOf(id,"kpp");const qs=kppQs(c);
+  const tr=qs.map((q,i)=>`Frage ${i+1}: ${q.q}\nAntwort des Prüflings: ${arr(pp.ans&&pp.ans[i]).join(" ")||"(keine Antwort)"}\nMusterantwort: ${q.a}`).join("\n\n");
+  const u=chatOf(id,"kpu").turns.map(t=>(t.role==="user"?"PRÜFLING: ":"PRÜFER: ")+t.content).join("\n");
+  return `Du bist erfahrene Prüferin in der Kenntnisprüfung für Ärztinnen und Ärzte mit Ausbildung aus einem Drittstaat (Niveau des Dritten Abschnitts der Ärztlichen Prüfung). Bewerte eine vollständige Simulation: Untersuchung und Diagnostik, schriftlicher Bericht und Prüfungsgespräch. Bewerte vor allem medizinische Richtigkeit, Vollständigkeit und Patientensicherheit, außerdem die Fachsprache. Die Musterlösungen sind nur eine Referenz: Andere richtige Antworten sind ebenfalls korrekt. ${ASR_NOTE}
+
+Fakten aus der Anamnese:
+${factsText(c)}
+
+Befunde des Falls:
+${kpBefText(id)}
+
+Untersuchung und Diagnostik (Gespräch mit dem Prüfer):
+${u||"(keine)"}
+
+Bericht des Prüflings:
+<<<
+${KX.bericht||"(leer)"}
+>>>
+
+Musterbericht:
+${K.bericht}
+
+Prüfungsgespräch:
+${tr}
+
+Aufgaben:
+1. Wichtige medizinische Inhalte, die fehlen (kurz, auf Englisch).
+2. Medizinisch falsche oder gefährliche Aussagen oder Entscheidungen (kurz, auf Englisch; gefährliche Fehler für die Patientensicherheit beginnen mit „KRITISCH:“; leere Liste, wenn keine).
+3. Bis zu 6 echte sprachliche Fehler: Original wörtlich, Korrektur, kurze Erklärung auf Englisch. Erfinde keine Fehler.
+4. 1 bis 2 Stärken und 2 bis 3 konkrete Tipps, auf Englisch.
+5. Ein Fazit in 2 bis 3 Sätzen auf Englisch. Gib kein Urteil „bestanden“ oder „nicht bestanden“ ab.
+
+Antworte nur mit JSON in genau dieser Form:
+${JSON_SHAPE}`}
+async function kxAI(){if(!KX||!KX.done||!KEY)return;if(FBRUN.kx)FBRUN.kx.ctl.abort();const ctl=new AbortController();FBRUN.kx={ctl,id:KX.cid};const slot=$("#fb-kx");if(slot)slot.innerHTML=thinkingHTML("kx");const mine=KX;
+  try{const t=await callClaude({model:MODEL_REVIEW,system:"Du antwortest ausschließlich mit gültigem JSON, ohne weiteren Text.",messages:[{role:"user",content:kxPrompt()}],max_tokens:3000,signal:ctl.signal});
+    const d=parseJSON(t);if(!d||typeof d!=="object"||Array.isArray(d))throw {code:"invalid_json"};if(KX!==mine)return;
+    const crit=arr(d.falsch).map(str).some(x=>/^\s*KRITISCH\s*:/i.test(x));KX.ai=d;KX.res.ev=kpVerdict(KX.res.ev.dims,crit,KX.res.ev.safeMiss);
+    const rec=arr(S.hist).find(h=>h.id===KX.recId);if(rec){rec.aiFb=slimAI(d);rec.crit=crit;rec.verdict=KX.res.ev.verdict;save()}
+    if(R.v==="kpexam")render()}
+  catch(e){const msg=errText(e);const s=$("#fb-kx");if(s)s.innerHTML=msg?`<p class="err">${esc(msg)}</p>`:""}
+  finally{if(FBRUN.kx&&FBRUN.kx.ctl===ctl)FBRUN.kx=null}}
+function afterKX(){if(!kxOn()){paintRec();return}const s=KX.stage;if(s===0){voicePrefetch("p_"+KX.cid);paintChat(KX.cid,"patient")}if(s===1){voicePrefetch("ober");paintChat(KX.cid,"kpu")}if(s===3){voicePrefetch("ober");paintChat(KX.cid,"kpp")}paintRec()}
+setInterval(()=>{if(!kxOn())return;const left=kxLeft();const p=$("#exam-pill");if(p){p.hidden=R.v==="kpexam";p.textContent="KP "+fmt(left);p.setAttribute("href","#kp-exam")}
+  if(R.v==="kpexam"){const el=$("#ex-clock");if(el){el.textContent=fmt(left);el.classList.toggle("low",left<=60)}const bar=$("#ex-bar");if(bar)bar.style.width=Math.max(0,Math.min(100,100*left/kxLen()))+"%"}
+  if(left<=0)kxNext(true)},1000);
+
+/* ---------- KP weak-spot training: 6–8 tasks chosen from the saved history ---------- */
+let KD=null,KD_TRIED=false,KD_REST=false;
+/* an unfinished training survives a reload: tasks, results and the answer being typed */
+const KD_LS="medfsp.kd";
+function kdStore(){try{if(!KD||KD.saved)localStorage.removeItem(KD_LS);else localStorage.setItem(KD_LS,JSON.stringify(KD))}catch(e){}}
+function kdSync(){if(!KD||KD.saved)return;const ta=$("#kd-in");if(ta&&R.v==="kpdrill")KD.draft=ta.value;kdStore()}
+function kdLoad(){try{const k=JSON.parse(localStorage.getItem(KD_LS)||"null");if(!k||typeof k!=="object"||!Array.isArray(k.tasks)||!k.tasks.length||k.tasks.length>10||!Number.isInteger(k.i)||k.i<0||k.i>=k.tasks.length)return;
+  for(const t of k.tasks){const c=t&&byId(t.cid);if(!c||!KP[t.cid]||!["q","u","d","b"].includes(t.type)||typeof t.t!=="string")return;if(t.type==="q"&&!kppQs(c)[t.i])return}
+  KD={tasks:k.tasks.map(t=>({type:t.type,cid:t.cid,i:+t.i||0,t:t.t,w:+t.w||0})),i:k.i,res:arr(k.res).slice(0,k.tasks.length).map(r=>r&&typeof r==="object"?{ok:!!r.ok,pct:pc100(r.pct),hit:arr(r.hit).map(Boolean),text:String(r.text||"").slice(0,4000)}:null),
+    weakBefore:arr(k.weakBefore).filter(x=>typeof x==="string"),fromHist:!!k.fromHist,saved:false,draft:String(k.draft||"").slice(0,4000)};KD_REST=true}catch(e){KD=null}}
+function kdNew(){KD=null;KD_REST=false;KD_TRIED=true;try{localStorage.removeItem(KD_LS)}catch(e){}}
+function kdBuild(){const w=weakKP();const weakT=new Set((w?w.topics:[]).map(x=>x[0]));
+  const mU=new Set(),mD=new Set(),mB=new Set();
+  arr(S.hist).filter(h=>/^kp/.test(h.kind||"")&&KP[h.case]).slice(-12).forEach(h=>{if(arr(h.eMiss).length)mU.add(h.case);if(arr(h.tMiss).length)mD.add(h.case);if((h.kind==="kpb"||h.kind==="kpx")&&arr(h.miss).length)mB.add(h.case)});
+  const pool=[];CASES.filter(c=>KP[c.id]).forEach(c=>{kppQs(c).forEach((q,i)=>{if(q.t!=="Fallvorstellung")pool.push({type:"q",cid:c.id,i,t:q.t,w:weakT.has(q.t)?3:0})});
+    pool.push({type:"u",cid:c.id,t:"Untersuchung",w:mU.has(c.id)||weakT.has("Untersuchung")?3:0});pool.push({type:"d",cid:c.id,t:"Diagnostik",w:(mD.has(c.id)?3:0)+(weakT.has("Diagnostik")?2:0)});pool.push({type:"b",cid:c.id,t:"Bericht",w:mB.has(c.id)||weakT.has("Bericht")?3:0})});
+  const weak=shuffle(pool.filter(x=>x.w>0)).sort((a,b)=>b.w-a.w);const rest=shuffle(pool.filter(x=>!x.w));const n=Math.min(8,Math.max(6,weak.length));
+  KD={tasks:shuffle([...weak,...rest].slice(0,n)),i:0,res:[],weakBefore:[...weakT].concat([...mU].length?["Untersuchung"]:[],[...mD].length?["Diagnostik"]:[],[...mB].length?["Bericht"]:[]),fromHist:!!w,saved:false}}
+function kdTask(t){const c=byId(t.cid),K=KP[t.cid];const ctx=`${c.anrede} ${c.name}, ${c.alter} J. · ${K.dx}`;
+  if(t.type==="q"){const q=kppQs(c)[t.i];return {ctx,q:q.q,keys:q.k,a:q.a}}
+  if(t.type==="u"){const ke=K.exam.filter(e=>e[4]);return {ctx,q:"Welche körperlichen Untersuchungen sind in diesem Fall entscheidend? Nennen Sie Methode und Region.",keys:ke.map(e=>[e[1],e[2]]),a:ke.map(e=>e[1]+": "+e[3]).join("\n")}}
+  if(t.type==="d"){const kt=K.tests.filter(x=>x[4]);return {ctx,q:"Welche Diagnostik veranlassen Sie?",keys:kt.map(x=>[x[1],x[2]]),a:kt.map(x=>x[1]+": "+x[3]).join("\n")}}
+  return {ctx,q:"Nennen Sie die wichtigsten Punkte für den Bericht: Befunde, Diagnose und Behandlungsplan.",keys:K.rep,a:K.bericht.split("\n\n").filter(p=>/^(Befunde|Diagnose|Behandlungsplan):/.test(p)).join("\n\n")}}
+function kdCheck(){if(!KD)return;const t=KD.tasks[KD.i];if(!t||KD.res[KD.i])return;const ta=$("#kd-in");const text=ta?ta.value.trim():"";if(!text){const m=$("#kd-msg");if(m)m.textContent="Answer by voice or text first.";return}
+  const T=kdTask(t);const n=norm(text);const hit=T.keys.map(k=>k[1].test(n));const pct=Math.round(hit.filter(Boolean).length/T.keys.length*100);
+  KD.res[KD.i]={ok:pct>=60,pct,hit,text:text.slice(0,4000)};KD.draft="";paintKD()}
+function kdSave(){if(!KD||KD.saved)return;KD.saved=true;const by={};KD.tasks.forEach((t,i)=>{const r=KD.res[i];const x=by[t.t]||(by[t.t]=[0,0]);x[1]++;if(r&&r.ok)x[0]++});
+  const ok=KD.res.filter(r=>r&&r.ok).length;
+  pushHist({ts:Date.now(),kind:"kpt",case:"",score:Math.round(ok/KD.tasks.length*100),topics:Object.fromEntries(Object.entries(by).map(([t,[g,n]])=>[t,Math.round(g/n*100)])),det:{tasks:KD.tasks.map((t,i)=>{const r=KD.res[i];return [t.t,t.cid,t.type,r?(r.ok?1:0):0,r?r.pct:0,r?r.text:""]})}})}
+function kdShellHTML(){return `${KP_BACK}<section class="hero"><span class="eyebrow">Kenntnisprüfung · Training</span><h1><span lang="de">Meine KP-Schwächen trainieren</span></h1><p class="lede">Short tasks on the topics where you made mistakes in the KP: commission questions, examination, diagnostics and report. Answer in German by voice or text.</p></section><section id="kd-body"></section>`}
+function paintKD(){const b=$("#kd-body");if(!b)return;if(!KD&&!KD_TRIED){KD_TRIED=true;kdLoad()}if(!KD)kdBuild();const t=KD.tasks[KD.i];
+  if(!t){kdSave();kdStore();KD_REST=false;const by={};KD.tasks.forEach((x,i)=>{const r=KD.res[i];const y=by[x.t]||(by[x.t]={ok:0,n:0});y.n++;if(r&&r.ok)y.ok++});
+    const better=Object.keys(by).filter(k=>KD.weakBefore.includes(k)&&by[k].ok===by[k].n),again=Object.keys(by).filter(k=>by[k].ok<by[k].n),fine=Object.keys(by).filter(k=>!KD.weakBefore.includes(k)&&by[k].ok===by[k].n);
+    const li=a=>`<ul class="plain">${a.map(k=>`<li><span lang="de">${esc(k)}</span> <span class="muted mono">${by[k].ok}/${by[k].n}</span></li>`).join("")}</ul>`;
+    const ok=KD.res.filter(r=>r&&r.ok).length;
+    b.innerHTML=`<div class="fb"><span class="eyebrow">Training result</span><p class="fb-sum">Tasks passed: ${ok} of ${KD.tasks.length}.</p>
+      ${better.length?`<div class="fb-sec"><h3>Improved</h3>${li(better)}</div>`:""}
+      ${again.length?`<div class="fb-sec"><h3>Needs repeating</h3>${li(again)}<p class="small muted">These topics will be included in your next training.</p></div>`:`<p class="small">All tasks passed.</p>`}
+      ${fine.length?`<div class="fb-sec"><h3>No problems</h3>${li(fine)}</div>`:""}</div>
+      <div class="row"><button type="button" class="btn primary" data-action="kd-new">New training</button><a class="btn" href="#kp-exam">Kenntnisprüfung simulieren</a><a class="btn ghost" href="#progress">My progress</a></div>`;return}
+  const T=kdTask(t);const r=KD.res[KD.i];const rest=KD_REST;KD_REST=false;
+  b.innerHTML=`${rest?`<div class="note resume"><p>The training continues where you left off.</p><div class="row"><button type="button" class="btn ghost" data-action="kd-new">Start over</button></div></div>`:""}${KD.i===0&&!KD.fromHist&&!rest?`<p class="note info">There are no KP attempts in your history yet, so the tasks are taken from all topics. After a simulation or case training the tasks will be chosen from your mistakes.</p>`:""}
+    <div class="card"><span class="eyebrow">Task ${KD.i+1} of ${KD.tasks.length} · <span lang="de">${esc(t.t)}</span></span><span class="hint" lang="de">${esc(T.ctx)}</span><span class="lay" lang="de">${esc(T.q)}</span></div>
+    ${r?"":`${dictBox("kd-in","Press the microphone and answer in German. The text will appear in the field below.")}<label class="sr" for="kd-in">Your answer</label><textarea id="kd-in" rows="4" lang="de" placeholder="Ihre Antwort …"></textarea><p class="small err" id="kd-msg" aria-live="polite"></p>`}
+    ${r?`<div class="fb"><p class="${r.ok?"ok-t":"err"}">${r.ok?"Passed":"Not passed"} · ${r.pct}%</p><p class="small"><span class="muted">You:</span> <span lang="de">${esc(r.text)}</span></p><div class="chips">${T.keys.map((k,j)=>`<span class="chip ${r.hit[j]?"ok":"miss"}" lang="de">${esc(k[0])}</span>`).join("")}</div><p class="small muted">Sample answer:</p><p class="pre small" lang="de">${esc(T.a)}</p></div>`:""}
+    <div class="row">${r?`<button type="button" class="btn primary" data-action="kd-next">Next</button>`:`<button type="button" class="btn primary" data-action="kd-check">Check</button><button type="button" class="btn ghost" data-action="kd-next">Skip</button>`}</div>`;
+  const ta=$("#kd-in");if(ta&&KD.draft)ta.value=KD.draft;kdStore();paintRec()}
+
 /* ---------- settings ---------- */
 function maskKey(k){return k?k.slice(0,7)+"…"+k.slice(-4):""}
 function settingsHTML(){const nv=deVoices().length;return `<section class="hero"><span class="eyebrow">Settings</span><h1>Key and voice</h1></section>
@@ -1929,7 +2122,7 @@ function settingsHTML(){const nv=deVoices().length;return `<section class="hero"
     <div class="row">${VOICE_LINK}<button type="button" class="btn" data-action="tts-test"${(TTS||AUD)?"":" disabled"}>Listen</button></div>
   </div></section>
   <section><h2>App</h2><div class="panel"><p class="small">You can install the trainer on your phone home screen like an app.</p><div class="row"><a class="btn" href="#install">Install on your phone</a></div></div></section>
-  <section><h2>Mistake memory</h2><div class="panel"><p class="small">Completed attempts saved in this browser: ${arr(S.hist).length}. They are used for the “Your weak spots” block and short personal practice sessions.</p><div class="row"><button type="button" class="btn ghost" data-action="hist-clear"${arr(S.hist).length?"":" disabled"}>Clear mistake memory</button></div></div></section>
+  <section><h2>Mistake memory</h2><div class="panel"><p class="small">Completed attempts saved in this browser: ${arr(S.hist).length}. They are used for the “Your weak spots” block and short personal practice sessions.</p><div class="row"><a class="btn" href="#progress">My progress</a><button type="button" class="btn ghost" data-action="hist-clear"${arr(S.hist).length?"":" disabled"}>Clear mistake memory</button></div></div></section>
   <section><h2>Cost</h2><p class="small">Every patient reply and every review is a paid request to Claude from your Anthropic balance. How much one full conversation costs — <span class="ph">[to be calculated in testing]</span>. Spending is shown in the Anthropic console.</p></section>`}
 function paintVoices(){const sel=$("#s-voice");if(!sel)return;const vs=deVoices();const cur=pickVoice();
   sel.innerHTML=vs.length?vs.map(v=>`<option value="${esc(v.voiceURI)}"${cur&&cur.voiceURI===v.voiceURI?" selected":""}>${esc(v.name)} (${esc(v.lang)})</option>`).join(""):`<option value="">Default voice</option>`;
@@ -1969,7 +2162,7 @@ function recFromChat(id,ch,kind){const c=byId(id);const cov=ch.cov||new Set();
   return {ts:Date.now(),case:id,kind,missed:c.items.filter(i=>!cov.has(i.id)).map(i=>i.id),
     partial:c.items.filter(i=>i.parts&&cov.has(i.id)).map(i=>{const s=(ch.parts&&ch.parts[i.id])||new Set();return [i.id,i.parts.map(p=>p[0]).filter(k=>!s.has(k))]}).filter(x=>x[1].length),
     fach:(ch.fach||[]).map(f=>f.term),unm:(ch.unm||[]).length,dur:Math.round(((ch.end||Date.now())-(ch.start||Date.now()))/1000),cov:cov.size,total:c.items.length}}
-function pushHist(rec){S.hist=arr(S.hist).concat([rec]).slice(-60);save()}
+function pushHist(rec){if(!rec.id)rec.id=Date.now().toString(36)+Math.random().toString(36).slice(2,6);S.hist=arr(S.hist).concat([rec]).slice(-100);save()}
 function topicLabel(id){for(const c of CASES){const i=c.items.find(x=>x.id===id);if(i)return i.t}return id}
 function topicQ(id){for(const c of CASES){const i=c.items.find(x=>x.id===id);if(i)return i.q}return ""}
 function weak(){const H=arr(S.hist).filter(h=>!/^kp/.test(h.kind||"")).slice(-10);if(!H.length)return null;
@@ -1980,21 +2173,21 @@ function weak(){const H=arr(S.hist).filter(h=>!/^kp/.test(h.kind||"")).slice(-10
   if(!n)return null;
   const sort=o=>Object.entries(o).sort((a,b)=>b[1]-a[1]);
   return {n,exams,trains,avgDur:Math.round(durSum/n),unm:unmSum,topics:sort(miss).map(([id,k])=>[id,k,seen[id]||k]),fach:sort(fach),parts:sort(part),cov:Math.round(covSum/n*100)}}
-function weakKP(){const H=arr(S.hist).filter(h=>/^kp/.test(h.kind||"")).slice(-12);if(!H.length)return null;
-  const top={},topN={},miss={},bmiss={},n={kpu:0,kpp:0,kpb:0};
-  for(const h of H){if(!KP[h.case])continue;n[h.kind]=(n[h.kind]||0)+1;
-    if(h.kind==="kpp")Object.entries(h.topics||{}).forEach(([t,p])=>{topN[t]=(topN[t]||0)+1;if(p<60)top[t]=(top[t]||0)+1});
-    if(h.kind==="kpu")[...arr(h.eMiss),...arr(h.tMiss)].forEach(l=>{miss[l]=(miss[l]||0)+1});
-    if(h.kind==="kpb")arr(h.miss).forEach(l=>{bmiss[l]=(bmiss[l]||0)+1})}
+function weakKP(){const H=arr(S.hist).filter(h=>/^kp/.test(h.kind||"")).slice(-15);if(!H.length)return null;
+  const top={},topN={},last={},miss={},bmiss={},n={kpu:0,kpp:0,kpb:0,kpx:0,kpt:0};
+  for(const h of H){if(h.case&&!KP[h.case])continue;n[h.kind]=(n[h.kind]||0)+1;
+    if(h.kind==="kpp"||h.kind==="kpx"||h.kind==="kpt")Object.entries(h.topics||{}).forEach(([t,p])=>{topN[t]=(topN[t]||0)+1;if(+p<60)top[t]=(top[t]||0)+1;last[t]=+p});
+    if(h.kind==="kpu"||h.kind==="kpx")[...arr(h.eMiss),...arr(h.tMiss)].forEach(l=>{miss[l]=(miss[l]||0)+1});
+    if(h.kind==="kpb"||h.kind==="kpx")arr(h.miss).forEach(l=>{bmiss[l]=(bmiss[l]||0)+1})}
   const sort=o=>Object.entries(o).sort((a,b)=>b[1]-a[1]);
-  return {n,topics:sort(top).map(([t,k])=>[t,k,topN[t]]),miss:sort(miss),bmiss:sort(bmiss)}}
+  return {n,topics:sort(top).filter(([t])=>last[t]<60).map(([t,k])=>[t,k,topN[t]]),miss:sort(miss),bmiss:sort(bmiss)}}
 function weakKPHTML(k){const tp=k.topics.slice(0,4),ms=k.miss.slice(0,5),bm=k.bmiss.slice(0,5);
-  return `<div class="fb-sec"><h3>Kenntnisprüfung</h3><p class="small muted">KP attempts: examination ${k.n.kpu||0}, report ${k.n.kpb||0}, talk with the commission ${k.n.kpp||0}.</p>
+  return `<div class="fb-sec"><h3>Kenntnisprüfung</h3><p class="small muted">KP attempts: examination ${k.n.kpu||0}, report ${k.n.kpb||0}, talk with the commission ${k.n.kpp||0}, simulations ${k.n.kpx||0}, trainings ${k.n.kpt||0}.</p>
   ${tp.length?`<p class="small">Weak topics (below 60%):</p><ul class="plain">${tp.map(([t,c,s])=>`<li><span lang="de">${esc(t)}</span> <span class="muted">— weak in ${c} of ${s} attempts</span></li>`).join("")}</ul>`:""}
   ${ms.length?`<p class="small">Most often missed in the examination and diagnostics:</p><ul class="plain">${ms.map(([l,c])=>`<li><span lang="de">${esc(l)}</span> <span class="muted">— ${c} times</span></li>`).join("")}</ul>`:""}
   ${bm.length?`<p class="small">Most often missing in the report:</p><ul class="plain">${bm.map(([l,c])=>`<li><span lang="de">${esc(l)}</span> <span class="muted">— ${c} times</span></li>`).join("")}</ul>`:""}
   ${!tp.length&&!ms.length&&!bm.length?`<p class="small">No recurring gaps yet.</p>`:""}
-  <div class="row"><a class="btn" href="#kp">Practise the KP</a></div></div>`}
+  <div class="row"><a class="btn" href="#kp-drill"><span lang="de">Meine KP-Schwächen trainieren</span></a><a class="btn ghost" href="#kp-exam">Kenntnisprüfung simulieren</a></div></div>`}
 function weakHTML(){const w=weak(),k=weakKP();
   if(!w&&!k)return `<section><h2>Your weak spots</h2><p class="small muted">Finish a patient conversation to the summary or take a mock exam. Topics you forget most often and terms the patient did not understand will appear here.</p></section>`;
   if(!w)return `<section><h2>Your weak spots</h2><div class="panel">${weakKPHTML(k)}</div></section>`;
@@ -2006,13 +2199,101 @@ function weakHTML(){const w=weak(),k=weakKP();
     ${fc.length?`<div class="fb-sec"><h3>Terms the patient did not understand</h3><ul class="plain">${fc.map(([t,k])=>`<li><span lang="de">${esc(t)}</span> <span class="muted">— ${k} times</span></li>`).join("")}</ul></div>`:""}
     ${pt.length?`<div class="fb-sec"><h3>You ask only partly</h3><p class="small">${pt.map(([k,c])=>`${esc(PART_LABEL[k]||k)} (${c})`).join(", ")}</p></div>`:""}
     <div class="row"><a class="btn primary" href="#drill">Weak-spot practice · 5 minutes</a></div>${k?weakKPHTML(k):""}</div></section>`}
+function hTurns(ch){return arr(ch&&ch.turns).slice(-80).map(t=>[t.role==="user"?1:0,str(t.content).slice(0,1200)])}
+function slimAI(d){if(!d||typeof d!=="object")return null;const L=x=>arr(x).map(str).filter(Boolean).slice(0,8);
+  return {fazit:str(d.fazit).slice(0,1500),scores:d.scores&&typeof d.scores==="object"?d.scores:null,corr:arr(d.corrections).filter(c=>c&&typeof c==="object").slice(0,8).map(c=>[str(c.original),str(c.korrektur),str(c.erklaerung)]),fehlend:L(d.fehlend),falsch:L(d.falsch),tipps:L(d.tipps)}}
+function histAI(kind,id,d){const k={anam:"train",kpb:"kpb",kpp:"kpp"}[kind];if(!k)return;const r=arr(S.hist).slice().reverse().find(h=>h.kind===k&&h.case===id);if(r){r.aiFb=slimAI(d);save()}}
+arr(S.hist).forEach((h,i)=>{if(h&&!h.id)h.id=(h.ts||0).toString(36)+"x"+i});
+const PG={f:"all"};
+const EXP_L={voc:"Vokabeltest",anam:"History: topic coverage",docS:"Documentation: structural sections",docK:"Documentation: key facts",vorK:"Presentation: key facts",ober:"Answers to the Oberarzt"};
+function attType(h){return h.kind==="kpx"?"KP · Simulation":h.kind==="kpt"?"KP · Training":h.kind==="kpb"?"KP · Bericht":h.kind==="kpu"?"KP · Untersuchung":h.kind==="kpp"?"KP · Prüfungsgespräch":h.kind==="exam"?(h.fmt==="famed"?"Prüfung · FaMed":h.fmt==="fsp"?"Prüfung · FSP":"Prüfung"):(h.kp?"KP · Anamnese":"Anamnese")}
+function attScore(h){return h.score!=null?h.score:(h.total?Math.round(h.cov/h.total*100):null)}
+function attDate(ts,time){const x=new Date(ts||0);const p=n=>String(n).padStart(2,"0");return p(x.getDate())+"."+p(x.getMonth()+1)+"."+x.getFullYear()+(time?" "+p(x.getHours())+":"+p(x.getMinutes()):"")}
+function attRow(h){const c=byId(h.case);const v=attScore(h);return `<li><a href="#attempt-${h.id}"><span class="mono">${attDate(h.ts)}</span> · <span lang="de">${attType(h)}</span>${c?` · Fall ${c.nr}`:""}</a><span class="mono">${v==null?"—":v+"%"}${h.dur?" · "+fmt(h.dur):""}</span></li>`}
+function progressHTML(){const all=arr(S.hist);
+  if(!all.length)return `<section class="hero"><span class="eyebrow">Fortschritt</span><h1>My progress</h1><p class="lede">All your attempts will appear here: exams, history-taking practice and KP steps. You can open each one in full and save a PDF report.</p><div class="row"><a class="btn primary" href="#exam">Mock exam</a><a class="btn" href="#cases">Practice by case</a></div></section>${backupHTML()}`;
+  const ex=all.filter(h=>h.kind==="exam"&&h.score!=null),tr=all.filter(h=>h.kind==="train"),kp=all.filter(h=>/^kp/.test(h.kind||""));
+  const sc=ex.map(h=>h.score);const avg=a=>a.length?Math.round(a.reduce((x,y)=>x+y,0)/a.length):null;
+  const covs=all.filter(h=>h.total).map(h=>Math.round(h.cov/h.total*100));
+  const tiles=[[ex.length,"Mock exams"],[tr.length,"History-taking practice"],[kp.length,"KP steps"],[avg(sc)==null?"—":avg(sc),"Average exam score"],[sc.length?Math.max(...sc):"—","Best exam score"],[avg(covs)==null?"—":avg(covs)+"%","Average history coverage"]];
+  const F=[["all","All"],["exam","Exams"],["train","History"],["kp","KP"]];
+  const list=all.slice().reverse().filter(h=>PG.f==="all"||(PG.f==="kp"?/^kp/.test(h.kind||""):h.kind===PG.f));
+  return `<section class="hero"><span class="eyebrow">Fortschritt</span><h1>My progress</h1><p class="lede">All attempts are stored in this browser. Open any of them to see the conversation, texts and mistakes and to save a PDF report.</p></section>
+  <section><div class="tiles">${tiles.map(([v,l])=>`<div class="tile"><b class="mono">${v}</b><span>${l}</span></div>`).join("")}</div>
+  ${sc.length>=2?`<p class="small">Exam trend: <span class="mono">${sc.slice(-8).join(" → ")}</span></p>`:""}</section>
+  ${weakHTML()}
+  <section><h2>All attempts</h2><div class="seg" role="group" aria-label="Filter attempts">${F.map(([k,l])=>`<button type="button" data-action="pg-f" data-f="${k}" aria-pressed="${PG.f===k}">${l}</button>`).join("")}</div>
+  ${list.length?`<ul class="prog">${list.map(attRow).join("")}</ul>`:`<p class="small muted">No attempts in this category yet.</p>`}
+  <p class="small muted">The last 100 attempts are kept. If you clear the browser data or open the trainer on another device, the history will be empty. To avoid this, make a backup below.</p></section>${backupHTML()}`}
+/* ---------- backup: export / import progress as a JSON file (only data is read from it, never code) ---------- */
+function backupHTML(){const m=PG.msg;PG.msg="";return `<section><h2>Backup</h2><div class="panel"><p class="small">There are no accounts yet, so your progress is stored only in this browser. Save the file to move your progress to another device or to restore it after clearing the browser. The API key is not included in the file.</p>
+  <div class="row"><button type="button" class="btn" data-action="exp">Export progress</button><label class="btn" for="imp-file">Import progress</label><input type="file" id="imp-file" accept="application/json,.json" hidden></div>
+  <p class="small ${m?"ok-t":""}" id="imp-msg" aria-live="polite">${esc(m)}</p>
+  <div class="row"><button type="button" class="btn ghost" data-action="wipe">Delete all data on this device</button></div></div></section>`}
+function exportData(){const o={app:"medfsp-trainer",format:1,exported:new Date().toISOString(),data:{known:S.known,drafts:S.drafts,done:S.done,hist:S.hist,fm:S.fm}};
+  try{const blob=new Blob([JSON.stringify(o,null,1)],{type:"application/json"});const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="medfsp-fortschritt-"+new Date().toISOString().slice(0,10)+".json";document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},1500)}catch(e){}}
+const H_KINDS=["train","exam","kpu","kpb","kpp","kpx","kpt"];
+function cleanVal(v,d){if(d>7)return null;if(typeof v==="string")return v.slice(0,12000);if(typeof v==="number")return isFinite(v)?v:0;if(typeof v==="boolean"||v==null)return v;
+  if(Array.isArray(v))return v.slice(0,300).map(x=>cleanVal(x,d+1));if(typeof v==="object"){const o={};Object.keys(v).slice(0,100).forEach(k=>{if(k.length<=80&&!/^(__proto__|constructor|prototype)$/.test(k))o[k]=cleanVal(v[k],d+1)});return o}return null}
+function cleanRec(h){if(!h||typeof h!=="object"||Array.isArray(h)||!H_KINDS.includes(h.kind))return null;const r=cleanVal(h,0);
+  if(r.case&&!byId(r.case))return null;if(!r.case&&r.kind!=="kpt")return null;if(r.kind==="kpt")r.case="";
+  if(typeof r.id!=="string"||!/^[a-z0-9]{1,24}$/.test(r.id))r.id=Date.now().toString(36)+Math.random().toString(36).slice(2,8);
+  r.ts=+r.ts||0;["score","pu","pd","docPct"].forEach(k=>{if(r[k]!=null)r[k]=pc100(r[k])});["cov","total","dur","unm"].forEach(k=>{if(r[k]!=null)r[k]=Math.max(0,Math.min(1e6,Math.round(+r[k]||0)))});
+  if(r.fmt&&!["fsp","famed"].includes(r.fmt))delete r.fmt;if(r.verdict&&!KP_V[r.verdict])delete r.verdict;r.crit=!!r.crit;
+  ["missed","fach","eMiss","tMiss","miss","safeMiss"].forEach(k=>{if(r[k]!=null)r[k]=arr(r[k]).map(str)});
+  if(r.topics&&typeof r.topics==="object"&&!Array.isArray(r.topics)){const t={};Object.keys(r.topics).forEach(k=>{t[k]=pc100(r.topics[k])});r.topics=t}else delete r.topics;
+  return r}
+function importData(text){let o;try{o=JSON.parse(text)}catch(e){return {err:"The file cannot be read: it is not a JSON file."}}
+  if(!o||typeof o!=="object"||o.app!=="medfsp-trainer"||!o.data||typeof o.data!=="object")return {err:"This is not a progress file of the trainer."};
+  const d=o.data;const hist=arr(d.hist).slice(-300).map(cleanRec).filter(Boolean);const kn=arr(d.known).filter(x=>typeof x==="string"&&x.length<200).slice(0,2000);
+  const fm={};if(d.fm&&typeof d.fm==="object")Object.keys(d.fm).forEach(k=>{if(/^[a-z0-9_]{1,40}$/.test(k)&&typeof d.fm[k]==="number"&&isFinite(d.fm[k]))fm[k]=pc100(d.fm[k])});
+  const drafts={};if(d.drafts&&typeof d.drafts==="object")Object.keys(d.drafts).slice(0,200).forEach(k=>{const x=d.drafts[k];if(/^[a-z0-9_]{1,40}$/.test(k)&&x&&typeof x==="object")drafts[k]={notes:str(x.notes).slice(0,20000),brief:str(x.brief).slice(0,20000),vor:str(x.vor).slice(0,20000)}});
+  const done={};if(d.done&&typeof d.done==="object")Object.keys(d.done).forEach(k=>{const x=d.done[k];if(byId(k)&&x&&typeof x==="object")done[k]={anam:!!x.anam,brief:!!x.brief,vor:!!x.vor}});
+  return {hist,known:kn,fm,drafts,done}}
+function mergeData(x){const ids=new Set(arr(S.hist).map(h=>h.id));const add=x.hist.filter(h=>!ids.has(h.id));
+  S.hist=arr(S.hist).concat(add).sort((a,b)=>(a.ts||0)-(b.ts||0)).slice(-100);
+  x.known.forEach(t=>known.add(t));S.known=[...known];
+  Object.entries(x.fm).forEach(([k,v])=>{S.fm[k]=Math.max(fmScore(k)||0,v)});
+  Object.entries(x.drafts).forEach(([k,v])=>{const cur=S.drafts[k];if(!cur){S.drafts[k]=v;return}["notes","brief","vor"].forEach(f=>{if(!str(cur[f]).trim()&&v[f])cur[f]=v[f]})});
+  Object.entries(x.done).forEach(([k,v])=>{const cur=S.done[k]||(S.done[k]={anam:false,brief:false,vor:false});["anam","brief","vor"].forEach(f=>{cur[f]=!!(cur[f]||v[f])})});
+  save();return add.length}
+function attemptHTML(id){const h=arr(S.hist).find(x=>x.id===id);if(!h)return `<a class="back" href="#progress">← My progress</a><p class="note">Attempt not found. The history may have been cleared.</p>`;
+  const c=byId(h.case);const d=h.det||{};const v=attScore(h);let body="";
+  const bar=(l,p)=>`<div class="fb-sec"><div class="bar-row"><span>${l}</span><span class="mono">${pc100(p)}%</span></div><div class="meter" aria-hidden="true"><i style="width:${pc100(p)}%"></i></div></div>`;
+  const chips=(t,a)=>arr(a).length?`<div class="fb-sec"><h3>${t}</h3><div class="chips">${arr(a).map(x=>`<span class="chip miss" lang="de">${esc(x)}</span>`).join("")}</div></div>`:"";
+  const conv=(t,a,b,title,open)=>arr(t).length?`<details class="notes-ro"${open?" open":""}><summary>${title}</summary><div class="conv">${arr(t).map(([u,x])=>`<p class="small"><b lang="de">${u?a:b}:</b> <span lang="de">${esc(x)}</span></p>`).join("")}</div></details>`:"";
+  const txt=(x,title)=>str(x).trim()?`<details class="notes-ro"><summary>${title}</summary><p class="pre conv" lang="de">${esc(x)}</p></details>`:"";
+  const pt=c&&c.sex==="w"?"Patientin":"Patient";
+  if(h.kind==="kpx")body+=`${kpVerdictHTML({score:h.score,verdict:h.verdict,crit:h.crit})}<div class="fb">${kpDimsHTML(h.dims)}${chips("Patient safety: not done",h.safeMiss)}${chips("History: not asked",arr(h.missed).map(topicLabel))}${chips("Examination: missed",h.eMiss)}${chips("Diagnostics: missed",h.tMiss)}${chips("Report: not found",h.miss)}</div>`+conv(d.t,"Arzt",pt,"Conversation with the patient")+txt(d.notes,"Notes")+conv(d.u,"Arzt","Prüfer","Examination")+txt(d.bericht,"Bericht")+(arr(d.qa).length?`<details class="notes-ro"><summary>Questions and answers</summary><div class="conv">${d.qa.map(([q,a,g,n])=>`<p class="small"><b lang="de">${esc(q)}</b> <span class="mono muted">${pc100(g)}/${pc100(n)}</span><br><span lang="de">${esc(a||"—")}</span></p>`).join("")}</div></details>`:"");
+  else if(h.kind==="kpt")body+=`<div class="fb">${Object.entries(h.topics||{}).map(([t,p])=>bar(`<span lang="de">${esc(t)}</span>`,p)).join("")}</div>`+(arr(d.tasks).length?`<details class="notes-ro" open><summary>Tasks</summary><div class="conv">${d.tasks.map(([t,cid,ty,ok,p,a])=>`<p class="small"><b lang="de">${esc(t)}</b>${byId(cid)?" · "+esc(byId(cid).name):""} <span class="mono">${pc100(p)}%</span><br><span lang="de">${esc(a||"—")}</span></p>`).join("")}</div></details>`:"");
+  else if(h.kind==="exam"&&h.fmt==="famed"&&arr(h.parts).length){
+    body+=`<div class="fb">${h.parts.map(([k,n,p,ref,dur,miss])=>{const who=k==="doc"?(hoerOf(ref)?hoerOf(ref).pname:""):(byId(ref)?byId(ref).name:"");return `<div class="fb-sec"><div class="bar-row"><span lang="de">${esc((FX_TITLE[k]||k)+(k==="vor"?" "+n:""))}${who?" · "+esc(who):""}</span><span class="mono">${pc100(p)}%</span></div><div class="meter" aria-hidden="true"><i style="width:${pc100(p)}%"></i></div>${arr(miss).length?`<p class="small" lang="de">${arr(miss).map(esc).join(", ")}</p>`:""}</div>`}).join("")}</div>`;
+    arr(d.chats).forEach(([k,n,cid,t])=>{const cc=byId(cid);body+=conv(t,"Arzt",k==="vor"?"Oberarzt":(cc&&cc.sex==="w"?"Patientin":"Patient"),(FX_TITLE[k]||k)+(k==="vor"?" "+n:"")+(cc?" · "+cc.name:""))});
+    body+=txt(d.notes,"Notes")+txt(d.doc,"Dokumentation")}
+  else if(h.kind==="exam"){body+=`<div class="fb">${arr(h.parts).length?h.parts.map(([k,p])=>bar(EXP_L[k]||esc(k),p)).join(""):bar(EXP_L.anam,v||0)}
+      ${chips("Not asked",arr(h.missed).map(topicLabel))}${chips("Missing in the documentation",[...arr(d.missHeads),...arr(d.docMiss)])}${chips("Not mentioned in the presentation",d.vorMiss)}${chips("Terms the patient did not understand",h.fach)}${chips("Vokabeltest",arr(d.voc).map(x=>x[0]))}</div>`;
+    body+=conv(d.t,"Arzt",pt,"Conversation with the patient")+txt(d.notes,"Notes")+txt(d.brief,"Arztbrief")+txt(d.vor,"Presentation")+conv(d.ob,"Arzt","Oberarzt","Conversation with the Oberarzt")}
+  else if(h.kind==="kpu")body+=`<div class="fb">${bar("Körperliche Untersuchung",h.pu||0)}${bar("Diagnostik",h.pd||0)}${chips("Missed",[...arr(h.eMiss),...arr(h.tMiss)])}</div>`+conv(d.t,"Arzt","Prüfer","Examination",true);
+  else if(h.kind==="kpb")body+=`<div class="fb">${bar("Bericht",v||0)}${chips("Not found in your text",h.miss)}</div>`+txt(d.text,"Bericht");
+  else if(h.kind==="kpp"){body+=`<div class="fb">${Object.entries(h.topics||{}).map(([t,p])=>bar(`<span lang="de">${esc(t)}</span>`,p)).join("")}</div>`;
+    if(arr(d.qa).length)body+=`<details class="notes-ro" open><summary>Questions and answers</summary><div class="conv">${d.qa.map(([q,a,g,n])=>`<p class="small"><b lang="de">${esc(q)}</b> <span class="mono muted">${pc100(g)}/${pc100(n)}</span><br><span lang="de">${esc(a||"—")}</span></p>`).join("")}</div></details>`}
+  else body+=`<div class="fb">${bar(EXP_L.anam,v||0)}${chips("Not asked",arr(h.missed).map(topicLabel))}${chips("Terms the patient did not understand",h.fach)}</div>`+conv(d.t,"Arzt",pt,"Conversation with the patient",true)+txt(d.notes,"Notes");
+  const ai=h.aiFb;const aiH=ai?`<section><div class="fb"><span class="eyebrow">AI review</span>${ai.fazit?`<p class="fb-sum">${esc(ai.fazit)}</p>`:""}${ai.scores?CATS.map(([k,l])=>ai.scores[k]!=null?bar(`<span lang="de">${l}</span>`,Math.max(0,Math.min(100,Math.round(+ai.scores[k]||0)))):"").join(""):""}
+    ${arr(ai.falsch).length?`<div class="fb-sec"><h3>Content errors</h3><ul class="plain">${ai.falsch.map(x=>`<li>${esc(x)}</li>`).join("")}</ul></div>`:""}
+    ${arr(ai.fehlend).length?`<div class="fb-sec"><h3>What is missing</h3><ul class="plain">${ai.fehlend.map(x=>`<li>${esc(x)}</li>`).join("")}</ul></div>`:""}
+    ${arr(ai.corr).length?`<div class="fb-sec"><h3>Corrections</h3><ul class="corr">${ai.corr.map(([o,k,e])=>`<li><span lang="de"><del>${esc(o)}</del></span><span lang="de"><ins>${esc(k)}</ins></span>${e?`<span class="why">${esc(e)}</span>`:""}</li>`).join("")}</ul></div>`:""}
+    ${arr(ai.tipps).length?`<div class="fb-sec"><h3>Tips</h3><ul class="plain">${ai.tipps.map(x=>`<li>${esc(x)}</li>`).join("")}</ul></div>`:""}</div></section>`:"";
+  const kpStep={kpu:"untersuchung",kpb:"bericht",kpp:"gespraech"}[h.kind];
+  const again=h.kind==="kpx"?"#kp-exam":h.kind==="kpt"?"#kp-drill":kpStep?`#kp-${h.case}-${kpStep}`:h.kp?`#kp-${h.case}-anamnese`:h.kind==="exam"?"#exam":`#${h.case}-anamnese`;
+  return `<a class="back" href="#progress">← My progress</a>
+  <section class="hero"><span class="eyebrow"><span lang="de">${attType(h)}</span> · ${attDate(h.ts,true)}</span><h1>${c?`Fall ${c.nr} · ${esc(c.titleRu)}`:h.kind==="kpt"?"KP-Training":"—"}</h1><p class="lede">${v==null?"":`Trainer score: <b>${v}/100</b>`}${h.dur?` · time ${fmt(h.dur)}`:""}</p></section>
+  <section>${body}</section>${aiH}
+  <p class="small muted">The trainer score is a guide, not an official exam result.</p>
+  <div class="row no-print"><button type="button" class="btn primary" data-action="print">Save report as PDF</button><a class="btn" href="${again}">Repeat</a><a class="btn ghost" href="#drill">Weak-spot practice</a></div>`}
 function histHTML(){const H=arr(S.hist).slice(-6).reverse();if(!H.length)return "";
-  const d=ts=>{const x=new Date(ts||0);return String(x.getDate()).padStart(2,"0")+"."+String(x.getMonth()+1).padStart(2,"0")};
-  const typ=h=>h.kind==="kpb"?"KP · Bericht":h.kind==="kpu"?"KP · Untersuchung":h.kind==="kpp"?"KP · Prüfungsgespräch":h.kind==="exam"?(h.fmt==="famed"?"Prüfung · FaMed":h.fmt==="fsp"?"Prüfung · FSP":"Prüfung"):"Anamnese";
-  const sc=h=>h.score!=null?h.score:(h.total?Math.round(h.cov/h.total*100):null);
   const ex=arr(S.hist).filter(h=>h.kind==="exam"&&h.score!=null).slice(-6).map(h=>h.score);
-  return `<p class="sub-h">Recent attempts</p><ul class="prog">${H.map(h=>{const c=byId(h.case);const v=sc(h);return `<li><span><span class="mono">${d(h.ts)}</span> · <span lang="de">${typ(h)}</span>${c?` · Fall ${c.nr}`:""}</span><span class="mono">${v==null?"—":v+"%"}${h.dur?" · "+fmt(h.dur):""}</span></li>`}).join("")}</ul>
-  ${ex.length>=2?`<p class="small">Mock exams, trainer score: <span class="mono">${ex.join(" → ")}</span></p>`:""}`}
+  return `<p class="sub-h">Recent attempts</p><ul class="prog">${H.map(attRow).join("")}</ul>
+  ${ex.length>=2?`<p class="small">Mock exams, trainer score: <span class="mono">${ex.join(" → ")}</span></p>`:""}<div class="row"><a class="btn" href="#progress">My progress: all attempts →</a></div>`}
 function weakHint(){const w=weak();if(!w)return "";const t=w.topics.filter(([,k])=>k>=2).slice(0,3);if(!t.length)return "";
   return `<p class="note">You often forget: <span lang="de">${t.map(([id])=>esc(topicLabel(id))).join(", ")}</span>. Do not skip them today.</p>`}
 
@@ -2052,21 +2333,24 @@ function paintDrill(){const b=$("#drill-body");if(!b)return;if(!DR)buildDrill();
   paintRec()}
 
 /* ---------- FaMed exam: 3 stations, 5 situations with different patients (format per famed-test.de/pruefungsablauf, checked 08.10.2026) ---------- */
+/* Scoring rubrics. FSP: one general training rubric until Ärztekammer-specific rules are entered. FaMed: format per famed-test.de; add variants here if rules differ by venue. */
+const FSP_RUBRIC={allgemein:{name:"Allgemeines FSP-Trainingsschema",parts:["voc","anam","docS","docK","vorK","ober"]}};
+const FAMED_FMT={standard:{name:"famed-test.de, Stand 08.10.2026",anam:11,aufkl:[90,11],vor:[90,11],doc:22,brk:60,pass:60}};
 let FX=null;
 const FX_TITLE={anam:"Anamnesegespräch",aufkl:"Aufklärungsgespräch",vor:"Patientenvorstellung",doc:"Dokumentation"};
 const FX_STATION={anam:"Arzt-Patienten-Kommunikation",aufkl:"Arzt-Patienten-Kommunikation",vor:"Arzt-Arzt-Kommunikation",doc:"Schriftliche Station"};
-const FX_PASS=60;
+const FX_PASS=FAMED_FMT.standard.pass;
 function fxStep(){return FX&&!FX.done&&FX.i<FX.steps.length?FX.steps[FX.i]:null}
 function fxKind(s){return s.k==="anam"?"patient":s.k==="aufkl"?"aufkl":s.k==="vor"?"ober":null}
 function fxName(s){return FX_TITLE[s.k]+(s.k==="vor"?" "+s.n:"")}
 function fxWho(s){return s.k==="doc"?hoerOf(s.hid).pname:byId(s.cid).anrede+" "+byId(s.cid).name}
-function fxStart(){stopRec();stopVoice();const ops=CASES.filter(c=>AUFKL[c.id]&&AUFKL[c.id].op).map(c=>c.id);const B=shuffle(ops.length>=2?ops:CASES.map(c=>c.id))[0];const [A,C,D]=shuffle(CASES.map(c=>c.id).filter(id=>id!==B));const h=HOER[Math.floor(Math.random()*HOER.length)];
-  const ap=[{k:"anam",cid:A,read:0,min:11},{k:"aufkl",cid:B,read:90,min:11}],aa=[{k:"vor",cid:C,read:90,min:11,n:1},{k:"vor",cid:D||B,read:90,min:11,n:2}];
-  const steps=[];(Math.random()<0.5?[ap,aa]:[aa,ap]).forEach((st,si)=>st.forEach(s=>{s.st=si;steps.push(s)}));steps.push({k:"doc",hid:h.id,read:0,min:22,st:2});
+function fxStart(){stopRec();stopVoice();sessDrop();const ops=CASES.filter(c=>AUFKL[c.id]&&AUFKL[c.id].op).map(c=>c.id);const B=shuffle(ops.length>=2?ops:CASES.map(c=>c.id))[0];const [A,C,D]=shuffle(CASES.map(c=>c.id).filter(id=>id!==B));const h=HOER[Math.floor(Math.random()*HOER.length)];
+  const F=FAMED_FMT.standard;const ap=[{k:"anam",cid:A,read:0,min:F.anam},{k:"aufkl",cid:B,read:F.aufkl[0],min:F.aufkl[1]}],aa=[{k:"vor",cid:C,read:F.vor[0],min:F.vor[1],n:1},{k:"vor",cid:D||B,read:F.vor[0],min:F.vor[1],n:2}];
+  const steps=[];(Math.random()<0.5?[ap,aa]:[aa,ap]).forEach((st,si)=>st.forEach(s=>{s.st=si;steps.push(s)}));steps.push({k:"doc",hid:h.id,read:0,min:F.doc,st:2});
   steps.forEach(s=>{const k=fxKind(s);if(k){const ch=CH[s.cid+":"+k];if(ch&&ch.ctl)ch.ctl.abort();delete CH[s.cid+":"+k]}});delete FREE[A];delete COV[A];
   HP.pos[h.id]=0;HP.n[h.id]=0;
   EX=null;FX={steps,i:0,phase:steps[0].read?"read":"talk",t0:Date.now(),notes:"",doc:"",ai:null,done:false};render()}
-function fxPhaseLen(){const s=fxStep();if(!s)return 1;return FX.phase==="break"?60:FX.phase==="read"?s.read:s.min*60}
+function fxPhaseLen(){const s=fxStep();if(!s)return 1;return FX.phase==="break"?FAMED_FMT.standard.brk:FX.phase==="read"?s.read:s.min*60}
 function fxLeft(){if(!fxStep())return 0;return fxPhaseLen()-Math.floor((Date.now()-FX.t0)/1000)}
 function fxNext(auto){const s=fxStep();if(!s)return;stopRec();stopVoice();HP.tok++;HP.on=false;
   if(FX.phase==="break")FX.phase=s.read?"read":"talk";
@@ -2074,7 +2358,7 @@ function fxNext(auto){const s=fxStep();if(!s)return;stopRec();stopVoice();HP.tok
   else{const k=fxKind(s);if(k){const ch=chatOf(s.cid,k);if(ch.ctl)ch.ctl.abort();if(!ch.end)ch.end=Date.now()}
     s.dur=Math.min(s.min*60,Math.round((Date.now()-FX.t0)/1000));if(auto)s.timeout=true;
     FX.i++;const n=FX.steps[FX.i];if(!n)fxFinish();else FX.phase=n.st!==s.st?"break":(n.read?"read":"talk")}
-  FX.t0=Date.now();if(R.v==="exam")render()}
+  FX.t0=Date.now();sessSave();if(R.v==="exam")render()}
 function fxFinish(){FX.done=true;
   for(const s of FX.steps){
     if(s.k==="anam"){const c=byId(s.cid);const rec=recFromChat(s.cid,chatOf(s.cid,"patient"),"exam");if(s.dur)rec.dur=s.dur;rec.fmt="famed";pushHist(rec);
@@ -2084,7 +2368,9 @@ function fxFinish(){FX.done=true;
       const ans=ob.qs?ob.ans.filter(a=>a.length).length:ob.turns.filter(t=>t.role==="user").length;const tot=ob.qs?ob.qs.length:Math.max(ans,5);
       s.pct=Math.round(((keys.length?hit.length/keys.length:0)+Math.min(1,ans/tot))*50);s.miss=keys.filter(k=>!hit.includes(k)).map(k=>k[0])}
     else{const g=hoerRes(hoerOf(s.hid),FX.doc);s.pct=Math.round(g.filter(x=>x[1]).length/g.length*100);s.miss=g.filter(x=>!x[1]).map(x=>x[0])}}
-  const last=arr(S.hist).slice(-1)[0];if(last&&last.kind==="exam"&&last.fmt==="famed"){last.score=Math.round(FX.steps.reduce((a,x)=>a+x.pct,0)/FX.steps.length);save()}}
+  const last=arr(S.hist).slice(-1)[0];if(last&&last.kind==="exam"&&last.fmt==="famed"){last.score=Math.round(FX.steps.reduce((a,x)=>a+x.pct,0)/FX.steps.length);
+    last.parts=FX.steps.map(x=>[x.k,x.n||0,x.pct,x.cid||x.hid,x.dur||0,arr(x.miss).slice(0,12)]);
+    last.det={chats:FX.steps.filter(x=>fxKind(x)).map(x=>[x.k,x.n||0,x.cid,hTurns(chatOf(x.cid,fxKind(x)))]),doc:str(FX.doc).slice(0,8000),notes:str(FX.notes).slice(0,4000)};FX.recId=last.id;save()}}
 function fxAufklInfo(A){return `<div class="panel" lang="de"><span class="eyebrow">Aufklärung</span><b>${esc(A.de)}</b><ul class="plain">${A.pts.map(p=>`<li>${esc(p[1])}</li>`).join("")}</ul></div>`}
 function fxPatInfo(c){return `<div class="panel" lang="de"><span class="eyebrow">Patienteninformationen</span><b>${esc(c.anrede+" "+c.name)}, ${c.alter} Jahre, geb. ${esc(c.geb)}</b><ul class="plain small">${c.items.filter(i=>i.id!=="pers").map(i=>`<li><b>${esc(i.t)}:</b> ${esc(i.a)}</li>`).join("")}</ul></div>`}
 function fxPlayer(){return `<div class="panel"><div class="row"><button type="button" class="btn primary" data-action="h-play">Play the conversation</button><button type="button" class="btn ghost" data-action="h-stop" hidden>Pause</button><button type="button" class="btn ghost" data-action="h-restart" hidden>From the start</button></div><p class="small" id="h-state"></p></div>`}
@@ -2114,7 +2400,7 @@ function fxResultHTML(){const ok=FX.steps.filter(s=>s.pct>=FX_PASS).length;
     <p class="small muted">Time ${fmt(s.dur||0)}${s.timeout?" (time ran out)":""}</p>${s.miss.length?`<p class="small"><span class="muted">${missL[s.k]}:</span> <span lang="de">${s.miss.map(esc).join(", ")}</span></p>`:""}</div>`).join("");
   const doc=FX.steps.find(s=>s.k==="doc"),au=FX.steps.find(s=>s.k==="aufkl"),vors=FX.steps.filter(s=>s.k==="vor");const h=hoerOf(doc.hid);
   return `<section class="hero"><span class="eyebrow">FaMed · result</span><h1>FaMed mock exam</h1><p class="lede">Situations at 60% or more: ${ok} of ${FX.steps.length}.</p></section>
-  <section><div class="fb"><span class="eyebrow">No AI · technical score</span>${rows}
+  <section><div class="fb"><span class="eyebrow" lang="de">FaMed · Prozent pro Prüfungssituation</span>${rows}
   <p class="small muted">The benchmark «at least 60% in each situation» comes from descriptions by prep courses. Official scoring criteria are not published on famed-test.de <span class="ph">[to be confirmed]</span>. Without AI, the app scores topic coverage, explanation points and key facts, but not grammar, style or pronunciation.</p>
   ${KEY?`<div class="row"><button type="button" class="btn primary" data-action="ex-ai">Detailed AI assessment</button></div>`:""}</div></section>
   <div id="fb-exam">${FX.ai?examAiHTML(null,FX.ai):""}</div>
@@ -2126,7 +2412,7 @@ function fxResultHTML(){const ok=FX.steps.filter(s=>s.pct>=FX_PASS).length;
 function fxNextHTML(){const w=FX.steps.slice().sort((a,b)=>a.pct-b.pct).filter(x=>x.pct<80).slice(0,3);
   const link=x=>x.k==="anam"?["#drill","Weak-spot practice"]:x.k==="aufkl"?["#famed-aufkl-"+x.cid,"Aufklärung · "+byId(x.cid).name]:x.k==="vor"?["#"+x.cid+"-vorstellung","Vorstellung · "+byId(x.cid).name]:["#famed-hoer-"+x.hid,"Hörverstehen"];
   return `<section><h2>What to practise next</h2>${w.length?`<ol class="steps-ol">${w.map(x=>`<li><span lang="de">${esc(fxName(x))}</span>: ${x.pct}%${x.miss.length?` · <span lang="de">${x.miss.slice(0,3).map(esc).join(", ")}</span>`:""}</li>`).join("")}</ol><div class="row">${w.map((x,i)=>{const [h,l]=link(x);return `<a class="btn${i?"":" primary"}" href="${h}" lang="de">${esc(l)}</a>`}).join("")}</div>`:`<p class="small">All situations are at 80% or higher. Try the FSP format or the KP module.</p>`}
-  <div class="row"><button type="button" class="btn${w.length?"":" primary"}" data-action="ex-new">New exam</button><a class="btn ghost" href="#home">Home</a></div></section>`}
+  <div class="row"><button type="button" class="btn${w.length?"":" primary"}" data-action="ex-new">New exam</button>${FX&&FX.recId?`<a class="btn" href="#attempt-${FX.recId}">Report and PDF</a>`:""}<a class="btn ghost" href="#home">Home</a></div></section>`}
 function oberRulesFx(c){return `Rollenspiel zur Vorbereitung auf die Fachsprachprüfung Medizin (FaMed, Teil: Patientenvorstellung). Du bist Oberärztin bzw. Oberarzt. Der Nutzer ist Assistenzärztin bzw. Assistenzarzt und stellt dir gleich ${c.sex==="w"?"die Patientin":"den Patienten"} ${c.anrede} ${c.name} vor. Seine Nachrichten stammen aus einer Spracherkennung und können Erkennungsfehler enthalten. Deine Antworten werden laut vorgelesen: nur gesprochene Sprache, keine Aufzählungen oder Sternchen.
 
 Fakten des Falls:
@@ -2158,7 +2444,7 @@ Außerdem: bis zu 8 wichtigste sprachliche Fehler (original wörtlich, korrektur
 Antworte nur mit JSON in genau dieser Form:
 {"scores":{"fachsprache":0,"patientensprache":0,"struktur":0,"vollstaendigkeit":0,"dokumentation":0},"begruendung":{"fachsprache":"...","patientensprache":"...","struktur":"...","vollstaendigkeit":"...","dokumentation":"..."},"corrections":[{"original":"...","korrektur":"...","erklaerung":"..."}],"tipps":["..."],"fazit":"..."}`}
 function curHoer(){if(R.v==="exam"){const s=fxStep();return s&&s.k==="doc"?hoerOf(s.hid):null}return R.v==="famed"&&R.mod==="hoer"?hoerOf(R.id):null}
-setInterval(()=>{const s=fxStep();if(!s)return;const left=fxLeft();const p=$("#exam-pill");if(p){p.hidden=R.v==="exam";p.textContent="FaMed "+fmt(left)}
+setInterval(()=>{const s=fxStep();if(!s)return;const left=fxLeft();const p=$("#exam-pill");if(p){p.hidden=R.v==="exam";p.textContent="FaMed "+fmt(left);p.setAttribute("href","#exam")}
   if(R.v==="exam"){const el=$("#ex-clock");if(el){el.textContent=fmt(left);el.classList.toggle("low",left<=60&&FX.phase==="talk")}const bar=$("#ex-bar");if(bar)bar.style.width=Math.max(0,Math.min(100,100*left/fxPhaseLen()))+"%"}
   if(left<=0)fxNext(true)},1000);
 
@@ -2171,7 +2457,7 @@ function vocHTML(){return `<section><p class="lede-s">For each term, write a wor
 
 /* ---------- exam mode ---------- */
 const EXAM_STAGES=["Anamnese","Dokumentation","Vorstellung"];
-function examStart(caseId){stopRec();const last=arr(S.hist).filter(h=>h.kind==="exam").map(h=>h.case);
+function examStart(caseId){stopRec();sessDrop();const last=arr(S.hist).filter(h=>h.kind==="exam").map(h=>h.case);
   let id=caseId;if(!id){const fresh=CASES.filter(c=>!last.slice(-2).includes(c.id));const pool=fresh.length?fresh:CASES;id=pool[Math.floor(Math.random()*pool.length)].id}
   ["patient","ober"].forEach(k=>{const ch=CH[id+":"+k];if(ch&&ch.ctl)ch.ctl.abort();delete CH[id+":"+k]});delete FREE[id];delete COV[id];
   const st=SET.vocab?0:1;FX=null;
@@ -2184,7 +2470,7 @@ function exNext(auto){if(!EX||EX.stage>3)return;stopRec();stopVoice();
   if(s===1){const ch=chatOf(EX.caseId,"patient");if(!ch.end)ch.end=Date.now()}
   EX.stage=s+1;EX.t0[EX.stage]=Date.now();
   if(EX.stage===4)examFinish();
-  if(R.v==="exam")render()}
+  sessSave();if(R.v==="exam")render()}
 /* Heading names candidates actually use, so a document without our template is still read fairly. */
 const HEAD_ALIAS={"Persönliche Daten":/^(persönliche daten|personalien|patientendaten|daten)$/,"Aufnahmegrund":/^(aufnahmegrund|vorstellungsgrund|grund der (vorstellung|aufnahme)|leitsymptom|hauptbeschwerden?|anlass)$/,
   "Aktuelle Anamnese":/^(aktuelle anamnese|jetzige anamnese|anamnese|eigenanamnese|krankengeschichte)$/,"Vegetative Anamnese":/^(vegetative anamnese|vegetativum|vegetative)$/,
@@ -2207,7 +2493,10 @@ function examFinish(){const id=EX.caseId,c=byId(id);const ch=chatOf(id,"patient"
   EX.res={rec,heads:heads.length,found:found.length,missHeads:heads.filter(h=>!found.includes(h)),keys:keys.length,docK:docK.length,docMiss:keys.filter(k=>!docK.includes(k)).map(k=>k[0]),vorK:vorK.length,vorMiss:keys.filter(k=>!vorK.includes(k)).map(k=>k[0]),oberAns,oberTot};
   rec.docPct=keys.length?Math.round(docK.length/keys.length*100):null;pushHist(rec);
   if(EX.voc){const vr=EX.voc.items.map((t,i)=>[t,str(EX.voc.ans[i]),vocOk(t,EX.voc.ans[i])]);EX.res.voc={ok:vr.filter(x=>x[2]).length,total:vr.length,wrong:vr.filter(x=>!x[2])}}
-  rec.fmt="fsp";rec.score=exTech(EX.res);save()}
+  rec.fmt="fsp";rec.rubric="allgemein";rec.score=exTech(EX.res);
+  {const pc=(a,b)=>b?Math.round(a/b*100):0,r=EX.res;rec.parts=[...(r.voc?[["voc",pc(r.voc.ok,r.voc.total)]]:[]),["anam",pc(rec.cov,rec.total)],["docS",pc(r.found,r.heads)],["docK",pc(r.docK,r.keys)],["vorK",pc(r.vorK,r.keys)],["ober",pc(r.oberAns,r.oberTot)]];
+   rec.det={t:hTurns(ch),ob:hTurns(ob),notes:str(EX.notes).slice(0,4000),brief:str(EX.brief).slice(0,8000),vor:str(EX.vor).slice(0,6000),durs:EX.dur,docMiss:r.docMiss,missHeads:r.missHeads,vorMiss:r.vorMiss,voc:r.voc?r.voc.wrong.map(x=>[x[0],x[1]]):null}}
+  EX.recId=rec.id;save()}
 function examIntroHTML(){const f=SET.fmt==="fsp"?"fsp":"famed";
   const seg=`<div class="seg" role="group" aria-label="Exam format"><button type="button" data-action="ex-fmt" data-f="famed" aria-pressed="${f==="famed"}">FaMed</button><button type="button" data-action="ex-fmt" data-f="fsp" aria-pressed="${f==="fsp"}">FSP · Ärztekammer</button></div>`;
   const who=`<p class="small">Partner: ${freeMode()?"No-AI mode, free.":"AI."} ${KEY?"":"With a key in Settings, the AI partner and a detailed assessment are available."}</p>`;
@@ -2220,6 +2509,7 @@ function examIntroHTML(){const f=SET.fmt==="fsp"?"fsp":"famed";
     <p class="small muted">In the trainer the video is replaced by audio with two voices. There are only three cases so far, so one patient appears twice: in the patient education and in the second presentation.</p>${who}${start}</div>`
    :`<div class="panel"><ol class="steps-ol">${SET.vocab?`<li><b lang="de">Vokabeltest</b> — ${VOC_N} terms, ${VOC_MIN} minutes</li>`:""}<li><b lang="de">Anamnese</b> — voice conversation with the patient</li><li><b lang="de">Dokumentation</b> — Arztbrief on the conversation</li><li><b lang="de">Vorstellung</b> — presentation and Oberarzt questions</li></ol>
     <p class="small muted">All parts are about one patient. The FSP format depends on the Ärztekammer: usually three parts of about 20 minutes, some states add a Vokabeltest, and in some you state the suspected diagnosis and plan at the end of the history. Check the rules of your Ärztekammer.</p>
+    <p class="small muted">Scoring follows a general FSP training scheme. The rules of individual Ärztekammern have not been added to the trainer yet.</p>
     <label class="lbl" for="ex-min">Time for each part</label><select id="ex-min">${[10,15,20,25,30].map(m=>`<option value="${m}"${+SET.examMin===m?" selected":""}>${m} minutes</option>`).join("")}</select>
     <label class="chk"><input type="checkbox" id="ex-voc"${SET.vocab?" checked":""}> Add a Vokabeltest at the start (term → patient language)</label>
     <p class="small muted">When a part’s time runs out, the exam moves on automatically.</p>${who}${start}</div>`;
@@ -2246,7 +2536,7 @@ function exTech(r){const b=exBars(r);return Math.round(b.reduce((sum,x)=>sum+x[1
 function examResultHTML(){const r=EX.res,c=byId(EX.caseId),rc=r.rec;const bars=exBars(r);const tech=exTech(r);
   const missT=c.items.filter(i=>rc.missed.includes(i.id));
   let h=`<section class="hero"><span class="eyebrow">Prüfung · result</span><h1>Fall ${c.nr} · ${esc(c.titleRu)}</h1><p class="lede">${EX.voc?`<span lang="de">Vokabeltest</span> ${fmt(EX.dur[0])}${EX.timeout[0]?" (time ran out)":""} · `:""}${EXAM_STAGES.map((s,i)=>`<span lang="de">${s}</span> ${fmt(EX.dur[i+1])}${EX.timeout[i+1]?" (time ran out)":""}`).join(" · ")}</p></section>
-  <section><div class="fb"><span class="eyebrow">No AI · technical score</span><p class="fb-sum"><b>${tech}/100</b> — coverage, structure and key facts.</p>${bars.map(([l,p,t])=>`<div class="fb-sec"><div class="bar-row"><span>${l}</span><span class="mono">${t}</span></div><div class="meter"><i style="width:${p}%"></i></div></div>`).join("")}
+  <section><div class="fb"><span class="eyebrow" lang="de">Interner Trainingsscore · ${FSP_RUBRIC.allgemein.name}</span><p class="fb-sum"><b>${tech}/100</b> — coverage, structure and key facts.</p><p class="small" lang="de">Interner Trainingsscore – keine offizielle Prüfungsnote.</p>${bars.map(([l,p,t])=>`<div class="fb-sec"><div class="bar-row"><span>${l}</span><span class="mono">${t}</span></div><div class="meter"><i style="width:${p}%"></i></div></div>`).join("")}
   ${r.voc&&r.voc.wrong.length?`<div class="fb-sec"><h3>Vokabeltest: mistakes</h3><ul class="plain">${r.voc.wrong.map(([t,a])=>`<li lang="de"><b>${esc(t)}</b> → ${esc((VOCAB.find(v=>v[0]===t)||[])[1]||"")}${a.trim()?` <span class="muted">(${esc(a)})</span>`:""}</li>`).join("")}</ul></div>`:""}
   ${missT.length?`<div class="fb-sec"><h3>Not asked</h3><div class="chips">${missT.map(i=>`<span class="chip miss" lang="de">${esc(i.t)}</span>`).join("")}</div></div>`:""}
   ${rc.partial.length?`<div class="fb-sec"><h3>Asked only partly</h3><ul class="plain">${rc.partial.map(([id,ks])=>`<li><span lang="de">${esc(topicLabel(id))}</span>: ${ks.map(k=>PART_LABEL[k]||k).join(", ")}</li>`).join("")}</ul></div>`:""}
@@ -2269,7 +2559,7 @@ function exNextHTML(c,r){const rc=r.rec;const L=[];
   if(rc.fach.length)L.push([`Patient language: explain in simple words <span lang="de">${rc.fach.slice(0,3).map(esc).join(", ")}</span>.`,"#vocab","Terms"]);
   const top=L.slice(0,3);
   return `<section><h2>What to practise next</h2>${top.length?`<ol class="steps-ol">${top.map(x=>`<li>${x[0]}</li>`).join("")}</ol><div class="row">${top.map((x,i)=>`<a class="btn${i?"":" primary"}" href="${x[1]}">${x[2]}</a>`).join("")}</div>`:`<p class="small">No obvious gaps in this attempt. Try another case or the FaMed format.</p>`}
-  <div class="row"><button type="button" class="btn${top.length?"":" primary"}" data-action="ex-new">New exam</button><a class="btn ghost" href="#home">Home</a></div></section>`}
+  <div class="row"><button type="button" class="btn${top.length?"":" primary"}" data-action="ex-new">New exam</button>${EX&&EX.recId?`<a class="btn" href="#attempt-${EX.recId}">Report and PDF</a>`:""}<a class="btn ghost" href="#home">Home</a></div></section>`}
 const CATS=[["fachsprache","Fachsprache"],["patientensprache","Patientensprache"],["struktur","Struktur"],["vollstaendigkeit","Vollständigkeit"],["dokumentation","Dokumentation"]];
 function examAiHTML(c,d){const sc=d.scores||{},bg=d.begruendung||{};
   return `<section><div class="fb"><span class="eyebrow">AI assessment</span>${d.fazit?`<p class="fb-sum">${esc(str(d.fazit))}</p>`:""}${CATS.map(([k,l])=>{const v=Math.max(0,Math.min(100,Math.round(+sc[k]||0)));return `<div class="fb-sec"><div class="bar-row"><span lang="de">${l}</span><span class="mono">${v}/100</span></div><div class="meter"><i style="width:${v}%"></i></div>${bg[k]?`<p class="small muted">${esc(str(bg[k]))}</p>`:""}</div>`}).join("")}</div></section>${fbHTML("exam",c,{corrections:d.corrections,tipps:d.tipps})}`}
@@ -2308,13 +2598,13 @@ async function examAI(){const fx=!!(FX&&FX.done);if((!fx&&!(EX&&EX.res))||!KEY)r
   if(FBRUN.exam)FBRUN.exam.ctl.abort();const ctl=new AbortController();FBRUN.exam={ctl,id};const slot=$("#fb-exam");if(slot)slot.innerHTML=thinkingHTML("exam");
   try{const t=await callClaude({model:MODEL_REVIEW,system:"Du antwortest ausschließlich mit gültigem JSON, ohne weiteren Text.",messages:[{role:"user",content:fx?famedPrompt():examPrompt(c)}],max_tokens:3000,signal:ctl.signal});
     const d=parseJSON(t);if(!d||typeof d!=="object"||Array.isArray(d))throw {code:"invalid_json"};if(fx)FX.ai=d;else EX.ai=d;
-    const last=arr(S.hist).slice(-1)[0];if(last&&last.kind==="exam"){last.ai=d.scores||null;save()}
+    const rid=fx?FX.recId:EX.recId;const last=arr(S.hist).find(h=>h.id===rid)||arr(S.hist).slice(-1)[0];if(last&&last.kind==="exam"){last.ai=d.scores||null;last.aiFb=slimAI(d);save()}
     const s=$("#fb-exam");if(s)s.innerHTML=examAiHTML(c,d)}
   catch(e){const msg=errText(e);const s=$("#fb-exam");if(s)s.innerHTML=msg?`<p class="err">${esc(msg)}</p>`:""}
   finally{if(FBRUN.exam&&FBRUN.exam.ctl===ctl)FBRUN.exam=null}}
 function afterExam(){if(FX&&!FX.done){const st=fxStep();if(FX.phase==="talk"){const k=fxKind(st);if(k){paintChat(st.cid,k);voicePrefetch(roleOf(k,st.cid))}else{const h=hoerOf(st.hid);voicePrefetch("ober");voicePrefetch(h.pv);hpPaint(h)}}paintRec();return}
   if(!EX){return}const id=EX.caseId;if(EX.stage===1)paintChat(id,"patient");if(EX.stage===3)paintChat(id,"ober");paintRec()}
-setInterval(()=>{const p=$("#exam-pill");if(!EX||EX.stage>3){if(p&&!fxStep())p.hidden=true;return}
+setInterval(()=>{const p=$("#exam-pill");if(!EX||EX.stage>3){if(p&&!fxStep()&&!kxOn())p.hidden=true;return}if(p)p.setAttribute("href","#exam");
   const left=examLeft();if(p){p.hidden=R.v==="exam";p.textContent="Prüfung "+fmt(left)}
   const el=$("#ex-clock");if(el){el.textContent=fmt(left);el.classList.toggle("low",left<=60)}
   const bar=$("#ex-bar");if(bar)bar.style.width=Math.max(0,Math.min(100,100*left/exPer(EX.stage)))+"%";
@@ -2609,23 +2899,59 @@ function installHTML(){const how=standalone()?`<p class="ok-t">The app is alread
     <li>API keys are needed only for the AI mode and are also stored only on your device.</li></ul></section>
   <section><div class="row"><a class="btn" href="../MedFSP/">MedFSP website: materials and the path to Approbation</a></div></section>`}
 
+/* ---------- unfinished exam sessions: autosave in this browser, offer to resume after a reload ---------- */
+const SESS_LS="medfsp.session";
+function serV(v,d){if(d>10)return null;if(v instanceof Set)return {$set:[...v].map(x=>serV(x,d+1))};if(v instanceof RegExp)return null;if(Array.isArray(v))return v.map(x=>serV(x,d+1));if(v&&typeof v==="object"){const o={};for(const k of Object.keys(v))o[k]=serV(v[k],d+1);return o}return v}
+function desV(v){if(Array.isArray(v))return v.map(desV);if(v&&typeof v==="object"){if(Array.isArray(v.$set))return new Set(v.$set.map(desV));const o={};for(const k of Object.keys(v))o[k]=desV(v[k]);return o}return v}
+function serChat(ch){const o={};for(const k of Object.keys(ch)){if(k==="ctl"||k==="busy"||k==="qs")continue;o[k]=serV(ch[k],0)}o.hadQs=!!ch.qs;return o}
+function sessActive(){return EX&&EX.stage<=3?"fsp":fxStep()?"famed":kxOn()?"kp":null}
+function sessSave(){const t=sessActive();try{if(!t){localStorage.removeItem(SESS_LS);return}
+  const chats={};const add=(cid,k)=>{const ch=CH[cid+":"+k];if(ch)chats[cid+":"+k]=serChat(ch)};let st,left;
+  if(t==="fsp"){st=serV(Object.assign({},EX,{res:null,ai:null}),0);left=examLeft();add(EX.caseId,"patient");add(EX.caseId,"ober")}
+  else if(t==="famed"){st=serV(FX,0);left=fxLeft();FX.steps.forEach(x=>{const k=fxKind(x);if(k)add(x.cid,k)})}
+  else{st=serV(KX,0);left=kxLeft();["patient","kpu","kpp"].forEach(k=>add(KX.cid,k))}
+  localStorage.setItem(SESS_LS,JSON.stringify({v:1,type:t,saved:Date.now(),left:Math.max(0,left),st,chats}))}catch(e){}}
+let PEND=null;try{const p=JSON.parse(localStorage.getItem(SESS_LS)||"null");if(p&&p.v===1&&["fsp","famed","kp"].includes(p.type)&&p.st&&typeof p.st==="object")PEND=p}catch(e){}
+function sessDrop(){PEND=null;try{localStorage.removeItem(SESS_LS)}catch(e){}}
+function sessLabel(p){const st=p.st||{};if(p.type==="fsp"){const c=byId(st.caseId);return "Prüfung FSP"+(c?" · Fall "+c.nr:"")+" · Teil "+(st.stage||1)}
+  if(p.type==="famed")return "Prüfung FaMed · Situation "+((+st.i||0)+1)+" von "+(arr(st.steps).length||5);const c=byId(st.cid);return "KP-Simulation"+(c?" · Fall "+c.nr:"")+" · Teil "+((+st.stage||0)+1)+" von 4"}
+function resumeHTML(){if(!PEND||sessActive())return "";return `<div class="note resume"><p><b>Unfinished session:</b> <span lang="de">${esc(sessLabel(PEND))}</span>. Time left in the current stage: ${fmt(PEND.left)}.</p><div class="row"><button type="button" class="btn primary" data-action="sess-resume">Continue the unfinished session</button><button type="button" class="btn ghost" data-action="sess-drop">Start over</button></div></div>`}
+function chatsRestore(chats,gap){Object.entries(chats||{}).forEach(([key,o])=>{try{const [cid,k]=key.split(":");const c=byId(cid);if(!c||!o||typeof o!=="object"||!CHAT_KINDS.includes(k))return;const ch=desV(o);delete ch.hadQs;ch.busy=false;ch.ctl=null;ch.turns=arr(ch.turns).filter(t=>t&&typeof t.content==="string");
+  if(o.hadQs){const q=k==="kpp"?kppQs(c):k==="ober"?oberQs(c):null;if(q)ch.qs=q}if(gap&&ch.start&&!ch.end)ch.start+=gap;CH[key]=ch}catch(e){}})}
+const CHAT_KINDS=["patient","ober","aufkl","tel","kpu","kpp"];
+/* unfinished training conversations are kept for a day, so an accidental reload does not erase them */
+const CHATS_LS="medfsp.chats";
+function chatsSave(){if(sessActive())return;try{const o={};let n=0;for(const k of Object.keys(CH)){const ch=CH[k];if(!ch||ch.end||ch.sum||!arr(ch.turns).length||!CHAT_KINDS.includes(k.split(":")[1]))continue;o[k]=serChat(ch);n++}
+  if(n)localStorage.setItem(CHATS_LS,JSON.stringify({v:1,saved:Date.now(),chats:o}));else localStorage.removeItem(CHATS_LS)}catch(e){}}
+function chatsLoad(){try{const c=JSON.parse(localStorage.getItem(CHATS_LS)||"null");if(c&&c.v===1&&+c.saved>Date.now()-864e5)chatsRestore(c.chats,Math.max(0,Date.now()-c.saved))}catch(e){}}
+function sessResume(){const p=PEND;if(!p)return;try{const st=desV(p.st);const left=Math.max(5,+p.left||0);
+  chatsRestore(p.chats,0);
+  if(p.type==="fsp"){if(!byId(st.caseId))throw 0;EX=st;EX.res=null;EX.ai=null;EX.t0=EX.t0||{};EX.t0[EX.stage]=Date.now()-(exPer(EX.stage)-left)*1000;FX=null;KX=null;PEND=null;go("exam")}
+  else if(p.type==="famed"){if(!arr(st.steps).length)throw 0;FX=st;FX.done=false;EX=null;KX=null;FX.t0=Date.now()-(fxPhaseLen()-left)*1000;PEND=null;go("exam")}
+  else{if(!byId(st.cid)||!KP[st.cid])throw 0;KX=st;KX.done=false;EX=null;FX=null;KX.t0=Date.now()-(kxLen()-left)*1000;PEND=null;go("kp-exam")}
+  sessSave()}catch(e){sessDrop();render()}}
+function autosave(){if(sessActive())sessSave();else chatsSave();if(typeof kdSync==="function")kdSync()}
+setInterval(autosave,3000);
+window.addEventListener("pagehide",()=>{sessSave();autosave()});
+document.addEventListener("visibilitychange",()=>{if(document.hidden){sessSave();autosave()}});
+
 /* ---------- exam lock: during a mock exam the exam patients' training pages stay closed ---------- */
-function examLock(r){if(!r.id)return false;if(EX&&EX.stage<=3&&EX.caseId===r.id&&(r.v==="case"||r.v==="kp"||(r.v==="famed"&&r.mod!=="hoer")))return true;
+function examLock(r){if(!r.id)return false;if(kxOn(r.id)&&(r.v==="case"||r.v==="kp"||(r.v==="famed"&&r.mod!=="hoer")))return true;if(EX&&EX.stage<=3&&EX.caseId===r.id&&(r.v==="case"||r.v==="kp"||(r.v==="famed"&&r.mod!=="hoer")))return true;
   const s=fxStep();if(!s)return false;const rest=FX.steps.slice(FX.i);
   if(r.v==="famed"&&r.mod==="hoer")return rest.some(x=>x.hid===r.id);
   return (r.v==="case"||r.v==="kp"||r.v==="famed")&&rest.some(x=>x.cid===r.id)}
-function lockHTML(){return `<section class="hero"><span class="eyebrow">Prüfungsmodus</span><h1>A mock exam is running</h1><p class="lede">This patient is part of the current exam. The case opens again after the exam, so there are no hints.</p><div class="row"><a class="btn primary" href="#exam">Back to the exam</a><a class="btn ghost" href="#home">Home</a></div></section>`}
-window.addEventListener("beforeunload",e=>{if((EX&&EX.stage<=3)||fxStep()){e.preventDefault();e.returnValue=""}});
+function lockHTML(){return `<section class="hero"><span class="eyebrow">Prüfungsmodus</span><h1>A mock exam is running</h1><p class="lede">This patient is part of the current exam. The case opens again after the exam, so there are no hints.</p><div class="row"><a class="btn primary" href="${kxOn()?"#kp-exam":"#exam"}">Back to the exam</a><a class="btn ghost" href="#home">Home</a></div></section>`}
+window.addEventListener("beforeunload",e=>{if((EX&&EX.stage<=3)||fxStep()||kxOn()){e.preventDefault();e.returnValue=""}});
 /* ---------- router ---------- */
-function route(){const h=HASH;if(!h||h==="home")return {v:"home"};if(["vocab","cases","settings","exam","drill","mat","voices","install"].includes(h))return {v:h};
+function route(){const h=HASH;if(!h||h==="home")return {v:"home"};if(["vocab","cases","settings","exam","drill","mat","voices","install","progress"].includes(h))return {v:h};const at=h.match(/^attempt-([a-z0-9]+)$/);if(at)return {v:"attempt",id:at[1]};
   const mm=h.match(/^mat-([a-z]+)$/);if(mm)return {v:"mat",id:mm[1]};
   const ef=h.match(/^exam-(fsp|famed)$/);if(ef)return {v:"exam",fmt:ef[1]};
-  if(h==="kp")return {v:"kp"};const kp=h.match(/^kp-([a-z]+)-(anamnese|untersuchung|bericht|gespraech)$/);if(kp&&byId(kp[1])&&KP[kp[1]])return {v:"kp",id:kp[1],tab:kp[2]};
+  if(h==="kp")return {v:"kp"};if(h==="kp-exam")return {v:"kpexam"};if(h==="kp-drill")return {v:"kpdrill"};const kp=h.match(/^kp-([a-z]+)-(anamnese|untersuchung|bericht|gespraech)$/);if(kp&&byId(kp[1])&&KP[kp[1]])return {v:"kp",id:kp[1],tab:kp[2]};
   if(h==="famed")return {v:"famed"};const fa=h.match(/^famed-(aufkl|tel)-([a-z]+)$/);if(fa&&byId(fa[2]))return {v:"famed",mod:fa[1],id:fa[2]};
   const fh=h.match(/^famed-hoer-(\d+)$/);if(fh&&hoerOf(fh[1]))return {v:"famed",mod:"hoer",id:fh[1]};
   const m=h.match(/^([a-z]+)-(anamnese|arztbrief|vorstellung)$/);if(m&&byId(m[1]))return {v:"case",id:m[1],tab:m[2]};return {v:"home"}}
 function render(){stopRec();HP.tok++;HP.on=false;stopVoice();
-  R=route();if(R.v==="exam"&&R.fmt&&!EX&&!FX){SET.fmt=R.fmt;saveSet()}const sect=R.v==="case"||R.v==="famed"||R.v==="kp"?"cases":R.v;
+  R=route();if(R.v==="exam"&&R.fmt&&!EX&&!FX){SET.fmt=R.fmt;saveSet()}const sect=R.v==="case"||R.v==="famed"||R.v==="kp"||R.v==="kpexam"||R.v==="kpdrill"?"cases":R.v;
   document.querySelectorAll("[data-lang]").forEach(a=>{a.href=a.dataset.f+(HASH?"#"+HASH:"");if(a.dataset.lang===document.documentElement.lang)a.setAttribute("aria-current","true");else a.removeAttribute("aria-current")});
   document.querySelectorAll("[data-nav]").forEach(a=>{if(a.dataset.nav===sect)a.setAttribute("aria-current","page");else a.removeAttribute("aria-current")});
   const m=$("#main");
@@ -2638,10 +2964,15 @@ function render(){stopRec();HP.tok++;HP.on=false;stopVoice();
   else if(R.v==="mat")m.innerHTML=R.id?matHTML(R.id):matsListHTML();
   else if(R.v==="voices")m.innerHTML=voicesHTML();
   else if(R.v==="install")m.innerHTML=installHTML();
+  else if(R.v==="progress")m.innerHTML=progressHTML();
+  else if(R.v==="kpexam"){m.innerHTML=kxHTML();afterKX()}
+  else if(R.v==="kpdrill"){m.innerHTML=kdShellHTML();paintKD()}
+  else if(R.v==="attempt")m.innerHTML=attemptHTML(R.id);
   else if(examLock(R))m.innerHTML=lockHTML();
   else if(R.v==="famed"){m.innerHTML=famedView();afterFamed()}
   else if(R.v==="kp"){if(R.id){m.innerHTML=kpCaseHTML(R.id,R.tab);afterKP(R.id,R.tab)}else m.innerHTML=kpHubHTML()}
   else{m.innerHTML=caseHTML(R.id,R.tab);afterCase(R.id,R.tab)}
+  if(PEND&&!sessActive())m.insertAdjacentHTML("afterbegin",resumeHTML());
   window.scrollTo(0,0)}
 let HASH=(location.hash||"").replace(/^#/,"");
 function go(h){if(/^exam-(fsp|famed)$/.test(h)){if(EX&&EX.stage>3)EX=null;if(FX&&FX.done)FX=null}HASH=h;try{history.pushState(null,"","#"+h)}catch(e){}render()}
@@ -2685,7 +3016,7 @@ main.addEventListener("click",async e=>{const b=e.target.closest("[data-action]"
   case "finish-anam":{stopRec();const id=R.id;const ch=chatOf(id,"patient");const slot=$("#fb-anam");
     if(ch.turns.filter(t=>t.role==="user").length<3){if(slot)slot.innerHTML=`<p class="note">At least three of your lines are needed for a review. Continue the conversation.</p>`;break}
     if(ch.busy)break;if(!ch.end)ch.end=Date.now();
-    FREE[id]=true;COV[id]=new Set(ch.cov?[...ch.cov]:[]);markDone(id,"anam");if(R.v==="kp"){fmSet("kp_a_"+id,Math.round(((ch.cov&&ch.cov.size)||0)/byId(id).items.length*100));kpTotPaint(id)}if(!ch.recorded){pushHist(recFromChat(id,ch,"train"));ch.recorded=true}
+    FREE[id]=true;COV[id]=new Set(ch.cov?[...ch.cov]:[]);markDone(id,"anam");if(R.v==="kp"){fmSet("kp_a_"+id,Math.round(((ch.cov&&ch.cov.size)||0)/byId(id).items.length*100));kpTotPaint(id)}if(!ch.recorded){const rr=recFromChat(id,ch,"train");rr.det={t:hTurns(ch),notes:str(draft(id).notes).slice(0,4000)};if(R.v==="kp")rr.kp=1;pushHist(rr);ch.recorded=true}
     {const fa=$("#free-anam");if(fa)fa.innerHTML=freeSumHTML(byId(id),ch);const cl=$("#cl");if(cl)cl.innerHTML=checklistHTML(byId(id));const w=$(".cl-wrap");if(w)w.open=true}
     if(!freeMode())runJSON("anam",id,anamPrompt(byId(id),ch.turns),d=>{COV[id]=new Set(arr(d.covered).map(String));
       if(viewIs(id)){const cl=$("#cl");if(cl)cl.innerHTML=checklistHTML(byId(id))}});break}
@@ -2694,6 +3025,8 @@ main.addEventListener("click",async e=>{const b=e.target.closest("[data-action]"
     Object.keys(CH).filter(k=>k.endsWith(":ober")||k.endsWith(":tel")).forEach(k=>{if(CH[k].ctl)CH[k].ctl.abort();delete CH[k]});["#free-ober","#free-tel"].forEach(q=>{const x=$(q);if(x)x.innerHTML=""});
     if(cid){["patient","aufkl"].forEach(k=>{chatOf(cid,k).err=""});["patient","ober","aufkl","tel"].forEach(k=>paintChat(cid,k));paintRec()}break}
   case "ober-next":{stopRec();oberNext(curId());break}
+  case "pg-f":{PG.f=b.dataset.f||"all";render();break}
+  case "print":{document.querySelectorAll("#main details").forEach(x=>{x.open=true});window.print();break}
   case "kpp-next":{stopRec();kppNext(curId(),KP_TXT.skip);break}
   case "finish-kpu":{stopRec();stopVoice();const id=curId();const ch=chatOf(id,"kpu");const slot=$("#free-kpu");
     if(ch.turns.filter(t=>t.role==="user").length<2){if(slot)slot.innerHTML=`<p class="note">You need at least two turns for a result. Continue the examination.</p>`;break}
@@ -2703,15 +3036,27 @@ main.addEventListener("click",async e=>{const b=e.target.closest("[data-action]"
   case "kp-tpl":{const ta=$("#kpb");if(!ta)break;ta.value=ta.value.trim()?ta.value.replace(/\s*$/,"")+"\n\n"+KP_TPL:KP_TPL;ta.dispatchEvent(new Event("input",{bubbles:true}));ta.focus();break}
   case "kp-check":{const id=R.id;const text=str(draft("kp_"+id).brief).trim();const slot=$("#kpb-res");
     if(words(text)<40){if(slot)slot.innerHTML=`<p class="note">The text is still too short for a check. At least 40 words are needed.</p>`;break}
-    const r=kpbRes(id,text);KPB[id]=r;if(slot)slot.innerHTML=kpbResHTML(r);fmSet("kp_b_"+id,r.pct);kpbRecord(id,r);kpTotPaint(id);break}
+    const r=kpbRes(id,text);KPB[id]=r;if(slot)slot.innerHTML=kpbResHTML(r);fmSet("kp_b_"+id,r.pct);kpbRecord(id,r,text);kpTotPaint(id);break}
   case "kp-ai":{const id=R.id;const text=str(draft("kp_"+id).brief).trim();const slot=$("#fb-kpb");
     if(words(text)<40){if(slot)slot.innerHTML=`<p class="note">The text is still too short for a review. At least 40 words are needed.</p>`;break}
     runJSON("kpb",id,kpbPrompt(byId(id),text),()=>{});break}
   case "kp-muster":{const box=$("#muster-kpb");if(!box)break;box.hidden=!box.hidden;b.setAttribute("aria-expanded",String(!box.hidden));b.textContent=box.hidden?"Show sample":"Hide sample";break}
   case "ai-anam":{const id=R.id;const ch=chatOf(id,"patient");runJSON("anam",id,anamPrompt(byId(id),ch.turns),d=>{COV[id]=new Set(arr(d.covered).map(String));markDone(id,"anam");if(R.v==="case"&&R.id===id){const cl=$("#cl");if(cl)cl.innerHTML=checklistHTML(byId(id))}});break}
-  case "ex-start":{unlockTTS();if(SET.fmt==="fsp")examStart();else fxStart();break}
+  case "ex-start":{unlockTTS();if(kxOn()){if(!window.confirm("A Kenntnisprüfung simulation is running. Stop it and start this exam?"))break;KX=null}if(SET.fmt==="fsp")examStart();else fxStart();break}
+  case "kx-start":{unlockTTS();if(((EX&&EX.stage<=3)||fxStep())&&!window.confirm("Another mock exam is running. Stop it and start the KP simulation?"))break;kxStart();break}
+  case "kx-next":{kxNext(false);break}
+  case "kx-abort":{if(window.confirm("Stop the simulation? The result will not be saved.")){stopRec();stopVoice();KX=null;sessDrop();go("kp")}break}
+  case "kx-new":{KX=null;render();break}
+  case "kx-ai":{kxAI();break}
+  case "kd-check":{kdCheck();break}
+  case "kd-next":{stopRec();if(KD){KD.i++;KD.draft="";paintKD()}break}
+  case "kd-new":{stopRec();kdNew();paintKD();break}
+  case "sess-resume":{unlockTTS();sessResume();break}
+  case "sess-drop":{if(window.confirm("Delete the unfinished session and start again?")){sessDrop();render()}break}
+  case "exp":{exportData();break}
+  case "wipe":{if(window.confirm("Delete all attempts, drafts, learned terms and scores on this device? Export first if you want to keep a copy.")){S.known=[];known.clear();S.drafts={};S.done={};S.hist=[];S.fm={};DR=null;KD=null;try{localStorage.removeItem(CHATS_LS);localStorage.removeItem(KD_LS)}catch(e){}if(!sessActive()){sessDrop();for(const k of Object.keys(CH))delete CH[k]}save();PG.msg="The data on this device have been deleted.";render()}break}
   case "ex-next":{exNext(false);break}
-  case "ex-abort":{if(window.confirm("Stop the exam? The result will not be saved.")){stopRec();EX=null;FX=null;go("home")}break}
+  case "ex-abort":{if(window.confirm("Stop the exam? The result will not be saved.")){stopRec();EX=null;FX=null;sessDrop();go("home")}break}
   case "ex-new":{EX=null;FX=null;render();break}
   case "ex-ai":{examAI();break}
   case "ex-tpl":{const ta=$("#exbrief");if(!ta||!EX)break;const tpl=byId(EX.caseId).brief.map(([h])=>h+"\n").join("\n");ta.value=ta.value.trim()?ta.value.replace(/\s*$/,"")+"\n\n"+tpl:tpl;ta.dispatchEvent(new Event("input",{bubbles:true}));ta.focus();break}
@@ -2749,6 +3094,8 @@ main.addEventListener("submit",e=>{const df=e.target.closest(".drill-form");if(d
   const f=e.target.closest(".chat-form");if(!f)return;e.preventDefault();unlockTTS();const ta=f.querySelector("textarea");const v=ta.value.trim();if(!v)return;const cid=curId();if(!cid)return;const ch=chatOf(cid,f.dataset.kind);if(ch.busy)return;ta.value="";send(cid,f.dataset.kind,v)});
 main.addEventListener("keydown",e=>{if(e.key==="Enter"&&!e.shiftKey&&!e.isComposing&&e.target.matches(".chat-form textarea")){e.preventDefault();const f=e.target.form;if(f.requestSubmit)f.requestSubmit();else f.dispatchEvent(new Event("submit",{cancelable:true,bubbles:true}))}});
 main.addEventListener("input",e=>{const t=e.target;
+  if(t.id==="kd-in"&&KD){KD.draft=t.value;kdStore();return}
+  if(t.dataset&&t.dataset.kx&&KX){KX[t.dataset.kx]=t.value;if(t.id==="kxber"){const w=$("#wc-kxber");if(w)w.textContent=words(t.value)+" words"}return}
   if(t.dataset&&t.dataset.fx&&FX){FX[t.dataset.fx]=t.value;if(t.id==="fxdoc"){const w=$("#wc-fxdoc");if(w)w.textContent=words(t.value)+" words"}return}
   if(t.dataset&&t.dataset.voc!=null&&EX&&EX.voc){EX.voc.ans[+t.dataset.voc]=t.value;return}
   if(t.dataset&&t.dataset.exam&&EX){EX[t.dataset.exam]=t.value;if(t.id==="exbrief"){const w=$("#wc-exbrief");if(w)w.textContent=words(t.value)+" words"}return}
@@ -2765,12 +3112,18 @@ main.addEventListener("change",e=>{const t=e.target;
   else if(t.id==="s-live"){SET.live=t.checked;saveSet()}
   else if(t.id==="s-voice"){SET.voice=t.value;saveSet()}
   else if(t.id==="ex-min"){SET.examMin=+t.value;saveSet()}
-  else if(t.id==="ex-voc"){SET.vocab=t.checked;saveSet();render()}});
+  else if(t.id==="ex-voc"){SET.vocab=t.checked;saveSet();render()}
+  else if(t.id==="imp-file"){const f=t.files&&t.files[0];t.value="";if(!f)return;const msg=$("#imp-msg");
+    if(f.size>5e6){if(msg){msg.className="small err";msg.textContent="The file is too large for a progress file."}return}
+    f.text().then(txt=>{const x=importData(txt);if(x.err){if(msg){msg.className="small err";msg.textContent=x.err}return}
+      if(!window.confirm(`The file contains ${x.hist.length} attempts and ${x.known.length} learned terms. Merge with the data on this device? Your current data will be kept.`))return;
+      const n=mergeData(x);PG.msg=`Done: new attempts added — ${n}.`;render()}).catch(()=>{if(msg){msg.className="small err";msg.textContent="The file could not be read."}})}});
 window.addEventListener("pagehide",save);
 document.addEventListener("visibilitychange",()=>{if(document.hidden){stopRec();paintRec()}});
 
 setInterval(()=>{const cid=curId();if(!cid)return;document.querySelectorAll(".js-timer").forEach(el=>{const ch=chatOf(cid,el.dataset.kind);if(!ch.start){el.textContent="00:00";return}const s=Math.max(0,Math.floor(((ch.end||Date.now())-ch.start)/1000));el.textContent=String(Math.floor(s/60)).padStart(2,"0")+":"+String(s%60).padStart(2,"0")})},1000);
 
+chatsLoad();
 render();
 })();
 </script>
